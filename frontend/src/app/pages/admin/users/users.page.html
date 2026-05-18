@@ -1,0 +1,58 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Gestion de Usuarios</h1>
+                <p>Administra los usuarios del sistema</p>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Telefono</th>
+                            <th>DNI</th>
+                            <th>Rol</th>
+                            <th>Registro</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let u of users">
+                            <td>{{ u.id }}</td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar-sm">{{ u.nombres.charAt(0) }}{{ u.apellidos.charAt(0) }}</div>
+                                    <div>
+                                        <strong>{{ u.nombres }} {{ u.apellidos }}</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.telefono || '-' }}</td>
+                            <td>{{ u.dni || '-' }}</td>
+                            <td>
+                                <span class="badge badge-{{ u.role === 'admin' ? 'danger' : 'primary' }}">{{ u.role }}</span>
+                            </td>
+                            <td>{{ u.creado_en | date:'dd/MM/yyyy' }}</td>
+                            <td>
+                                <span class="badge badge-{{ u.estado === 'activo' ? 'success' : 'danger' }}">{{ u.estado }}</span>
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn-icon btn-icon-edit"><span class="material-icons">edit</span></button>
+                                <button class="btn-icon btn-icon-delete"><span class="material-icons">block</span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

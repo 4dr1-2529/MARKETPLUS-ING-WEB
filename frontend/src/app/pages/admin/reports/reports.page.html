@@ -1,0 +1,90 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Reportes y Estadisticas</h1>
+                <p>Analisis detallado del rendimiento de la tienda</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(108,92,231,0.1); color: var(--primary);">
+                    <span class="material-icons">trending_up</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.pedidos_mes || 0 }}</h3>
+                    <p>Pedidos este Mes</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(0,184,148,0.1); color: var(--success);">
+                    <span class="material-icons">savings</span>
+                </div>
+                <div class="stat-info">
+                    <h3>S/ {{ stats.ingresos_mes || 0 | number:'1.2-2' }}</h3>
+                    <p>Ingresos del Mes</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(0,206,201,0.1); color: var(--secondary);">
+                    <span class="material-icons">group</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_usuarios || 0 }}</h3>
+                    <p>Total Usuarios</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(253,203,110,0.2); color: #E17055;">
+                    <span class="material-icons">inventory_2</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_productos || 0 }}</h3>
+                    <p>Total Productos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-grid">
+            <div class="admin-card">
+                <h2><span class="material-icons">pie_chart</span> Pedidos por Estado</h2>
+                <div class="report-list">
+                    <div class="report-item" *ngFor="let item of orderStatusSummary">
+                        <div class="report-label">
+                            <span class="status-dot" [class]="'dot-' + item.estado.toLowerCase()"></span>
+                            {{ item.estado }}
+                        </div>
+                        <span class="report-value">{{ item.total }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h2><span class="material-icons">category</span> Top Categorias</h2>
+                <div class="report-list">
+                    <div class="report-item" *ngFor="let cat of topCategories; let i = index">
+                        <div class="report-label">
+                            <span class="rank-badge">{{ i + 1 }}</span>
+                            {{ cat.nombre }}
+                        </div>
+                        <span class="report-value">{{ cat.total }} productos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card" style="margin-top: 24px;">
+            <h2><span class="material-icons">info</span> Informacion del Sistema</h2>
+            <div class="system-info">
+                <div class="info-row"><span>Version del Sistema</span><span class="info-value">1.0.0</span></div>
+                <div class="info-row"><span>Framework Frontend</span><span class="info-value">Angular 17</span></div>
+                <div class="info-row"><span>Framework Backend</span><span class="info-value">Node.js + Express</span></div>
+                <div class="info-row"><span>Base de Datos</span><span class="info-value">MySQL 8.0</span></div>
+                <div class="info-row"><span>Autenticacion</span><span class="info-value">JWT (JSON Web Token)</span></div>
+                <div class="info-row"><span>Moneda</span><span class="info-value">Sol Peruano (S/)</span></div>
+            </div>
+        </div>
+    </div>
+</div>

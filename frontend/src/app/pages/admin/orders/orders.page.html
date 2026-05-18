@@ -1,0 +1,55 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Gestion de Pedidos</h1>
+                <p>Administra todos los pedidos de la tienda</p>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nº Pedido</th>
+                            <th>Cliente</th>
+                            <th>Email</th>
+                            <th>Total</th>
+                            <th>Metodo de Pago</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th>Tracking</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let o of orders">
+                            <td><strong class="order-number">{{ o.numero_pedido }}</strong></td>
+                            <td>{{ o.nombres }} {{ o.apellidos }}</td>
+                            <td>{{ o.email }}</td>
+                            <td><strong>S/ {{ o.total | number:'1.2-2' }}</strong></td>
+                            <td>{{ o.metodo_pago }}</td>
+                            <td>
+                                <select [(ngModel)]="o.estado" (change)="updateStatus(o.id, o.estado)" class="status-select">
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="confirmado">Confirmado</option>
+                                    <option value="procesando">Procesando</option>
+                                    <option value="enviado">Enviado</option>
+                                    <option value="entregado">Entregado</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                            </td>
+                            <td>{{ o.creado_en | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td>{{ o.tracking_numero || '-' }}</td>
+                            <td class="actions-cell">
+                                <button class="btn-icon btn-icon-edit"><span class="material-icons">visibility</span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
