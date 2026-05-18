@@ -1,0 +1,72 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Gestion de Productos</h1>
+                <p>Administra todos los productos de la tienda</p>
+            </div>
+            <button class="btn btn-primary">
+                <span class="material-icons">add</span>
+                Nuevo Producto
+            </button>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h2>Lista de Productos ({{ products.length }})</h2>
+                <div class="card-actions">
+                    <input type="text" placeholder="Buscar producto..." class="admin-search">
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Categoria</th>
+                            <th>Marca</th>
+                            <th>Precio</th>
+                            <th>Oferta</th>
+                            <th>Ventas</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of products">
+                            <td>{{ p.id }}</td>
+                            <td>
+                                <div class="table-img">
+                                    <img [src]="p.imagen_principal || 'assets/images/placeholder.jpg'" [alt]="p.nombre">
+                                </div>
+                            </td>
+                            <td class="product-name-cell">{{ p.nombre }}</td>
+                            <td>{{ p.categoria }}</td>
+                            <td>{{ p.marca }}</td>
+                            <td><strong>S/ {{ p.precio | number:'1.2-2' }}</strong></td>
+                            <td *ngIf="p.precio_oferta">S/ {{ p.precio_oferta | number:'1.2-2' }}</td>
+                            <td *ngIf="!p.precio_oferta">-</td>
+                            <td>{{ p.ventas || 0 }}</td>
+                            <td>
+                                <span class="badge badge-{{ p.estado === 'activo' ? 'success' : 'danger' }}">
+                                    {{ p.estado }}
+                                </span>
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn-icon btn-icon-edit" title="Editar">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="btn-icon btn-icon-delete" title="Eliminar">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

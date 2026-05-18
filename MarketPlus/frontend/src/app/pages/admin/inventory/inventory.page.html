@@ -1,0 +1,50 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Gestion de Inventario</h1>
+                <p>Control de stock de todos los productos</p>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th>Categoria</th>
+                            <th>Marca</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Minimo</th>
+                            <th>Ubicacion</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of inventory" [class.low-stock]="item.stock <= item.stock_minimo">
+                            <td><strong>{{ item.nombre }}</strong></td>
+                            <td><code>{{ item.sku }}</code></td>
+                            <td>{{ item.categoria }}</td>
+                            <td>{{ item.marca }}</td>
+                            <td>
+                                <input type="number" [(ngModel)]="item.stock" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input">
+                            </td>
+                            <td>
+                                <input type="number" [(ngModel)]="item.stock_minimo" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input">
+                            </td>
+                            <td>{{ item.ubicacion }}</td>
+                            <td>
+                                <span class="badge" [class]="item.stock <= item.stock_minimo ? 'badge-danger' : 'badge-success'">
+                                    {{ item.stock <= item.stock_minimo ? 'Bajo Stock' : 'OK' }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

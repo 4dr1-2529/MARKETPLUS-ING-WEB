@@ -1,0 +1,9 @@
+<div class="search-bar-component">
+    <div class="search-wrapper">
+        <span class="material-icons search-icon">search</span>
+        <input type="text" [(ngModel)]="query" (keyup.enter)="onSearch()" placeholder="Buscar productos, marcas, categorias..." class="search-input-field">
+        <button *ngIf="query" (click)="query = ''; onSearch()" class="clear-search">
+            <span class="material-icons">close</span>
+        </button>
+    </div>
+</div>

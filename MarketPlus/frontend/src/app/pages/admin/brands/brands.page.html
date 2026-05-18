@@ -1,0 +1,52 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Gestion de Marcas</h1>
+                <p>Administra las marcas de productos</p>
+            </div>
+            <button class="btn btn-primary">
+                <span class="material-icons">add</span>
+                Nueva Marca
+            </button>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Slug</th>
+                            <th>Pais de Origen</th>
+                            <th>Sitio Web</th>
+                            <th>Productos</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let b of brands">
+                            <td>{{ b.id }}</td>
+                            <td><strong>{{ b.nombre }}</strong></td>
+                            <td><code>{{ b.slug }}</code></td>
+                            <td>{{ b.pais_origen || '-' }}</td>
+                            <td *ngIf="b.sitio_web"><a [href]="b.sitio_web" target="_blank" class="link-primary">{{ b.sitio_web }}</a></td>
+                            <td *ngIf="!b.sitio_web">-</td>
+                            <td><span class="badge badge-info">{{ b.total_productos || 0 }}</span></td>
+                            <td>
+                                <span class="badge badge-{{ b.estado === 'activo' ? 'success' : 'danger' }}">{{ b.estado }}</span>
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn-icon btn-icon-edit"><span class="material-icons">edit</span></button>
+                                <button class="btn-icon btn-icon-delete"><span class="material-icons">delete</span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

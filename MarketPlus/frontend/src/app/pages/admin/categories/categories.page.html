@@ -1,0 +1,51 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Gestion de Categorias</h1>
+                <p>Administra las categorias de productos</p>
+            </div>
+            <button class="btn btn-primary">
+                <span class="material-icons">add</span>
+                Nueva Categoria
+            </button>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Slug</th>
+                            <th>Descripcion</th>
+                            <th>Productos</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of categories">
+                            <td>{{ c.id }}</td>
+                            <td><strong>{{ c.nombre }}</strong></td>
+                            <td><code>{{ c.slug }}</code></td>
+                            <td>{{ c.descripcion || '-' }}</td>
+                            <td><span class="badge badge-info">{{ c.total_productos || 0 }}</span></td>
+                            <td>
+                                <span class="badge badge-{{ c.estado === 'activo' ? 'success' : 'danger' }}">
+                                    {{ c.estado }}
+                                </span>
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn-icon btn-icon-edit"><span class="material-icons">edit</span></button>
+                                <button class="btn-icon btn-icon-delete"><span class="material-icons">delete</span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

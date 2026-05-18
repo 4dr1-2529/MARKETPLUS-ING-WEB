@@ -22,6 +22,7 @@ app.use('/api/categories', require('./routes/categories'));
 app.use('/api/brands', require('./routes/brands'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/favorites', require('./routes/favorites'));
 app.use('/api/admin', require('./routes/admin'));
 
 app.use((req, res) => {
