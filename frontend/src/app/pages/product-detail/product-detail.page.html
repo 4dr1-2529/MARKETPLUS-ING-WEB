@@ -1,0 +1,82 @@
+<div class="detail-page container" *ngIf="product && !loading">
+    <div class="detail-layout">
+        <div class="detail-image">
+            <img [src]="product.imagen_principal || 'assets/images/placeholder.jpg'" [alt]="product.nombre">
+        </div>
+
+        <div class="detail-info">
+            <div class="detail-badges">
+                <span class="badge badge-primary">{{ product.categoria }}</span>
+                <span class="badge badge-success" *ngIf="product.nuevo">NUEVO</span>
+                <span class="badge badge-danger" *ngIf="product.descuento_porcentaje">-{{ product.descuento_porcentaje }}%</span>
+            </div>
+
+            <h1>{{ product.nombre }}</h1>
+
+            <div class="detail-rating" *ngIf="product.promedio_valoracion">
+                <span class="material-icons star" *ngFor="let s of getStars(product.promedio_valoracion || 0)">
+                    {{ s <= (product.promedio_valoracion || 0) ? 'star' : 'star_border' }}
+                </span>
+                <span>{{ product.promedio_valoracion | number:'1.1-1' }} ({{ product.total_valoraciones }} valoraciones)</span>
+            </div>
+
+            <div class="detail-price">
+                <span class="price-current" *ngIf="product.precio_oferta">S/ {{ product.precio_oferta | number:'1.2-2' }}</span>
+                <span class="price-original" *ngIf="product.precio_oferta">S/ {{ product.precio | number:'1.2-2' }}</span>
+                <span class="price-current" *ngIf="!product.precio_oferta">S/ {{ product.precio | number:'1.2-2' }}</span>
+            </div>
+
+            <p class="detail-desc">{{ product.descripcion }}</p>
+
+            <div class="detail-actions">
+                <div class="quantity-selector">
+                    <button (click)="quantity = quantity > 1 ? quantity - 1 : 1" class="qty-btn">-</button>
+                    <input type="number" [(ngModel)]="quantity" min="1" max="10" class="qty-input">
+                    <button (click)="quantity = quantity < 10 ? quantity + 1 : 10" class="qty-btn">+</button>
+                </div>
+                <button (click)="addToCart()" class="btn btn-primary btn-lg">
+                    <span class="material-icons">shopping_cart</span>
+                    Agregar al Carrito
+                </button>
+            </div>
+
+            <div class="detail-meta">
+                <p><strong>Marca:</strong> {{ product.marca }}</p>
+                <p><strong>SKU:</strong> {{ product.sku }}</p>
+                <p><strong>Garantia:</strong> {{ product.garantia_meses }} meses</p>
+                <p><strong>Visitas:</strong> {{ product.visitas }}</p>
+                <p><strong>Vendidos:</strong> {{ product.ventas }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="reviews-section" *ngIf="reviews.length > 0">
+        <h2>Valoraciones ({{ reviews.length }})</h2>
+        <div class="reviews-list">
+            <div *ngFor="let review of reviews" class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">{{ review.nombres.charAt(0) }}</div>
+                    <div>
+                        <strong>{{ review.nombres }} {{ review.apellidos }}</strong>
+                        <div class="review-stars">
+                            <span class="material-icons star" *ngFor="let s of getStars(review.calificacion)">
+                                {{ s <= review.calificacion ? 'star' : 'star_border' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <p>{{ review.comentario }}</p>
+                <span class="review-date">{{ review.creado_en | date:'dd/MM/yyyy' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RELATED -->
+    <div class="related-section" *ngIf="related.length > 0">
+        <h2>Productos Relacionados</h2>
+        <div class="products-grid">
+            <app-product-card *ngFor="let p of related" [product]="p"></app-product-card>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+<nav class="navbar">
+    <div class="navbar-container container">
+        <div class="navbar-left">
+            <a routerLink="/" class="navbar-logo">
+                <span class="logo-icon material-icons">storefront</span>
+                <span class="logo-text">Market<span class="logo-highlight">Plus</span></span>
+            </a>
+        </div>
+
+        <div class="navbar-center">
+            <div class="search-box">
+                <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Buscar productos, marcas, categorias..." class="search-input">
+                <button (click)="onSearch()" class="search-btn">
+                    <span class="material-icons">search</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <a routerLink="/catalogo" class="nav-link">
+                <span class="material-icons">store</span>
+                <span class="nav-text">Catalogo</span>
+            </a>
+
+            <a routerLink="/carrito" class="nav-link cart-link">
+                <span class="material-icons">shopping_cart</span>
+                <span class="nav-text">Carrito</span>
+                <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+            </a>
+
+            <ng-container *ngIf="isLoggedIn; else guestLinks">
+                <div class="nav-dropdown">
+                    <button class="nav-link dropdown-toggle">
+                        <span class="material-icons">person</span>
+                        <span class="nav-text">{{ userName.split(' ')[0] }}</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a routerLink="/mi-perfil" class="dropdown-item">
+                            <span class="material-icons">account_circle</span> Mi Perfil
+                        </a>
+                        <a routerLink="/mis-pedidos" class="dropdown-item">
+                            <span class="material-icons">receipt_long</span> Mis Pedidos
+                        </a>
+                        <a *ngIf="isAdmin" routerLink="/admin" class="dropdown-item">
+                            <span class="material-icons">admin_panel_settings</span> Admin Panel
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button (click)="logout()" class="dropdown-item logout-item">
+                            <span class="material-icons">logout</span> Cerrar Sesion
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-template #guestLinks>
+                <a routerLink="/login" class="btn btn-primary btn-sm">Iniciar Sesion</a>
+            </ng-template>
+
+            <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+                <span class="material-icons">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="mobile-menu" *ngIf="mobileMenuOpen">
+        <a routerLink="/" class="mobile-link" (click)="mobileMenuOpen = false">Inicio</a>
+        <a routerLink="/catalogo" class="mobile-link" (click)="mobileMenuOpen = false">Catalogo</a>
+        <a routerLink="/carrito" class="mobile-link" (click)="mobileMenuOpen = false">Carrito</a>
+        <ng-container *ngIf="!isLoggedIn">
+            <a routerLink="/login" class="mobile-link" (click)="mobileMenuOpen = false">Iniciar Sesion</a>
+            <a routerLink="/register" class="mobile-link" (click)="mobileMenuOpen = false">Registrarse</a>
+        </ng-container>
+        <ng-container *ngIf="isLoggedIn">
+            <a routerLink="/mi-perfil" class="mobile-link" (click)="mobileMenuOpen = false">Mi Perfil</a>
+            <a routerLink="/mis-pedidos" class="mobile-link" (click)="mobileMenuOpen = false">Mis Pedidos</a>
+            <a *ngIf="isAdmin" routerLink="/admin" class="mobile-link" (click)="mobileMenuOpen = false">Admin Panel</a>
+            <button (click)="logout(); mobileMenuOpen = false" class="mobile-link logout-btn">Cerrar Sesion</button>
+        </ng-container>
+    </div>
+</nav>

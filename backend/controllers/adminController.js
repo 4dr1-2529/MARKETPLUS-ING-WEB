@@ -1,0 +1,78 @@
+const { pool } = require('../config/database');
+
+const getDashboard = async (req, res) => {
+    try {
+        const [[{ total_ventas }]] = await pool.query('SELECT COUNT(*) as total_ventas FROM pedidos WHERE estado != \'cancelado\'');
+        const [[{ ingresos_totales }]] = await pool.query('SELECT COALESCE(SUM(total), 0) as ingresos_totales FROM pedidos WHERE estado IN (\'entregado\', \'enviado\', \'procesando\')');
+        const [[{ total_usuarios }]] = await pool.query('SELECT COUNT(*) as total_usuarios FROM usuarios WHERE role_id = 2');
+        const [[{ total_productos }]] = await pool.query('SELECT COUNT(*) as total_productos FROM productos WHERE estado = \'activo\'');
+        const [[{ pedidos_mes }]] = await pool.query('SELECT COUNT(*) as pedidos_mes FROM pedidos WHERE MONTH(creado_en) = MONTH(CURDATE()) AND YEAR(creado_en) = YEAR(CURDATE())');
+        const [[{ ingresos_mes }]] = await pool.query('SELECT COALESCE(SUM(total), 0) as ingresos_mes FROM pedidos WHERE MONTH(creado_en) = MONTH(CURDATE()) AND YEAR(creado_en) = YEAR(CURDATE()) AND estado != \'cancelado\'');
+
+        const [ventas_mensuales] = await pool.query(
+            'SELECT MONTH(creado_en) as mes, COUNT(*) as total, COALESCE(SUM(total), 0) as ingresos FROM pedidos WHERE YEAR(creado_en) = YEAR(CURDATE()) AND estado != \'cancelado\' GROUP BY MONTH(creado_en) ORDER BY mes'
+        );
+
+        const [top_productos] = await pool.query(
+            'SELECT p.nombre, p.imagen_principal, SUM(dp.cantidad) as total_vendido, SUM(dp.subtotal) as ingresos FROM detalle_pedido dp JOIN productos p ON dp.producto_id = p.id GROUP BY dp.producto_id ORDER BY total_vendido DESC LIMIT 5'
+        );
+
+        const [pedidos_recientes] = await pool.query(
+            'SELECT p.numero_pedido, p.total, p.estado, p.creado_en, u.nombres, u.apellidos FROM pedidos p JOIN usuarios u ON p.usuario_id = u.id ORDER BY p.creado_en DESC LIMIT 5'
+        );
+
+        res.json({
+            success: true,
+            data: {
+                stats: { total_ventas, ingresos_totales, total_usuarios, total_productos, pedidos_mes, ingresos_mes },
+                ventas_mensuales,
+                top_productos,
+                pedidos_recientes
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener dashboard', error: error.message });
+    }
+};
+
+const getAllUsers = async (req, res) => {
+    try {
+        const [users] = await pool.query('SELECT u.id, u.nombres, u.apellidos, u.email, u.telefono, u.estado, u.creado_en, r.nombre as role FROM usuarios u JOIN roles r ON u.role_id = r.id ORDER BY u.creado_en DESC');
+        res.json({ success: true, data: users });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener usuarios', error: error.message });
+    }
+};
+
+const updateUser = async (req, res) => {
+    try {
+        const { estado } = req.body;
+        await pool.query('UPDATE usuarios SET estado = ? WHERE id = ?', [estado, req.params.id]);
+        res.json({ success: true, message: 'Usuario actualizado' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al actualizar usuario', error: error.message });
+    }
+};
+
+const getInventory = async (req, res) => {
+    try {
+        const [inventory] = await pool.query(
+            'SELECT i.*, p.nombre, p.sku, c.nombre as categoria, m.nombre as marca FROM inventario i JOIN productos p ON i.producto_id = p.id JOIN categorias c ON p.categoria_id = c.id JOIN marcas m ON p.marca_id = m.id ORDER BY i.stock ASC'
+        );
+        res.json({ success: true, data: inventory });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener inventario', error: error.message });
+    }
+};
+
+const updateInventory = async (req, res) => {
+    try {
+        const { stock, stock_minimo } = req.body;
+        await pool.query('UPDATE inventario SET stock = ?, stock_minimo = ? WHERE producto_id = ?', [stock, stock_minimo, req.params.id]);
+        res.json({ success: true, message: 'Inventario actualizado' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al actualizar inventario', error: error.message });
+    }
+};
+
+module.exports = { getDashboard, getAllUsers, updateUser, getInventory, updateInventory };

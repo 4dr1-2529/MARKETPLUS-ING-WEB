@@ -1,0 +1,41 @@
+<div class="catalog-page container">
+    <div class="catalog-header">
+        <h1>Catalogo de Productos</h1>
+        <p>{{ pagination.total }} productos encontrados</p>
+    </div>
+
+    <div class="catalog-layout">
+        <aside class="catalog-filters">
+            <app-filter-panel [categories]="categories" [brands]="brands" (filterChange)="onFilterChange($event)"></app-filter-panel>
+        </aside>
+
+        <main class="catalog-content">
+            <div class="catalog-toolbar">
+                <app-search-bar (search)="onSearch($event)"></app-search-bar>
+            </div>
+
+            <div class="products-grid" *ngIf="!loading">
+                <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+            </div>
+
+            <div class="loading-grid" *ngIf="loading">
+                <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12]"></div>
+            </div>
+
+            <div class="pagination" *ngIf="pagination.pages > 1">
+                <button [disabled]="filters.page === 1" (click)="changePage(filters.page - 1)" class="page-btn">
+                    <span class="material-icons">chevron_left</span>
+                </button>
+                <button *ngFor="let p of [].constructor(pagination.pages); let i = index"
+                        (click)="changePage(i + 1)"
+                        [class.active]="filters.page === i + 1"
+                        class="page-btn">
+                    {{ i + 1 }}
+                </button>
+                <button [disabled]="filters.page === pagination.pages" (click)="changePage(filters.page + 1)" class="page-btn">
+                    <span class="material-icons">chevron_right</span>
+                </button>
+            </div>
+        </main>
+    </div>
+</div>

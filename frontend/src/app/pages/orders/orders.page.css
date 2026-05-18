@@ -1,0 +1,25 @@
+.orders-page { padding-top: 100px; padding-bottom: 60px; }
+.orders-page h1 { font-size: 32px; font-weight: 800; margin-bottom: 32px; }
+
+.orders-empty { text-align: center; padding: 80px 20px; }
+.orders-empty .material-icons { font-size: 80px; color: var(--gray); margin-bottom: 16px; }
+.orders-empty h2 { font-size: 24px; margin-bottom: 8px; }
+.orders-empty p { color: var(--dark-light); margin-bottom: 24px; }
+
+.order-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.order-card:hover { box-shadow: var(--shadow-md); }
+
+.order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--gray-light); }
+.order-header h3 { font-size: 16px; font-weight: 700; }
+.order-header p { font-size: 13px; color: var(--dark-light); }
+
+.order-body { display: flex; justify-content: space-between; align-items: center; }
+.order-info p { margin-bottom: 4px; font-size: 14px; }

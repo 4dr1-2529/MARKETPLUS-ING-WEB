@@ -1,0 +1,100 @@
+<div class="admin-page">
+    <app-sidebar></app-sidebar>
+
+    <div class="admin-content">
+        <div class="admin-header">
+            <h1>Dashboard</h1>
+            <p>Bienvenido al panel de administracion</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(108,92,231,0.1); color: var(--primary);">
+                    <span class="material-icons">shopping_bag</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_ventas || 0 }}</h3>
+                    <p>Total Ventas</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(0,184,148,0.1); color: var(--success);">
+                    <span class="material-icons">attach_money</span>
+                </div>
+                <div class="stat-info">
+                    <h3>S/ {{ stats.ingresos_totales || 0 | number:'1.2-2' }}</h3>
+                    <p>Ingresos Totales</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(0,206,201,0.1); color: var(--secondary);">
+                    <span class="material-icons">group</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_usuarios || 0 }}</h3>
+                    <p>Usuarios</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(253,203,110,0.1); color: #E17055;">
+                    <span class="material-icons">inventory_2</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_productos || 0 }}</h3>
+                    <p>Productos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-grid">
+            <!-- TOP PRODUCTOS -->
+            <div class="admin-card">
+                <h2>Top Productos</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Vendidos</th>
+                                <th>Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let p of topProductos">
+                                <td>{{ p.nombre }}</td>
+                                <td>{{ p.total_vendido }}</td>
+                                <td>S/ {{ p.ingresos | number:'1.2-2' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PEDIDOS RECIENTES -->
+            <div class="admin-card">
+                <h2>Pedidos Recientes</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nº Pedido</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let p of pedidosRecientes">
+                                <td>{{ p.numero_pedido }}</td>
+                                <td>{{ p.nombres }} {{ p.apellidos }}</td>
+                                <td>S/ {{ p.total | number:'1.2-2' }}</td>
+                                <td><span class="badge {{ getStatusBadge(p.estado) }}">{{ p.estado }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

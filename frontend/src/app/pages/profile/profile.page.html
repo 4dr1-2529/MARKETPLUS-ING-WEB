@@ -1,0 +1,66 @@
+<div class="profile-page container">
+    <h1>Mi Perfil</h1>
+
+    <div class="profile-card" *ngIf="user">
+        <div class="profile-header">
+            <div class="profile-avatar">{{ user.nombres.charAt(0) }}{{ user.apellidos.charAt(0) }}</div>
+            <div>
+                <h2>{{ user.nombres }} {{ user.apellidos }}</h2>
+                <p>{{ user.email }}</p>
+                <span class="badge badge-primary">{{ user.role }}</span>
+            </div>
+            <button (click)="editing = !editing" class="btn btn-secondary btn-sm">
+                <span class="material-icons">{{ editing ? 'close' : 'edit' }}</span>
+                {{ editing ? 'Cancelar' : 'Editar' }}
+            </button>
+        </div>
+
+        <div class="profile-form" *ngIf="editing">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nombres</label>
+                    <input type="text" [(ngModel)]="formData.nombres" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Apellidos</label>
+                    <input type="text" [(ngModel)]="formData.apellidos" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Telefono</label>
+                    <input type="text" [(ngModel)]="formData.telefono" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">DNI</label>
+                    <input type="text" [(ngModel)]="formData.dni" class="form-control">
+                </div>
+            </div>
+            <button (click)="saveProfile()" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+
+        <div class="profile-info" *ngIf="!editing">
+            <div class="info-item">
+                <span class="material-icons">phone</span>
+                <div>
+                    <label>Telefono</label>
+                    <p>{{ user.telefono || 'No registrado' }}</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <span class="material-icons">badge</span>
+                <div>
+                    <label>DNI</label>
+                    <p>{{ user.dni || 'No registrado' }}</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <span class="material-icons">event</span>
+                <div>
+                    <label>Miembro desde</label>
+                    <p>{{ user.creado_en | date:'dd/MM/yyyy' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

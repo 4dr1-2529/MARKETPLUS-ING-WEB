@@ -1,0 +1,71 @@
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content animate-slide-up">
+            <span class="hero-badge">🔥 Ofertas Especiales</span>
+            <h1>La Mejor Tecnologia <br>al <span class="highlight">Mejor Precio</span></h1>
+            <p>Descubre los ultimos smartphones, laptops, audifonos y mas con envio a todo el Peru.</p>
+            <div class="hero-buttons">
+                <a routerLink="/catalogo" class="btn btn-primary btn-lg">Ver Catalogo</a>
+                <a routerLink="/catalogo?sort=popular" class="btn btn-secondary btn-lg">Mas Vendidos</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section categories-section">
+    <div class="container">
+        <h2 class="section-title">Categorias Populares</h2>
+        <div class="categories-grid">
+            <a *ngFor="let cat of categories" routerLink="/catalogo" [queryParams]="{categoria: cat.slug}" class="category-card">
+                <span class="material-icons">{{ getCategoryIcon(cat.slug) }}</span>
+                <h3>{{ cat.nombre }}</h3>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section featured-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Productos Destacados</h2>
+            <a routerLink="/catalogo" class="btn btn-secondary btn-sm">Ver Todos</a>
+        </div>
+        <div class="products-grid" *ngIf="!loading">
+            <app-product-card *ngFor="let product of featuredProducts" [product]="product"></app-product-card>
+        </div>
+        <div class="loading-skeleton" *ngIf="loading">
+            <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+        </div>
+    </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="section benefits-section">
+    <div class="container">
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <span class="material-icons">local_shipping</span>
+                <h3>Envio Gratis</h3>
+                <p>En compras mayores a S/ 500</p>
+            </div>
+            <div class="benefit-card">
+                <span class="material-icons">shield</span>
+                <h3>Garantia Oficial</h3>
+                <p>12 a 24 meses de garantia</p>
+            </div>
+            <div class="benefit-card">
+                <span class="material-icons">payment</span>
+                <h3>Pago Seguro</h3>
+                <p>Yape, Plin, Tarjeta y mas</p>
+            </div>
+            <div class="benefit-card">
+                <span class="material-icons">headset_mic</span>
+                <h3>Soporte 24/7</h3>
+                <p>Atencion personalizada</p>
+            </div>
+        </div>
+    </div>
+</section>
