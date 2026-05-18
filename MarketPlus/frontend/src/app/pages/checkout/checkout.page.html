@@ -1,0 +1,84 @@
+<div class="checkout-page container">
+    <h1>Finalizar Compra</h1>
+
+    <div class="checkout-layout">
+        <div class="checkout-form">
+            <div class="checkout-section">
+                <h2><span class="material-icons">location_on</span> Direccion de Envio</h2>
+                <div class="form-group">
+                    <select [(ngModel)]="checkoutData.direccion_id" class="form-control">
+                        <option value="">Selecciona una direccion</option>
+                        <option value="1">Av. Arequipa 1234, Miraflores</option>
+                        <option value="2">Jr. de la Union 567, Lima Centro</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="checkout-section">
+                <h2><span class="material-icons">payment</span> Metodo de Pago</h2>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="tarjeta_credito">
+                        <span class="material-icons">credit_card</span>
+                        <span>Tarjeta de Credito</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="tarjeta_debito">
+                        <span class="material-icons">account_balance</span>
+                        <span>Tarjeta de Debito</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="yape">
+                        <span class="material-icons">phone_android</span>
+                        <span>Yape</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="transferencia">
+                        <span class="material-icons">account_balance_wallet</span>
+                        <span>Transferencia</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="contra_entrega">
+                        <span class="material-icons">local_shipping</span>
+                        <span>Contra Entrega</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="checkout-section">
+                <h2><span class="material-icons">confirmation_number</span> Cupon de Descuento</h2>
+                <div class="coupon-input">
+                    <input type="text" [(ngModel)]="checkoutData.cupon_codigo" class="form-control" placeholder="Ingresa tu cupon">
+                    <button class="btn btn-secondary">Aplicar</button>
+                </div>
+            </div>
+
+            <div class="checkout-section">
+                <h2><span class="material-icons">note</span> Notas (opcional)</h2>
+                <textarea [(ngModel)]="checkoutData.notas" class="form-control" rows="3" placeholder="Instrucciones especiales..."></textarea>
+            </div>
+        </div>
+
+        <div class="checkout-summary">
+            <h2>Tu Pedido</h2>
+            <div class="order-items">
+                <div *ngFor="let item of cartItems" class="order-item">
+                    <img [src]="item.imagen_principal || 'assets/images/placeholder.jpg'" [alt]="item.nombre">
+                    <div class="order-item-info">
+                        <p class="order-item-name">{{ item.nombre }}</p>
+                        <p class="order-item-qty">Cantidad: {{ item.cantidad }}</p>
+                    </div>
+                    <span class="order-item-price">S/ {{ (item.precio_unitario * item.cantidad) | number:'1.2-2' }}</span>
+                </div>
+            </div>
+            <div class="summary-row"><span>Subtotal</span><span>S/ {{ subtotal | number:'1.2-2' }}</span></div>
+            <div class="summary-row"><span>IGV (18%)</span><span>S/ {{ getIgv() | number:'1.2-2' }}</span></div>
+            <div class="summary-row"><span>Envio</span><span>{{ getShipping() === 0 ? 'GRATIS' : 'S/ ' + getShipping() }}</span></div>
+            <div class="summary-total"><span>Total</span><span>S/ {{ getTotal() | number:'1.2-2' }}</span></div>
+            <button (click)="placeOrder()" class="btn btn-primary btn-block btn-lg" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-small"></span>
+                {{ loading ? 'Procesando...' : 'Confirmar Pedido' }}
+            </button>
+        </div>
+    </div>
+</div>

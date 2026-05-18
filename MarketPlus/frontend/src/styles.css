@@ -1,0 +1,209 @@
+/* =============================================
+   MARKETPLUS - GLOBAL STYLES
+   ============================================= */
+
+:root {
+    --primary: #6C5CE7;
+    --primary-dark: #5A4BD1;
+    --primary-light: #A29BFE;
+    --secondary: #00CEC9;
+    --accent: #FD79A8;
+    --success: #00B894;
+    --warning: #FDCB6E;
+    --danger: #E17055;
+    --dark: #2D3436;
+    --dark-light: #636E72;
+    --gray: #B2BEC3;
+    --gray-light: #DFE6E9;
+    --light: #F8F9FA;
+    --white: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.2);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--light);
+    color: var(--dark);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+input, select, textarea { font-family: inherit; outline: none; }
+img { max-width: 100%; height: auto; }
+ul { list-style: none; }
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 14px;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: var(--white);
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+}
+
+.btn-secondary {
+    background: var(--white);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-secondary:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success), #00A884);
+    color: var(--white);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger), #D63031);
+    color: var(--white);
+}
+
+.btn-sm { padding: 8px 16px; font-size: 12px; }
+.btn-lg { padding: 16px 32px; font-size: 16px; }
+.btn-block { width: 100%; }
+
+/* =============================================
+   CARDS
+   ============================================= */
+.card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    overflow: hidden;
+}
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+}
+
+/* =============================================
+   FORMS
+   ============================================= */
+.form-group { margin-bottom: 20px; }
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--dark);
+}
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    transition: var(--transition);
+    background: var(--white);
+}
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+}
+
+/* =============================================
+   BADGES
+   ============================================= */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-success { background: rgba(0, 184, 148, 0.1); color: var(--success); }
+.badge-warning { background: rgba(253, 203, 110, 0.2); color: #E17055; }
+.badge-danger { background: rgba(225, 112, 85, 0.1); color: var(--danger); }
+.badge-primary { background: rgba(108, 92, 231, 0.1); color: var(--primary); }
+.badge-info { background: rgba(0, 206, 201, 0.1); color: var(--secondary); }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    .btn { padding: 10px 20px; font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+    body { font-size: 14px; }
+}
+
+/* =============================================
+   ANIMATIONS
+   ============================================= */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.animate-fade { animation: fadeIn 0.5s ease; }
+.animate-slide-up { animation: slideUp 0.5s ease; }
+.animate-slide-down { animation: slideDown 0.5s ease; }
+.animate-scale { animation: scaleIn 0.3s ease; }
