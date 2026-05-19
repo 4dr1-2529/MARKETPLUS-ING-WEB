@@ -1,5 +1,23 @@
 <div class="filter-panel">
-    <h3><span class="material-icons">filter_list</span> Filtros</h3>
+    <div class="filter-header">
+        <h3><span class="material-icons">filter_list</span> Filtros</h3>
+        <button type="button" class="btn-filter-count" *ngIf="activeFilterCount > 0">
+            {{ activeFilterCount }} activo{{ activeFilterCount > 1 ? 's' : '' }}
+        </button>
+    </div>
+
+    <!-- Filtros activos -->
+    <div class="active-filters" *ngIf="activeFilters.length">
+        <div class="active-filter-tag" *ngFor="let f of activeFilters">
+            <span>{{ f.label }}</span>
+            <button type="button" (click)="f.clear()" aria-label="Eliminar filtro">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <button type="button" class="btn-clear-all" (click)="clearFilters()">
+            Limpiar todo
+        </button>
+    </div>
 
     <div class="filter-section" *ngIf="categories.length">
         <label class="section-label">Categoría</label>
