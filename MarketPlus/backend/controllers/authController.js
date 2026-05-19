@@ -168,4 +168,35 @@ const resetPassword = async (req, res) => {
     }
 };
 
-module.exports = { register, login, getProfile, updateProfile, forgotPassword, resetPassword };
+const changePassword = async (req, res) => {
+    try {
+        const { passwordActual, nuevaPassword } = req.body;
+
+        if (!passwordActual || !nuevaPassword) {
+            return res.status(400).json({ success: false, message: 'Contraseñas requeridas' });
+        }
+
+        if (nuevaPassword.length < 6) {
+            return res.status(400).json({ success: false, message: 'La nueva contraseña debe tener al menos 6 caracteres' });
+        }
+
+        const [users] = await pool.query('SELECT password FROM usuarios WHERE id = ?', [req.user.id]);
+        if (users.length === 0) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+
+        const validPassword = await bcrypt.compare(passwordActual, users[0].password);
+        if (!validPassword) {
+            return res.status(401).json({ success: false, message: 'La contraseña actual es incorrecta' });
+        }
+
+        const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
+        await pool.query('UPDATE usuarios SET password = ? WHERE id = ?', [hashedPassword, req.user.id]);
+
+        res.json({ success: true, message: 'Contraseña cambiada exitosamente' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al cambiar contraseña', error: error.message });
+    }
+};
+
+module.exports = { register, login, getProfile, updateProfile, forgotPassword, resetPassword, changePassword };

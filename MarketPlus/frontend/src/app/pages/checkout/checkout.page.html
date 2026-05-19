@@ -1,43 +1,74 @@
-<div class="checkout-page container">
+<div class="checkout-page container" [@fadeIn]>
     <h1>Finalizar Compra</h1>
 
     <div class="checkout-layout">
         <div class="checkout-form">
+            <!-- ADDRESS SECTION -->
             <div class="checkout-section">
                 <h2><span class="material-icons">location_on</span> Direccion de Envio</h2>
-                <div class="form-group">
-                    <select [(ngModel)]="checkoutData.direccion_id" class="form-control">
-                        <option value="">Selecciona una direccion</option>
-                        <option value="1">Av. Arequipa 1234, Miraflores</option>
-                        <option value="2">Jr. de la Union 567, Lima Centro</option>
-                    </select>
+
+                <div *ngIf="addressesLoading" class="section-loading">
+                    <span class="spinner-small"></span>
+                    <span>Cargando direcciones...</span>
                 </div>
+
+                <div *ngIf="!addressesLoading && addresses.length === 0" class="no-addresses">
+                    <p>No tienes direcciones registradas</p>
+                    <button (click)="openAddressModal()" class="btn btn-primary btn-sm">
+                        <span class="material-icons">add</span>
+                        Agregar Direccion
+                    </button>
+                </div>
+
+                <div class="address-options" *ngIf="!addressesLoading && addresses.length > 0">
+                    <label *ngFor="let addr of addresses"
+                           class="address-option"
+                           [class.selected]="checkoutData.direccion_id === String(addr.id)">
+                        <input type="radio" name="address" [value]="addr.id" [(ngModel)]="checkoutData.direccion_id">
+                        <div class="address-option-content">
+                            <div class="address-option-header">
+                                <strong>{{ addr.destinatario }}</strong>
+                                <span *ngIf="addr.es_principal" class="badge badge-primary">Principal</span>
+                            </div>
+                            <p>{{ getFullAddress(addr) }}</p>
+                            <p *ngIf="addr.telefono">{{ addr.telefono }}</p>
+                        </div>
+                    </label>
+                </div>
+
+                <button *ngIf="!addressesLoading && addresses.length > 0"
+                        (click)="openAddressModal()"
+                        class="btn btn-outline btn-sm add-address-btn">
+                    <span class="material-icons">add</span>
+                    Agregar nueva direccion
+                </button>
             </div>
 
+            <!-- PAYMENT SECTION -->
             <div class="checkout-section">
                 <h2><span class="material-icons">payment</span> Metodo de Pago</h2>
                 <div class="payment-options">
-                    <label class="payment-option">
+                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'tarjeta_credito'">
                         <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="tarjeta_credito">
                         <span class="material-icons">credit_card</span>
                         <span>Tarjeta de Credito</span>
                     </label>
-                    <label class="payment-option">
+                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'tarjeta_debito'">
                         <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="tarjeta_debito">
                         <span class="material-icons">account_balance</span>
                         <span>Tarjeta de Debito</span>
                     </label>
-                    <label class="payment-option">
+                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'yape'">
                         <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="yape">
                         <span class="material-icons">phone_android</span>
                         <span>Yape</span>
                     </label>
-                    <label class="payment-option">
+                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'transferencia'">
                         <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="transferencia">
                         <span class="material-icons">account_balance_wallet</span>
                         <span>Transferencia</span>
                     </label>
-                    <label class="payment-option">
+                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'contra_entrega'">
                         <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="contra_entrega">
                         <span class="material-icons">local_shipping</span>
                         <span>Contra Entrega</span>
@@ -45,20 +76,36 @@
                 </div>
             </div>
 
+            <!-- COUPON SECTION -->
             <div class="checkout-section">
                 <h2><span class="material-icons">confirmation_number</span> Cupon de Descuento</h2>
-                <div class="coupon-input">
-                    <input type="text" [(ngModel)]="checkoutData.cupon_codigo" class="form-control" placeholder="Ingresa tu cupon">
-                    <button class="btn btn-secondary">Aplicar</button>
+                <div *ngIf="!cuponAplicado" class="coupon-input">
+                    <input type="text" [(ngModel)]="cuponCodigo" class="form-control" placeholder="Ingresa tu cupon" (keyup.enter)="validateCoupon()">
+                    <button (click)="validateCoupon()" class="btn btn-secondary" [disabled]="cuponValidando">
+                        <span *ngIf="cuponValidando" class="spinner-small"></span>
+                        {{ cuponValidando ? 'Validando...' : 'Aplicar' }}
+                    </button>
+                </div>
+                <div *ngIf="cuponAplicado" class="coupon-applied">
+                    <span class="material-icons">check_circle</span>
+                    <div>
+                        <strong>Cupon aplicado: {{ cuponCodigo }}</strong>
+                        <p>Descuento: -S/ {{ cuponDescuento | number:'1.2-2' }}</p>
+                    </div>
+                    <button (click)="removeCoupon()" class="btn-icon" title="Remover cupon">
+                        <span class="material-icons">close</span>
+                    </button>
                 </div>
             </div>
 
+            <!-- NOTES SECTION -->
             <div class="checkout-section">
                 <h2><span class="material-icons">note</span> Notas (opcional)</h2>
-                <textarea [(ngModel)]="checkoutData.notas" class="form-control" rows="3" placeholder="Instrucciones especiales..."></textarea>
+                <textarea [(ngModel)]="checkoutData.notas" class="form-control" rows="3" placeholder="Instrucciones especiales para la entrega..."></textarea>
             </div>
         </div>
 
+        <!-- ORDER SUMMARY -->
         <div class="checkout-summary">
             <h2>Tu Pedido</h2>
             <div class="order-items">
@@ -71,14 +118,80 @@
                     <span class="order-item-price">S/ {{ (item.precio_unitario * item.cantidad) | number:'1.2-2' }}</span>
                 </div>
             </div>
-            <div class="summary-row"><span>Subtotal</span><span>S/ {{ subtotal | number:'1.2-2' }}</span></div>
-            <div class="summary-row"><span>IGV (18%)</span><span>S/ {{ getIgv() | number:'1.2-2' }}</span></div>
-            <div class="summary-row"><span>Envio</span><span>{{ getShipping() === 0 ? 'GRATIS' : 'S/ ' + getShipping() }}</span></div>
-            <div class="summary-total"><span>Total</span><span>S/ {{ getTotal() | number:'1.2-2' }}</span></div>
-            <button (click)="placeOrder()" class="btn btn-primary btn-block btn-lg" [disabled]="loading">
+
+            <div class="summary-details">
+                <div class="summary-row"><span>Subtotal</span><span>S/ {{ subtotal | number:'1.2-2' }}</span></div>
+                <div class="summary-row"><span>IGV (18%)</span><span>S/ {{ getIgv() | number:'1.2-2' }}</span></div>
+                <div class="summary-row"><span>Envio</span><span>{{ getShipping() === 0 ? 'GRATIS' : 'S/ ' + getShipping() }}</span></div>
+                <div *ngIf="cuponAplicado" class="summary-row discount">
+                    <span>Descuento</span><span>-S/ {{ getDiscount() | number:'1.2-2' }}</span>
+                </div>
+                <div class="summary-total"><span>Total</span><span>S/ {{ getTotal() | number:'1.2-2' }}</span></div>
+            </div>
+
+            <button (click)="placeOrder()" class="btn btn-primary btn-block btn-lg" [disabled]="loading || !checkoutData.direccion_id">
                 <span *ngIf="loading" class="spinner-small"></span>
                 {{ loading ? 'Procesando...' : 'Confirmar Pedido' }}
             </button>
+
+            <div class="secure-badge">
+                <span class="material-icons">lock</span>
+                <span>Compra segura y protegida</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADDRESS MODAL -->
+    <div class="modal-overlay" *ngIf="showAddressModal" (click)="closeAddressModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Nueva Direccion</h2>
+                <button (click)="closeAddressModal()" class="btn-close"><span class="material-icons">close</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Tipo</label>
+                        <select [(ngModel)]="newAddress.tipo" class="form-control">
+                            <option value="casa">Casa</option>
+                            <option value="trabajo">Trabajo</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Destinatario *</label>
+                        <input type="text" [(ngModel)]="newAddress.destinatario" class="form-control" placeholder="Nombre completo">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Direccion *</label>
+                    <input type="text" [(ngModel)]="newAddress.direccion_linea1" class="form-control" placeholder="Av. / Jr. / Calle">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Departamento *</label>
+                        <input type="text" [(ngModel)]="newAddress.departamento" class="form-control" placeholder="Lima">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Provincia *</label>
+                        <input type="text" [(ngModel)]="newAddress.provincia" class="form-control" placeholder="Lima">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Distrito *</label>
+                        <input type="text" [(ngModel)]="newAddress.distrito" class="form-control" placeholder="Miraflores">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefono</label>
+                        <input type="tel" [(ngModel)]="newAddress.telefono" class="form-control" placeholder="999 999 999">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="closeAddressModal()" class="btn btn-secondary">Cancelar</button>
+                <button (click)="saveNewAddress()" class="btn btn-primary">Guardar Direccion</button>
+            </div>
         </div>
     </div>
 </div>

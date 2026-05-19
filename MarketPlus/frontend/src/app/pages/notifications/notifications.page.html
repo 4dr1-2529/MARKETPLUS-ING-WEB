@@ -1,0 +1,71 @@
+<div class="notifications-page container" [@fadeIn]>
+    <div class="page-header">
+        <div>
+            <h1><span class="material-icons">notifications</span> Notificaciones</h1>
+            <p>{{ unreadCount }} sin leer de {{ notifications.length }} totales</p>
+        </div>
+        <button *ngIf="unreadCount > 0" (click)="markAllAsRead()" class="btn btn-secondary btn-sm">
+            <span class="material-icons">done_all</span>
+            Marcar todas como leidas
+        </button>
+    </div>
+
+    <div class="filter-tabs">
+        <button [class.active]="filter === 'all'" (click)="filter = 'all'">
+            Todas ({{ notifications.length }})
+        </button>
+        <button [class.active]="filter === 'unread'" (click)="filter = 'unread'">
+            Sin leer ({{ unreadCount }})
+        </button>
+        <button [class.active]="filter === 'pedido'" (click)="filter = 'pedido'">
+            Pedidos
+        </button>
+        <button [class.active]="filter === 'oferta'" (click)="filter = 'oferta'">
+            Ofertas
+        </button>
+        <button [class.active]="filter === 'promocion'" (click)="filter = 'promocion'">
+            Promociones
+        </button>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+        <span class="spinner"></span>
+        <p>Cargando notificaciones...</p>
+    </div>
+
+    <div *ngIf="!loading && filteredNotifications.length === 0" class="empty-state">
+        <span class="material-icons">notifications_none</span>
+        <h2>No hay notificaciones</h2>
+        <p>Te notificaremos sobre tus pedidos y ofertas especiales</p>
+    </div>
+
+    <div class="notifications-list" *ngIf="!loading && filteredNotifications.length > 0">
+        <div *ngFor="let notif of filteredNotifications"
+             class="notification-card"
+             [class.unread]="!notif.leido"
+             (click)="!notif.leido && notif.id && markAsRead(notif.id)">
+            <div class="notif-icon" [style.background]="getTipoColor(notif.tipo) + '15'">
+                <span class="material-icons" [style.color]="getTipoColor(notif.tipo)">
+                    {{ getTipoIcon(notif.tipo) }}
+                </span>
+            </div>
+            <div class="notif-content">
+                <div class="notif-header">
+                    <h3>{{ notif.titulo }}</h3>
+                    <span class="notif-time">{{ getRelativeDate(notif.creado_en || '') }}</span>
+                </div>
+                <p>{{ notif.mensaje }}</p>
+                <div *ngIf="notif.enlace" class="notif-link">
+                    <span class="material-icons">open_in_new</span>
+                    <span>{{ notif.enlace }}</span>
+                </div>
+            </div>
+            <div class="notif-actions">
+                <button (click)="notif.id && deleteNotification(notif.id); $event.stopPropagation()"
+                        class="btn-icon" title="Eliminar">
+                    <span class="material-icons">delete_outline</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -28,4 +28,8 @@ export class AdminService {
     updateInventory(id: number, data: any): Observable<{ success: boolean; message: string }> {
         return this.http.put<{ success: boolean; message: string }>(`${this.apiUrl}/admin/inventory/${id}`, data);
     }
+
+    getReports(): Observable<{ success: boolean; data: any }> {
+        return this.http.get<{ success: boolean; data: any }>(`${this.apiUrl}/admin/reports`);
+    }
 }

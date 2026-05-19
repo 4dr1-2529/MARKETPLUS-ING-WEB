@@ -23,6 +23,9 @@ import { AdminInventoryPage } from './pages/admin/inventory/inventory.page';
 import { AdminReportsPage } from './pages/admin/reports/reports.page';
 import { FavoritesPage } from './pages/favorites/favorites.page';
 import { OrderDetailPage } from './pages/order-detail/order-detail.page';
+import { AddressesPage } from './pages/addresses/addresses.page';
+import { NotificationsPage } from './pages/notifications/notifications.page';
+import { CouponsPage } from './pages/coupons/coupons.page';
 
 const routes: Routes = [
     { path: '', component: HomePage },
@@ -37,6 +40,9 @@ const routes: Routes = [
     { path: 'mis-pedidos', component: OrdersPage, canActivate: [AuthGuard] },
     { path: 'mis-pedidos/:numero', component: OrderDetailPage, canActivate: [AuthGuard] },
     { path: 'favoritos', component: FavoritesPage, canActivate: [AuthGuard] },
+    { path: 'mis-direcciones', component: AddressesPage, canActivate: [AuthGuard] },
+    { path: 'notificaciones', component: NotificationsPage, canActivate: [AuthGuard] },
+    { path: 'cupones', component: CouponsPage, canActivate: [AuthGuard] },
     { path: 'admin', component: AdminDashboardPage, canActivate: [AdminGuard] },
     { path: 'admin/productos', component: AdminProductsPage, canActivate: [AdminGuard] },
     { path: 'admin/categorias', component: AdminCategoriesPage, canActivate: [AdminGuard] },

@@ -62,7 +62,7 @@ const createOrder = async (req, res) => {
 const getMyOrders = async (req, res) => {
     try {
         const [orders] = await pool.query(
-            'SELECT p.*, d.direccion_linea1, d.distrito, d.provincia FROM pedidos p JOIN direcciones d ON p.direccion_envio_id = d.id WHERE p.usuario_id = ? ORDER BY p.creado_en DESC',
+            'SELECT p.*, d.direccion_linea1, d.distrito, d.provincia FROM pedidos p LEFT JOIN direcciones d ON p.direccion_envio_id = d.id WHERE p.usuario_id = ? ORDER BY p.creado_en DESC',
             [req.user.id]
         );
         res.json({ success: true, data: orders });
@@ -74,7 +74,7 @@ const getMyOrders = async (req, res) => {
 const getOrderDetail = async (req, res) => {
     try {
         const [orders] = await pool.query(
-            'SELECT p.*, d.direccion_linea1, d.distrito, d.provincia, d.departamento, d.destinatario FROM pedidos p JOIN direcciones d ON p.direccion_envio_id = d.id WHERE p.numero_pedido = ? AND p.usuario_id = ?',
+            'SELECT p.*, d.direccion_linea1, d.distrito, d.provincia, d.departamento, d.destinatario FROM pedidos p LEFT JOIN direcciones d ON p.direccion_envio_id = d.id WHERE p.numero_pedido = ? AND p.usuario_id = ?',
             [req.params.numero, req.user.id]
         );
         if (orders.length === 0) return res.status(404).json({ success: false, message: 'Pedido no encontrado' });
