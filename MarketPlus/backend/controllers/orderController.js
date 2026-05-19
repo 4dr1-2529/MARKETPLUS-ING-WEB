@@ -6,11 +6,27 @@ const createOrder = async (req, res) => {
         await connection.beginTransaction();
         const { direccion_id, metodo_pago, cupon_codigo, notas } = req.body;
 
+        if (!direccion_id) {
+            return res.status(400).json({ success: false, message: 'Selecciona una direccion de envio' });
+        }
+
+        if (!metodo_pago) {
+            return res.status(400).json({ success: false, message: 'Selecciona un metodo de pago' });
+        }
+
+        const [addressCheck] = await connection.query('SELECT id FROM direcciones WHERE id = ? AND usuario_id = ?', [direccion_id, req.user.id]);
+        if (addressCheck.length === 0) {
+            return res.status(400).json({ success: false, message: 'Direccion no valida' });
+        }
+
         let [carts] = await connection.query('SELECT id FROM carrito WHERE usuario_id = ?', [req.user.id]);
-        if (carts.length === 0) return res.status(400).json({ success: false, message: 'El carrito esta vacio' });
+        if (carts.length === 0) {
+            const [result] = await connection.query('INSERT INTO carrito (usuario_id) VALUES (?)', [req.user.id]);
+            carts = [{ id: result.insertId }];
+        }
 
         const [items] = await connection.query(
-            'SELECT dc.*, p.nombre FROM detalle_carrito dc JOIN productos p ON dc.producto_id = p.id WHERE dc.carrito_id = ?',
+            'SELECT dc.*, p.nombre, p.estado FROM detalle_carrito dc JOIN productos p ON dc.producto_id = p.id WHERE dc.carrito_id = ?',
             [carts[0].id]
         );
         if (items.length === 0) return res.status(400).json({ success: false, message: 'El carrito esta vacio' });
@@ -37,7 +53,7 @@ const createOrder = async (req, res) => {
 
         const [orderResult] = await connection.query(
             'INSERT INTO pedidos (usuario_id, numero_pedido, direccion_envio_id, subtotal, descuento, igv, costo_envio, total, estado, metodo_pago, notas) VALUES (?, ?, ?, ?, ?, ?, ?, ?, \'pendiente\', ?, ?)',
-            [req.user.id, numero_pedido, direccion_id, subtotal, descuento, igv, costo_envio, total, metodo_pago, notas]
+            [req.user.id, numero_pedido, direccion_id, subtotal, descuento, igv, costo_envio, total, metodo_pago, notas || null]
         );
 
         for (const item of items) {
@@ -49,10 +65,16 @@ const createOrder = async (req, res) => {
         await connection.query('DELETE FROM detalle_carrito WHERE carrito_id = ?', [carts[0].id]);
         await connection.query('INSERT INTO historial_pedidos (pedido_id, estado_nuevo, comentario, realizado_por) VALUES (?, \'pendiente\', \'Pedido creado\', ?)', [orderResult.insertId, req.user.id]);
 
+        await connection.query(
+            'INSERT INTO notificaciones (usuario_id, titulo, mensaje, tipo, enlace) VALUES (?, ?, ?, ?, ?)',
+            [req.user.id, 'Pedido Confirmado', `Tu pedido ${numero_pedido} ha sido creado exitosamente. Total: S/ ${total.toFixed(2)}`, 'pedido', `/mis-pedidos/${numero_pedido}`]
+        );
+
         await connection.commit();
-        res.status(201).json({ success: true, message: 'Pedido creado exitosamente', data: { id: orderResult.insertId, numero_pedido } });
+        res.status(201).json({ success: true, message: 'Pedido creado exitosamente', data: { id: orderResult.insertId, numero_pedido, total } });
     } catch (error) {
         await connection.rollback();
+        console.error('Error al crear pedido:', error);
         res.status(500).json({ success: false, message: 'Error al crear pedido', error: error.message });
     } finally {
         connection.release();

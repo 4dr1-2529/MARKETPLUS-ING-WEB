@@ -35,11 +35,13 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">DNI (opcional)</label>
-                        <input type="text" [(ngModel)]="dni" name="dni" class="form-control" placeholder="12345678">
+                        <input type="text" [(ngModel)]="dni" name="dni" class="form-control" placeholder="12345678" maxlength="8" pattern="\d{8}" inputmode="numeric">
+                        <small class="form-hint">8 digitos</small>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Telefono (opcional)</label>
-                        <input type="text" [(ngModel)]="telefono" name="telefono" class="form-control" placeholder="999888777">
+                        <input type="text" [(ngModel)]="telefono" name="telefono" class="form-control" placeholder="999888777" maxlength="9" pattern="\d{9}" inputmode="numeric">
+                        <small class="form-hint">9 digitos</small>
                     </div>
                 </div>
 
