@@ -6,18 +6,34 @@ require('dotenv').config();
 
 const app = express();
 
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:2626',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Authorization']
+}));
+
+app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:2626');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Max-Age', '3600');
+        return res.sendStatus(200);
+    }
+    next();
+});
+
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    message: { success: false, message: 'Demasiadas solicitudes, intenta mas tarde' }
+    message: { success: false, message: 'Demasiadas solicitudes, intenta mas tarde' },
+    skip: (req) => req.method === 'OPTIONS'
 });
 
 app.use('/api/', limiter);
-
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:2626',
-    credentials: true
-}));
 
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
@@ -42,11 +58,12 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/coupons', require('./routes/coupons'));
 
 app.use((req, res) => {
+    console.log(`404 - ${req.method} ${req.originalUrl}`);
     res.status(404).json({ success: false, message: 'Ruta no encontrada' });
 });
 
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('Error:', err.stack);
     res.status(err.status || 500).json({
         success: false,
         message: err.message || 'Error interno del servidor'
