@@ -42,6 +42,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "port": 2626
+          },
           "configurations": {
             "production": { "buildTarget": "marketplus-frontend:build:production" },
             "development": { "buildTarget": "marketplus-frontend:build:development" }

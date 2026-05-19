@@ -109,7 +109,7 @@ const getAll = async (req, res) => {
             success: true,
             data: products,
             pagination: {
-                total: countResult[0].total,
+                total: parseInt(countResult[0].total),
                 page: parseInt(page),
                 limit: parseInt(limit),
                 pages: Math.ceil(countResult[0].total / limit)
@@ -162,7 +162,7 @@ const getFeatured = async (req, res) => {
             `SELECT p.id, p.nombre, p.slug, p.precio, p.precio_oferta, p.descuento_porcentaje, 
              p.imagen_principal, p.nuevo, c.nombre as categoria, m.nombre as marca
              FROM productos p JOIN categorias c ON p.categoria_id = c.id JOIN marcas m ON p.marca_id = m.id
-             WHERE p.estado = 'activo' AND p.destacado = TRUE ORDER BY p.creado_en DESC LIMIT 8`,
+             WHERE p.estado = 'activo' AND p.destacado = TRUE ORDER BY p.creado_en DESC LIMIT 8`
         );
         res.json({ success: true, data: products });
     } catch (error) {
