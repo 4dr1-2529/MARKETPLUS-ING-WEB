@@ -9,18 +9,90 @@
     top: 90px;
 }
 
+.filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--gray-light);
+}
+
 .filter-panel h3 {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 18px;
     font-weight: 700;
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--gray-light);
+    margin: 0;
+    padding: 0;
+    border: none;
 }
 
 .filter-panel h3 .material-icons { color: var(--primary); }
+
+.btn-filter-count {
+    background: var(--primary);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+}
+
+/* Filtros activos */
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+}
+
+.active-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.active-filter-tag button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.active-filter-tag button .material-icons {
+    font-size: 16px;
+}
+
+.btn-clear-all {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 50px;
+    transition: var(--transition);
+}
+
+.btn-clear-all:hover {
+    background: rgba(37, 99, 235, 0.1);
+}
 
 .filter-group { margin-bottom: 20px; }
 
@@ -131,4 +203,28 @@
     background: var(--bg-input);
     color: var(--text-primary);
     border-color: var(--border-color);
+}
+
+@media (max-width: 768px) {
+    .filter-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        border-radius: 0;
+        padding: 20px;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .filter-panel.show {
+        transform: translateX(0);
+    }
+
+    .active-filters {
+        flex-direction: column;
+    }
 }
