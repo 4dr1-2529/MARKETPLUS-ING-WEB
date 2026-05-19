@@ -40,6 +40,11 @@ import { FavoritesPage } from './pages/favorites/favorites.page';
 import { OrderDetailPage } from './pages/order-detail/order-detail.page';
 import { ProductImagePipe } from './pipes/product-image.pipe';
 
+import { AddressesPage } from './pages/addresses/addresses.page';
+import { ReviewFormComponent } from './pages/reviews/review-form.component';
+import { NotificationsPage } from './pages/notifications/notifications.page';
+import { CouponsPage } from './pages/coupons/coupons.page';
+
 @NgModule({
     declarations: [
         AppComponent,
@@ -71,7 +76,11 @@ import { ProductImagePipe } from './pipes/product-image.pipe';
         AdminReportsPage,
         FavoritesPage,
         OrderDetailPage,
-        ProductImagePipe
+        ProductImagePipe,
+        AddressesPage,
+        ReviewFormComponent,
+        NotificationsPage,
+        CouponsPage
     ],
     imports: [
         BrowserModule,

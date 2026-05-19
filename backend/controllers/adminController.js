@@ -75,4 +75,56 @@ const updateInventory = async (req, res) => {
     }
 };
 
-module.exports = { getDashboard, getAllUsers, updateUser, getInventory, updateInventory };
+const getReports = async (req, res) => {
+    try {
+        const [orderStatusSummary] = await pool.query(
+            "SELECT estado, COUNT(*) as total, COALESCE(SUM(total), 0) as monto FROM pedidos GROUP BY estado ORDER BY total DESC"
+        );
+
+        const [topCategories] = await pool.query(
+            'SELECT c.nombre, COUNT(DISTINCT p.id) as total_productos, COALESCE(SUM(p.ventas), 0) as total_ventas FROM categorias c LEFT JOIN productos p ON c.id = p.categoria_id GROUP BY c.id ORDER BY total_ventas DESC LIMIT 10'
+        );
+
+        const [salesByDay] = await pool.query(
+            "SELECT DATE(creado_en) as fecha, COUNT(*) as total_pedidos, COALESCE(SUM(total), 0) as ingresos FROM pedidos WHERE creado_en >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND estado != 'cancelado' GROUP BY DATE(creado_en) ORDER BY fecha"
+        );
+
+        const [topCustomers] = await pool.query(
+            'SELECT u.id, u.nombres, u.apellidos, u.email, COUNT(p.id) as total_pedidos, COALESCE(SUM(p.total), 0) as total_gastado FROM usuarios u JOIN pedidos p ON u.id = p.usuario_id WHERE p.estado != \'cancelado\' GROUP BY u.id ORDER BY total_gastado DESC LIMIT 10'
+        );
+
+        const [lowStockProducts] = await pool.query(
+            'SELECT p.nombre, p.sku, i.stock, i.stock_minimo FROM inventario i JOIN productos p ON i.producto_id = p.id WHERE i.stock <= i.stock_minimo ORDER BY i.stock ASC'
+        );
+
+        const [[{ totalRevenue }]] = await pool.query(
+            "SELECT COALESCE(SUM(total), 0) as totalRevenue FROM pedidos WHERE estado IN ('entregado', 'enviado', 'procesando')"
+        );
+
+        const [[{ avgOrderValue }]] = await pool.query(
+            "SELECT COALESCE(AVG(total), 0) as avgOrderValue FROM pedidos WHERE estado != 'cancelado'"
+        );
+
+        const [[{ conversionRate }]] = await pool.query(
+            'SELECT COALESCE((COUNT(DISTINCT p.usuario_id) * 100.0 / NULLIF(COUNT(DISTINCT u.id), 0)), 0) as conversionRate FROM usuarios u LEFT JOIN pedidos p ON u.id = p.usuario_id WHERE u.role_id = 2'
+        );
+
+        res.json({
+            success: true,
+            data: {
+                orderStatusSummary,
+                topCategories,
+                salesByDay,
+                topCustomers,
+                lowStockProducts,
+                totalRevenue: totalRevenue.totalRevenue,
+                avgOrderValue: avgOrderValue.avgOrderValue,
+                conversionRate: conversionRate.conversionRate
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener reportes', error: error.message });
+    }
+};
+
+module.exports = { getDashboard, getAllUsers, updateUser, getInventory, updateInventory, getReports };

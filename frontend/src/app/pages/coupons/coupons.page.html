@@ -1,0 +1,68 @@
+<div class="coupons-page container" [@fadeIn]>
+    <div class="page-header">
+        <h1><span class="material-icons">local_offer</span> Cupones Disponibles</h1>
+        <p>Ahorra en tus proximas compras con estos cupones</p>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+        <span class="spinner"></span>
+        <p>Cargando cupones...</p>
+    </div>
+
+    <div *ngIf="!loading && coupons.length === 0" class="empty-state">
+        <span class="material-icons">redeem</span>
+        <h2>No hay cupones disponibles</h2>
+        <p>Vuelve pronto para encontrar nuevas ofertas</p>
+    </div>
+
+    <div class="coupons-grid" *ngIf="!loading && coupons.length > 0">
+        <div *ngFor="let coupon of coupons"
+             class="coupon-card"
+             [class]="getStatusClass(coupon)">
+            <div class="coupon-discount">
+                <span class="discount-value" *ngIf="coupon.tipo === 'porcentaje'">{{ coupon.valor }}%</span>
+                <span class="discount-value" *ngIf="coupon.tipo === 'fijo'">S/ {{ coupon.valor }}</span>
+                <span class="discount-label">{{ getDiscountText(coupon) }}</span>
+            </div>
+
+            <div class="coupon-info">
+                <h3>{{ coupon.codigo }}</h3>
+                <p *ngIf="coupon.descripcion">{{ coupon.descripcion }}</p>
+
+                <div class="coupon-details">
+                    <div *ngIf="coupon.minimo_compra" class="detail-item">
+                        <span class="material-icons">shopping_cart</span>
+                        <span>Compra minima: S/ {{ coupon.minimo_compra | number:'1.2-2' }}</span>
+                    </div>
+                    <div *ngIf="coupon.maximo_descuento" class="detail-item">
+                        <span class="material-icons">trending_up</span>
+                        <span>Descuento max: S/ {{ coupon.maximo_descuento | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="material-icons">calendar_today</span>
+                        <span>Vence: {{ coupon.fecha_fin | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                </div>
+
+                <div *ngIf="coupon.usos_maximos" class="usage-bar">
+                    <div class="usage-progress">
+                        <div class="usage-fill" [style.width.%]="getProgressPercent(coupon)"></div>
+                    </div>
+                    <span class="usage-text">{{ coupon.usos_actuales }}/{{ coupon.usos_maximos }} usados</span>
+                </div>
+
+                <div class="coupon-footer">
+                    <span class="coupon-status" [class]="getStatusClass(coupon)">
+                        {{ getStatusText(coupon) }}
+                    </span>
+                    <button (click)="copyCode(coupon.codigo)"
+                            class="btn btn-sm btn-primary"
+                            [disabled]="coupon.estado !== 'activo'">
+                        <span class="material-icons">content_copy</span>
+                        Copiar Codigo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

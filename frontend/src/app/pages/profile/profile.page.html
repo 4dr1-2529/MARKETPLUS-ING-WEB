@@ -1,7 +1,19 @@
-<div class="profile-page container">
+<div class="profile-page container" [@fadeIn]>
     <h1>Mi Perfil</h1>
 
-    <div class="profile-card" *ngIf="user">
+    <div class="profile-tabs">
+        <button [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
+            <span class="material-icons">person</span>
+            Informacion Personal
+        </button>
+        <button [class.active]="activeTab === 'password'" (click)="activeTab = 'password'">
+            <span class="material-icons">lock</span>
+            Cambiar Password
+        </button>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="profile-card" *ngIf="user && activeTab === 'info'">
         <div class="profile-header">
             <div class="profile-avatar">{{ user.nombres.charAt(0) }}{{ user.apellidos.charAt(0) }}</div>
             <div>
@@ -61,6 +73,63 @@
                     <p>{{ user.creado_en | date:'dd/MM/yyyy' }}</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- PASSWORD TAB -->
+    <div class="profile-card password-card" *ngIf="activeTab === 'password'">
+        <div class="password-header">
+            <span class="material-icons">shield</span>
+            <div>
+                <h2>Cambiar Password</h2>
+                <p>Actualiza tu password de acceso</p>
+            </div>
+        </div>
+
+        <div class="password-form">
+            <div class="form-group">
+                <label class="form-label">Password Actual</label>
+                <div class="input-with-icon">
+                    <input [type]="showPassword ? 'text' : 'password'"
+                           [(ngModel)]="passwordData.passwordActual"
+                           class="form-control"
+                           placeholder="Ingresa tu password actual">
+                    <button type="button" (click)="showPassword = !showPassword" class="toggle-password">
+                        <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nueva Password</label>
+                <input type="password"
+                       [(ngModel)]="passwordData.nuevaPassword"
+                       class="form-control"
+                       placeholder="Minimo 6 caracteres">
+                <div *ngIf="passwordData.nuevaPassword" class="password-strength">
+                    <div class="strength-bar" [class]="getPasswordStrength(passwordData.nuevaPassword)">
+                        <div class="strength-fill"></div>
+                    </div>
+                    <span>{{ getPasswordStrengthText(getPasswordStrength(passwordData.nuevaPassword)) }}</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Confirmar Nueva Password</label>
+                <input type="password"
+                       [(ngModel)]="passwordData.confirmarPassword"
+                       class="form-control"
+                       placeholder="Repite la nueva password">
+                <p *ngIf="passwordData.confirmarPassword && passwordData.nuevaPassword !== passwordData.confirmarPassword"
+                   class="error-text">
+                    Las passwords no coinciden
+                </p>
+            </div>
+
+            <button (click)="changePassword()" class="btn btn-primary" [disabled]="passwordLoading">
+                <span *ngIf="passwordLoading" class="spinner-small"></span>
+                {{ passwordLoading ? 'Cambiando...' : 'Cambiar Password' }}
+            </button>
         </div>
     </div>
 </div>

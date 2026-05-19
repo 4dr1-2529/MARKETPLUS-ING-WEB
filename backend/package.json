@@ -11,7 +11,12 @@
     "fix:images": "node scripts/fix-product-images.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["marketplus", "ecommerce", "api", "mysql"],
+  "keywords": [
+    "marketplus",
+    "ecommerce",
+    "api",
+    "mysql"
+  ],
   "author": "MarketPlus",
   "license": "MIT",
   "dependencies": {
@@ -19,6 +24,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
     "express-validator": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",

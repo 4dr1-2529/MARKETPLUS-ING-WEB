@@ -85,6 +85,13 @@ export class AuthService {
         );
     }
 
+    changePassword(passwordActual: string, nuevaPassword: string): Observable<{ success: boolean; message: string }> {
+        return this.http.put<{ success: boolean; message: string }>(
+            `${this.apiUrl}/auth/change-password`,
+            { passwordActual, nuevaPassword }
+        );
+    }
+
     logout(): void {
         localStorage.removeItem('token');
         localStorage.removeItem('user');

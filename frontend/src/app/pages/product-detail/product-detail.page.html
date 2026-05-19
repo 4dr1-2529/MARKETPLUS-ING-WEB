@@ -1,4 +1,4 @@
-<div class="detail-page container" *ngIf="product && !loading">
+<div class="detail-page container" *ngIf="product && !loading" [@fadeIn]>
     <div class="detail-layout">
         <div class="detail-image">
             <img [src]="mainImageUrl" [alt]="product.nombre" loading="lazy" (error)="onMainImageError()">
@@ -13,11 +13,11 @@
 
             <h1>{{ product.nombre }}</h1>
 
-            <div class="detail-rating" *ngIf="product.promedio_valoracion">
-                <span class="material-icons star" *ngFor="let s of getStars(product.promedio_valoracion || 0)">
-                    {{ s <= (product.promedio_valoracion || 0) ? 'star' : 'star_border' }}
+            <div class="detail-rating" *ngIf="product.promedio_valoracion || reviews.length > 0">
+                <span class="material-icons star" *ngFor="let s of [1,2,3,4,5]">
+                    {{ s <= getAverageRating() ? 'star' : 'star_border' }}
                 </span>
-                <span>{{ product.promedio_valoracion | number:'1.1-1' }} ({{ product.total_valoraciones }} valoraciones)</span>
+                <span>{{ getAverageRating() | number:'1.1-1' }} ({{ reviews.length }} valoraciones)</span>
             </div>
 
             <div class="detail-price">
@@ -50,25 +50,106 @@
         </div>
     </div>
 
-    <!-- REVIEWS -->
-    <div class="reviews-section" *ngIf="reviews.length > 0">
-        <h2>Valoraciones ({{ reviews.length }})</h2>
-        <div class="reviews-list">
+    <!-- REVIEWS SECTION -->
+    <div class="reviews-section">
+        <div class="reviews-header">
+            <h2>Valoraciones de Clientes</h2>
+            <button *ngIf="auth.isAuthenticated && !userReview" (click)="openReviewForm()" class="btn btn-primary btn-sm">
+                <span class="material-icons">rate_review</span>
+                Escribir Valoracion
+            </button>
+        </div>
+
+        <div *ngIf="reviews.length > 0" class="reviews-summary">
+            <div class="reviews-avg">
+                <span class="avg-number">{{ getAverageRating() | number:'1.1-1' }}</span>
+                <div class="avg-stars">
+                    <span class="material-icons star" *ngFor="let s of [1,2,3,4,5]">
+                        {{ s <= Math.round(getAverageRating()) ? 'star' : 'star_border' }}
+                    </span>
+                </div>
+                <span class="avg-count">{{ reviews.length }} valoraciones</span>
+            </div>
+            <div class="reviews-distribution">
+                <div *ngFor="let d of getRatingDistribution()" class="dist-row">
+                    <span class="dist-stars">{{ d.stars }} <span class="material-icons star-small">star</span></span>
+                    <div class="dist-bar">
+                        <div class="dist-fill" [style.width.%]="d.percent"></div>
+                    </div>
+                    <span class="dist-count">{{ d.count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEW FORM -->
+        <div *ngIf="showReviewForm" class="review-form-section">
+            <div class="review-form-card">
+                <div class="review-form-header">
+                    <h3>Escribe tu valoracion</h3>
+                    <button (click)="closeReviewForm()" class="btn-close-sm"><span class="material-icons">close</span></button>
+                </div>
+
+                <div *ngIf="reviewSubmitted" class="review-success">
+                    <span class="material-icons">check_circle</span>
+                    <p>¡Gracias por tu valoracion!</p>
+                </div>
+
+                <form *ngIf="!reviewSubmitted" (ngSubmit)="submitReview()" class="review-form">
+                    <div class="form-group">
+                        <label class="form-label">Tu calificacion</label>
+                        <div class="star-selector">
+                            <span *ngFor="let s of [1,2,3,4,5]"
+                                  class="material-icons star"
+                                  [class.filled]="s <= (reviewHoverRating || reviewRating)"
+                                  (click)="reviewRating = s"
+                                  (mouseenter)="reviewHoverRating = s"
+                                  (mouseleave)="reviewHoverRating = 0">
+                                {{ s <= (reviewHoverRating || reviewRating) ? 'star' : 'star_border' }}
+                            </span>
+                            <span *ngIf="reviewRating" class="rating-label">{{ getReviewText(reviewRating) }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tu comentario</label>
+                        <textarea [(ngModel)]="reviewComment" name="reviewComment" class="form-control" rows="4"
+                                  placeholder="¿Que te parecio el producto?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" [disabled]="reviewSubmitting || reviewRating === 0">
+                        <span *ngIf="reviewSubmitting" class="spinner-small"></span>
+                        {{ reviewSubmitting ? 'Enviando...' : 'Enviar Valoracion' }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- USER'S EXISTING REVIEW -->
+        <div *ngIf="userReview && !showReviewForm" class="user-review-banner">
+            <span class="material-icons">check_circle</span>
+            <p>Ya enviaste una valoracion para este producto</p>
+        </div>
+
+        <!-- REVIEWS LIST -->
+        <div class="reviews-list" *ngIf="reviews.length > 0">
             <div *ngFor="let review of reviews" class="review-card">
                 <div class="review-header">
-                    <div class="review-avatar">{{ review.nombres.charAt(0) }}</div>
+                    <div class="review-avatar">{{ review.nombres ? review.nombres.charAt(0) : 'U' }}</div>
                     <div>
-                        <strong>{{ review.nombres }} {{ review.apellidos }}</strong>
+                        <strong>{{ review.nombres ? review.nombres + ' ' + (review.apellidos || '') : 'Usuario' }}</strong>
                         <div class="review-stars">
-                            <span class="material-icons star" *ngFor="let s of getStars(review.calificacion)">
+                            <span class="material-icons star" *ngFor="let s of [1,2,3,4,5]">
                                 {{ s <= review.calificacion ? 'star' : 'star_border' }}
                             </span>
                         </div>
                     </div>
+                    <span class="review-date">{{ review.creado_en | date:'dd/MM/yyyy' }}</span>
                 </div>
-                <p>{{ review.comentario }}</p>
-                <span class="review-date">{{ review.creado_en | date:'dd/MM/yyyy' }}</span>
+                <p *ngIf="review.comentario">{{ review.comentario }}</p>
             </div>
+        </div>
+
+        <div *ngIf="reviews.length === 0" class="no-reviews">
+            <span class="material-icons">rate_review</span>
+            <p>Se el primero en valorar este producto</p>
         </div>
     </div>
 

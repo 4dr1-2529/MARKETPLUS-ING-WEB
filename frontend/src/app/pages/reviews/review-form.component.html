@@ -1,0 +1,42 @@
+<div class="review-form-container" [@scale]>
+    <div *ngIf="submitted" class="success-state">
+        <span class="material-icons">check_circle</span>
+        <h3>¡Gracias por tu valoracion!</h3>
+        <p>Tu opinion ayuda a otros compradores</p>
+        <button (click)="resetForm()" class="btn btn-secondary btn-sm">Escritra otra valoracion</button>
+    </div>
+
+    <form *ngIf="!submitted" (ngSubmit)="submitReview()" class="review-form">
+        <h3>Escribe tu valoracion</h3>
+
+        <div class="rating-selector">
+            <span class="rating-label">Tu calificacion:</span>
+            <div class="stars">
+                <span *ngFor="let s of [1,2,3,4,5]"
+                      class="material-icons star"
+                      [class.filled]="s <= (hoverRating || rating)"
+                      (click)="setRating(s)"
+                      (mouseenter)="hoverRating = s"
+                      (mouseleave)="hoverRating = 0">
+                    {{ s <= (hoverRating || rating) ? 'star' : 'star_border' }}
+                </span>
+            </div>
+            <span class="rating-text">{{ getRatingText() }}</span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Tu comentario</label>
+            <textarea [(ngModel)]="comentario"
+                      name="comentario"
+                      class="form-control"
+                      rows="4"
+                      placeholder="¿Que te parecio el producto?"></textarea>
+            <span class="char-count">{{ comentario.length }}/500</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" [disabled]="submitting">
+            <span *ngIf="submitting" class="spinner-small"></span>
+            {{ submitting ? 'Enviando...' : 'Enviar Valoracion' }}
+        </button>
+    </form>
+</div>

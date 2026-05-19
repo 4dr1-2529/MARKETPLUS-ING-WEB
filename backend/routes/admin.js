@@ -11,5 +11,6 @@ router.get('/users', adminController.getAllUsers);
 router.put('/users/:id', adminController.updateUser);
 router.get('/inventory', adminController.getInventory);
 router.put('/inventory/:id', adminController.updateInventory);
+router.get('/reports', adminController.getReports);
 
 module.exports = router;
