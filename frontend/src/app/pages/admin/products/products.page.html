@@ -2,66 +2,84 @@
     <app-sidebar></app-sidebar>
     <div class="admin-content">
         <div class="admin-header">
-            <div>
-                <h1>Gestion de Productos</h1>
-                <p>Administra todos los productos de la tienda</p>
+            <h1>Gestion de Productos</h1>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="material-icons">search</span>
+                    <input type="text" [(ngModel)]="searchQuery" (input)="applySearch()" placeholder="Buscar producto...">
+                </div>
+                <button class="btn btn-primary" (click)="loadData()">
+                    <span class="material-icons">refresh</span>
+                    Actualizar
+                </button>
             </div>
-            <button class="btn btn-primary">
-                <span class="material-icons">add</span>
-                Nuevo Producto
-            </button>
         </div>
 
-        <div class="admin-card">
-            <div class="card-header">
-                <h2>Lista de Productos ({{ products.length }})</h2>
-                <div class="card-actions">
-                    <input type="text" placeholder="Buscar producto..." class="admin-search">
-                </div>
+        <div class="loading-state" *ngIf="loading">
+            <div class="spinner"></div>
+            <p>Cargando productos...</p>
+        </div>
+
+        <div class="admin-card" *ngIf="!loading">
+            <div class="table-stats">
+                <span class="stat-item">Total: <strong>{{ products.length }}</strong></span>
+                <span class="stat-item">Mostrando: <strong>{{ filteredProducts.length }}</strong></span>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Imagen</th>
-                            <th>Nombre</th>
+                            <th>Producto</th>
                             <th>Categoria</th>
                             <th>Marca</th>
                             <th>Precio</th>
-                            <th>Oferta</th>
-                            <th>Ventas</th>
+                            <th>Stock</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let p of products">
-                            <td>{{ p.id }}</td>
+                        <tr *ngFor="let p of filteredProducts">
+                            <td class="text-muted">#{{ p.id }}</td>
                             <td>
-                                <div class="table-img">
-                                    <img [src]="p.imagen_principal || 'assets/images/placeholder.svg'" [alt]="p.nombre">
+                                <div class="product-cell">
+                                    <div class="product-name">{{ p.nombre }}</div>
+                                    <div class="product-sku">{{ p.sku }}</div>
                                 </div>
                             </td>
-                            <td class="product-name-cell">{{ p.nombre }}</td>
-                            <td>{{ p.categoria }}</td>
+                            <td><span class="category-tag">{{ p.categoria }}</span></td>
                             <td>{{ p.marca }}</td>
-                            <td><strong>S/ {{ p.precio | number:'1.2-2' }}</strong></td>
-                            <td *ngIf="p.precio_oferta">S/ {{ p.precio_oferta | number:'1.2-2' }}</td>
-                            <td *ngIf="!p.precio_oferta">-</td>
-                            <td>{{ p.ventas || 0 }}</td>
+                            <td class="price-cell">S/ {{ (p.precio_oferta || p.precio) | number:'1.2-2' }}</td>
                             <td>
-                                <span class="badge badge-{{ p.estado === 'activo' ? 'success' : 'danger' }}">
-                                    {{ p.estado }}
+                                <span class="stock-badge" [class]="getStockBadge(p.stock, p.stock_minimo)">
+                                    {{ p.stock }} - {{ getStockLabel(p.stock, p.stock_minimo) }}
                                 </span>
                             </td>
-                            <td class="actions-cell">
-                                <button class="btn-icon btn-icon-edit" title="Editar">
-                                    <span class="material-icons">edit</span>
-                                </button>
-                                <button class="btn-icon btn-icon-delete" title="Eliminar">
-                                    <span class="material-icons">delete</span>
-                                </button>
+                            <td>
+                                <span class="status-toggle" [class.active]="p.estado === 'activo'" (click)="toggleStatus(p)">
+                                    <span class="status-dot"></span>
+                                    {{ p.estado === 'activo' ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-action btn-view" (click)="viewProduct(p.slug)" title="Ver producto">
+                                        <span class="material-icons">visibility</span>
+                                    </button>
+                                    <button class="btn-action btn-edit" title="Editar">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="btn-action btn-delete" (click)="deleteProduct(p)" title="Eliminar">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredProducts.length === 0">
+                            <td colspan="8" class="empty-state">
+                                <span class="material-icons">search_off</span>
+                                <p>No se encontraron productos</p>
                             </td>
                         </tr>
                     </tbody>

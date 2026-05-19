@@ -1,65 +1,99 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../../services/admin.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
     selector: 'app-admin-inventory',
-    template: `
-        <div class="admin-page">
-            <app-sidebar></app-sidebar>
-            <div class="admin-content">
-                <div class="admin-header"><h1>Gestion de Inventario</h1></div>
-                <div class="admin-card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>Producto</th><th>SKU</th><th>Categoria</th><th>Marca</th><th>Stock</th><th>Min</th><th>Ubicacion</th><th>Estado</th></tr></thead>
-                            <tbody>
-                                <tr *ngFor="let item of inventory">
-                                    <td>{{ item.nombre }}</td>
-                                    <td><code>{{ item.sku }}</code></td>
-                                    <td>{{ item.categoria }}</td>
-                                    <td>{{ item.marca }}</td>
-                                    <td>
-                                        <input type="number" [(ngModel)]="item.stock" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input">
-                                    </td>
-                                    <td>
-                                        <input type="number" [(ngModel)]="item.stock_minimo" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input">
-                                    </td>
-                                    <td>{{ item.ubicacion }}</td>
-                                    <td>
-                                        <span class="badge" [class]="item.stock <= item.stock_minimo ? 'badge-danger' : 'badge-success'">
-                                            {{ item.stock <= item.stock_minimo ? 'Bajo Stock' : 'OK' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
-    styles: [`
-        .admin-page { display: flex; min-height: 100vh; }
-        .admin-content { flex: 1; margin-left: 260px; padding: 32px; padding-top: 100px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .admin-header h1 { font-size: 28px; font-weight: 800; }
-        .admin-card { background: var(--white); border-radius: var(--radius-md); padding: 24px; box-shadow: var(--shadow-sm); }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--dark-light); border-bottom: 2px solid var(--gray-light); white-space: nowrap; }
-        td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--gray-light); }
-        tr:hover td { background: var(--light); }
-        .stock-input { width: 70px; padding: 6px 8px; border: 2px solid var(--gray-light); border-radius: var(--radius-sm); font-size: 13px; text-align: center; }
-        .stock-input:focus { border-color: var(--primary); }
-        code { background: var(--light); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-        @media (max-width: 768px) { .admin-content { margin-left: 0; padding: 20px; padding-top: 90px; } }
-    `]
+    templateUrl: './inventory.page.html',
+    styleUrls: ['./inventory.page.css']
 })
 export class AdminInventoryPage implements OnInit {
     inventory: any[] = [];
-    constructor(private adminService: AdminService) {}
-    ngOnInit(): void { this.adminService.getInventory().subscribe(res => { this.inventory = res.data; }); }
+    loading = true;
+    searchQuery = '';
+    filteredInventory: any[] = [];
+    lowStockOnly = false;
+    stockOkCount = 0;
+    stockLowCount = 0;
+    stockOutCount = 0;
+
+    constructor(private adminService: AdminService, private toast: ToastService) {}
+
+    ngOnInit(): void {
+        this.loadData();
+    }
+
+    loadData(): void {
+        this.loading = true;
+        this.adminService.getInventory().subscribe({
+            next: (res) => {
+                this.inventory = res.data || [];
+                this.updateCounts();
+                this.applyFilters();
+                this.loading = false;
+            },
+            error: () => { this.loading = false; }
+        });
+    }
+
+    updateCounts(): void {
+        this.stockOkCount = this.inventory.filter(i => i.stock > i.stock_minimo).length;
+        this.stockLowCount = this.inventory.filter(i => i.stock > 0 && i.stock <= i.stock_minimo).length;
+        this.stockOutCount = this.inventory.filter(i => i.stock <= 0).length;
+    }
+
+    loadData(): void {
+        this.loading = true;
+        this.adminService.getInventory().subscribe({
+            next: (res) => {
+                this.inventory = res.data || [];
+                this.applyFilters();
+                this.loading = false;
+            },
+            error: () => { this.loading = false; }
+        });
+    }
+
+    applyFilters(): void {
+        let items = [...this.inventory];
+        if (this.lowStockOnly) {
+            items = items.filter(i => i.stock <= i.stock_minimo);
+        }
+        if (this.searchQuery.trim()) {
+            const q = this.searchQuery.toLowerCase();
+            items = items.filter(i =>
+                i.nombre.toLowerCase().includes(q) ||
+                i.sku?.toLowerCase().includes(q) ||
+                i.categoria?.toLowerCase().includes(q) ||
+                i.marca?.toLowerCase().includes(q)
+            );
+        }
+        this.filteredInventory = items;
+    }
+
     updateStock(id: number, stock: number, min: number): void {
-        this.adminService.updateInventory(id, { stock, stock_minimo: min }).subscribe();
+        if (stock < 0) stock = 0;
+        this.adminService.updateInventory(id, { stock, stock_minimo: min }).subscribe({
+            next: () => this.toast.success('Inventario actualizado'),
+            error: () => this.toast.error('Error al actualizar')
+        });
+    }
+
+    getStockStatus(item: any): string {
+        if (item.stock <= 0) return 'agotado';
+        if (item.stock <= item.stock_minimo) return 'bajo';
+        return 'ok';
+    }
+
+    getStockBadgeClass(status: string): string {
+        if (status === 'agotado') return 'badge-danger';
+        if (status === 'bajo') return 'badge-warning';
+        return 'badge-success';
+    }
+
+    getStockLabel(status: string): string {
+        if (status === 'agotado') return 'Agotado';
+        if (status === 'bajo') return 'Stock Bajo';
+        return 'Disponible';
     }
 }
