@@ -2,7 +2,23 @@ const { pool } = require('../config/database');
 
 const getAll = async (req, res) => {
     try {
-        const [brands] = await pool.query('SELECT * FROM marcas WHERE estado = \'activo\' ORDER BY nombre');
+        const { categoria } = req.query;
+        let query = `
+            SELECT m.id, m.nombre, m.slug, m.logo, m.pais_origen, m.sitio_web, m.estado,
+                   COUNT(DISTINCT p.id) AS total_productos
+            FROM marcas m
+            INNER JOIN productos p ON p.marca_id = m.id AND p.estado = 'activo'
+            INNER JOIN categorias c ON p.categoria_id = c.id AND c.estado = 'activo'
+            WHERE m.estado = 'activo'
+        `;
+        const params = [];
+        if (categoria) {
+            query += ' AND c.slug = ?';
+            params.push(categoria);
+        }
+        query += ' GROUP BY m.id, m.nombre, m.slug, m.logo, m.pais_origen, m.sitio_web, m.estado';
+        query += ' HAVING total_productos > 0 ORDER BY m.nombre ASC';
+        const [brands] = await pool.query(query, params);
         res.json({ success: true, data: brands });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al obtener marcas', error: error.message });

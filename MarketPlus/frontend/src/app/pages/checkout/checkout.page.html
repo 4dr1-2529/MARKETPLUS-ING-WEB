@@ -63,7 +63,7 @@
             <h2>Tu Pedido</h2>
             <div class="order-items">
                 <div *ngFor="let item of cartItems" class="order-item">
-                    <img [src]="item.imagen_principal || 'assets/images/placeholder.jpg'" [alt]="item.nombre">
+                    <img [src]="item | productImage" [alt]="item.nombre" loading="lazy">
                     <div class="order-item-info">
                         <p class="order-item-name">{{ item.nombre }}</p>
                         <p class="order-item-qty">Cantidad: {{ item.cantidad }}</p>

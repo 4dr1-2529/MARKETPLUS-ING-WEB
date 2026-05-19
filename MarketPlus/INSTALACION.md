@@ -134,6 +134,13 @@ Deberias ver:
 ========================================
 ```
 
+### Importar productos desde DummyJSON (API tipo PokeAPI para tecnología):
+```bash
+cd C:\Users\HP\Music\ingwebb\MarketPlus\backend
+npm run sync:dummyjson
+```
+Importa celulares, laptops, tablets, accesorios, smartwatch, gaming y movilidad con **imágenes reales** desde `cdn.dummyjson.com`. Puedes ejecutarlo de nuevo cuando quieras actualizar el catálogo.
+
 ### Terminal 2 - Frontend:
 ```bash
 cd C:\Users\HP\Music\ingwebb\MarketPlus\frontend
@@ -184,6 +191,13 @@ Ejecutar PowerShell como Administrador
 ### Error: "Cannot find module"
 ```bash
 cd backend
+npm install
+```
+
+### Error: "Cannot find module caniuse-lite" (Frontend)
+```bash
+cd frontend
+Remove-Item -Recurse -Force node_modules
 npm install
 ```
 

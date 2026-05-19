@@ -118,4 +118,54 @@ const updateProfile = async (req, res) => {
     }
 };
 
-module.exports = { register, login, getProfile, updateProfile };
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const [users] = await pool.query('SELECT id, nombres, email FROM usuarios WHERE email = ?', [email]);
+        if (users.length === 0) {
+            return res.json({ success: true, message: 'Si el email existe, recibirás instrucciones de recuperación' });
+        }
+
+        const crypto = require('crypto');
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiracion = new Date(Date.now() + 3600000);
+
+        await pool.query(
+            'UPDATE usuarios SET token_recuperacion = ?, expiracion_token = ? WHERE id = ?',
+            [token, expiracion, users[0].id]
+        );
+
+        res.json({
+            success: true,
+            message: 'Si el email existe, recibirás instrucciones de recuperación',
+            data: process.env.NODE_ENV === 'development' ? { resetToken: token } : undefined
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al procesar solicitud', error: error.message });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+        const [users] = await pool.query(
+            'SELECT id FROM usuarios WHERE token_recuperacion = ? AND expiracion_token > NOW()',
+            [token]
+        );
+        if (users.length === 0) {
+            return res.status(400).json({ success: false, message: 'Token inválido o expirado' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await pool.query(
+            'UPDATE usuarios SET password = ?, token_recuperacion = NULL, expiracion_token = NULL WHERE id = ?',
+            [hashedPassword, users[0].id]
+        );
+
+        res.json({ success: true, message: 'Contraseña actualizada exitosamente' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al restablecer contraseña', error: error.message });
+    }
+};
+
+module.exports = { register, login, getProfile, updateProfile, forgotPassword, resetPassword };

@@ -1,0 +1,76 @@
+<div class="order-detail-page container" [@slideUp]>
+    <a routerLink="/mis-pedidos" class="back-link">
+        <span class="material-icons">arrow_back</span> Volver a mis pedidos
+    </a>
+
+    <div *ngIf="loading" class="loading-state">
+        <span class="spinner"></span>
+        <p>Cargando seguimiento...</p>
+    </div>
+
+    <ng-container *ngIf="!loading && order">
+        <div class="order-header">
+            <div>
+                <h1>Seguimiento del pedido</h1>
+                <p class="order-number">{{ order.numero_pedido }}</p>
+                <p class="order-date">{{ order.creado_en | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+            <span class="badge badge-{{ order.estado }}">{{ getStatusLabel(order.estado) }}</span>
+        </div>
+
+        <div class="tracking-timeline" *ngIf="order.estado !== 'cancelado' && order.estado !== 'devuelto'">
+            <div *ngFor="let step of statusSteps" class="timeline-step" [class.complete]="isStepComplete(step)" [class.active]="order.estado === step">
+                <div class="step-dot"></div>
+                <span class="step-label">{{ getStatusLabel(step) }}</span>
+            </div>
+        </div>
+
+        <div class="tracking-alert" *ngIf="order.tracking_numero">
+            <span class="material-icons">local_shipping</span>
+            <div>
+                <strong>Número de seguimiento</strong>
+                <p>{{ order.tracking_numero }}</p>
+            </div>
+        </div>
+
+        <div class="order-grid">
+            <div class="order-card">
+                <h2>Productos</h2>
+                <div *ngFor="let item of order.items" class="order-item">
+                    <img [src]="item.imagen_principal || 'assets/images/placeholder.svg'" [alt]="item.nombre">
+                    <div>
+                        <h3>{{ item.nombre }}</h3>
+                        <p>Cantidad: {{ item.cantidad }} × S/ {{ item.precio_unitario | number:'1.2-2' }}</p>
+                    </div>
+                    <span class="item-total">S/ {{ item.subtotal | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <div class="order-card summary-card">
+                <h2>Resumen</h2>
+                <div class="summary-row"><span>Subtotal</span><span>S/ {{ order.subtotal | number:'1.2-2' }}</span></div>
+                <div class="summary-row" *ngIf="order.descuento > 0"><span>Descuento</span><span>- S/ {{ order.descuento | number:'1.2-2' }}</span></div>
+                <div class="summary-row"><span>IGV (18%)</span><span>S/ {{ order.igv | number:'1.2-2' }}</span></div>
+                <div class="summary-row"><span>Envío</span><span>S/ {{ order.costo_envio | number:'1.2-2' }}</span></div>
+                <div class="summary-row total"><span>Total</span><span>S/ {{ order.total | number:'1.2-2' }}</span></div>
+                <div class="summary-row"><span>Método de pago</span><span>{{ order.metodo_pago }}</span></div>
+                <div class="address-block">
+                    <h3>Dirección de envío</h3>
+                    <p>{{ order.destinatario }}</p>
+                    <p>{{ order.direccion_linea1 }}, {{ order.distrito }}</p>
+                    <p>{{ order.provincia }}, {{ order.departamento }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-card history-card" *ngIf="order.history?.length">
+            <h2>Historial de estados</h2>
+            <div *ngFor="let h of order.history" class="history-item">
+                <span class="history-date">{{ h.creado_en | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span class="history-status">{{ h.estado_nuevo }}</span>
+                <span class="history-comment" *ngIf="h.comentario">{{ h.comentario }}</span>
+            </div>
+        </div>
+    </ng-container>
+</div>
+

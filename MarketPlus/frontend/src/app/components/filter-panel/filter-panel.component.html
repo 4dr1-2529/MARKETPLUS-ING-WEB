@@ -1,44 +1,58 @@
 <div class="filter-panel">
     <h3><span class="material-icons">filter_list</span> Filtros</h3>
 
-    <div class="filter-group">
-        <label>Categoria</label>
-        <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
-            <option value="">Todas las categorias</option>
-            <option *ngFor="let c of categories" [value]="c.slug">{{ c.nombre }}</option>
-        </select>
-    </div>
-
-    <div class="filter-group">
-        <label>Marca</label>
-        <select [(ngModel)]="selectedBrand" (change)="applyFilters()">
-            <option value="">Todas las marcas</option>
-            <option *ngFor="let b of brands" [value]="b.slug">{{ b.nombre }}</option>
-        </select>
-    </div>
-
-    <div class="filter-group">
-        <label>Precio</label>
-        <div class="price-range">
-            <input type="number" [(ngModel)]="minPrice" placeholder="Min" (change)="applyFilters()">
-            <span>-</span>
-            <input type="number" [(ngModel)]="maxPrice" placeholder="Max" (change)="applyFilters()">
+    <div class="filter-section" *ngIf="categories.length">
+        <label class="section-label">Categoría</label>
+        <div class="chips-row">
+            <button type="button"
+                    class="chip"
+                    [class.active]="!selectedCategory"
+                    (click)="selectCategory('')">
+                Todas
+            </button>
+            <button type="button"
+                    *ngFor="let c of categories"
+                    class="chip"
+                    [class.active]="selectedCategory === c.slug"
+                    (click)="selectCategory(c.slug)">
+                {{ getCategoryLabel(c.slug, c.nombre) }}
+                <span class="chip-count">{{ c.total_productos }}</span>
+            </button>
         </div>
     </div>
 
-    <div class="filter-group">
-        <label>Ordenar por</label>
-        <select [(ngModel)]="sort" (change)="applyFilters()">
-            <option value="newest">Mas recientes</option>
-            <option value="price_asc">Precio: Menor a Mayor</option>
-            <option value="price_desc">Precio: Mayor a Menor</option>
-            <option value="name_asc">Nombre: A - Z</option>
-            <option value="popular">Mas vendidos</option>
+    <div class="filter-section">
+        <label class="section-label">Marca</label>
+        <select [(ngModel)]="selectedBrand" (change)="applyFilters()" [disabled]="!brands.length">
+            <option value="">{{ brands.length ? 'Todas las marcas' : 'Elige una categoría' }}</option>
+            <option *ngFor="let b of brands" [value]="b.slug">
+                {{ b.nombre }} ({{ b.total_productos }})
+            </option>
         </select>
     </div>
 
-    <button class="btn-clear-filters" (click)="clearFilters()">
-        <span class="material-icons">clear_all</span>
-        Limpiar Filtros
+    <div class="filter-section">
+        <label class="section-label">Precio (soles)</label>
+        <div class="price-range">
+            <input type="number" [(ngModel)]="minPrice" placeholder="Mín" min="0" (change)="applyFilters()">
+            <span>—</span>
+            <input type="number" [(ngModel)]="maxPrice" placeholder="Máx" min="0" (change)="applyFilters()">
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <label class="section-label">Ordenar</label>
+        <select [(ngModel)]="sort" (change)="applyFilters()">
+            <option value="newest">Más recientes</option>
+            <option value="popular">Más vendidos</option>
+            <option value="price_asc">Precio: menor a mayor</option>
+            <option value="price_desc">Precio: mayor a menor</option>
+            <option value="name_asc">Nombre: A → Z</option>
+        </select>
+    </div>
+
+    <button type="button" class="btn-clear" (click)="clearFilters()">
+        <span class="material-icons">clear_all</span> Limpiar filtros
     </button>
 </div>
+

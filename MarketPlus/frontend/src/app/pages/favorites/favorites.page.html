@@ -1,0 +1,35 @@
+<div class="favorites-page container" [@list]>
+    <div class="page-header">
+        <h1><span class="material-icons">favorite</span> Mis Favoritos</h1>
+        <p>{{ favorites.length }} producto(s) guardado(s)</p>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+        <span class="spinner"></span>
+        <p>Cargando favoritos...</p>
+    </div>
+
+    <div *ngIf="!loading && favorites.length === 0" class="empty-state">
+        <span class="material-icons">favorite_border</span>
+        <h2>No tienes favoritos aún</h2>
+        <p>Explora el catálogo y guarda los productos que te gusten</p>
+        <a routerLink="/catalogo" class="btn btn-primary">Ir al Catálogo</a>
+    </div>
+
+    <div class="favorites-grid" *ngIf="!loading && favorites.length > 0">
+        <div *ngFor="let item of favorites" class="favorite-card" (click)="goToProduct(item.slug)">
+            <div class="favorite-image">
+                <img [src]="item | productImage" [alt]="item.nombre" loading="lazy">
+                <button class="btn-remove" (click)="removeFavorite(item.producto_id); $event.stopPropagation()" title="Quitar">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="favorite-info">
+                <span class="category">{{ item.categoria }}</span>
+                <h3>{{ item.nombre }}</h3>
+                <p class="brand">{{ item.marca }}</p>
+                <p class="price">S/ {{ getPrice(item) | number:'1.2-2' }}</p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,51 +1,65 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Producto } from '../../models/producto.model';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { FavoriteService } from '../../services/favorite.service';
+import { ToastService } from '../../services/toast.service';
+import { getCategoryLabel } from '../../utils/category-label.util';
+import { getProductImageUrl, getCategoryFallbackUrl } from '../../utils/product-image.util';
 
 @Component({
     selector: 'app-product-card',
-    template: `
-        <div class="product-card" (click)="goToProduct()">
-            <div class="product-image">
-                <img [src]="product.imagen_principal || 'assets/images/placeholder.jpg'" [alt]="product.nombre">
-                <span class="badge-discount" *ngIf="product.descuento_porcentaje">-{{ product.descuento_porcentaje }}%</span>
-                <span class="badge-new" *ngIf="product.nuevo">NUEVO</span>
-                <button class="btn-favorite" (click)="toggleFavorite($event)">
-                    <span class="material-icons">{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
-                </button>
-            </div>
-            <div class="product-info">
-                <span class="product-category">{{ product.categoria }}</span>
-                <h3 class="product-name">{{ product.nombre }}</h3>
-                <div class="product-rating" *ngIf="product.promedio_valoracion">
-                    <span class="material-icons star" *ngFor="let s of [1,2,3,4,5]">{{ s <= (product.promedio_valoracion || 0) ? 'star' : 'star_border' }}</span>
-                    <span>({{ product.total_valoraciones }})</span>
-                </div>
-                <div class="product-price">
-                    <span class="price-current" *ngIf="product.precio_oferta">S/ {{ product.precio_oferta | number:'1.2-2' }}</span>
-                    <span class="price-original" *ngIf="product.precio_oferta">S/ {{ product.precio | number:'1.2-2' }}</span>
-                    <span class="price-current" *ngIf="!product.precio_oferta">S/ {{ product.precio | number:'1.2-2' }}</span>
-                </div>
-                <button class="btn-add-cart" (click)="addToCart($event)">
-                    <span class="material-icons">shopping_cart</span>
-                    Agregar
-                </button>
-            </div>
-        </div>
-    `,
+    templateUrl: './product-card.component.html',
     styleUrls: ['./product-card.component.css']
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
     @Input() product!: Producto;
+    @Input() favoriteIds: number[] = [];
     isFavorite = false;
+    imageUrl = '';
+    private imageFallbackStep = 0;
 
     constructor(
         private router: Router,
         private cartService: CartService,
-        private auth: AuthService
+        private auth: AuthService,
+        private favoriteService: FavoriteService,
+        private toast: ToastService
     ) {}
+
+    ngOnInit(): void {
+        this.isFavorite = this.favoriteIds.includes(this.product.id);
+        this.imageUrl = getProductImageUrl(this.product);
+    }
+
+    onImageError(): void {
+        if (this.imageFallbackStep === 0) {
+            this.imageFallbackStep = 1;
+            this.imageUrl = getCategoryFallbackUrl(this.product.categoria_slug);
+        } else if (this.imageFallbackStep === 1) {
+            this.imageFallbackStep = 2;
+            this.imageUrl = 'assets/images/placeholder.svg';
+        }
+    }
+
+    get categoryLabel(): string {
+        return getCategoryLabel(this.product.categoria_slug || '', this.product.categoria);
+    }
+
+    get categoryLabelUpper(): string {
+        return this.categoryLabel.toUpperCase();
+    }
+
+    get shortDescription(): string {
+        const text = (this.product.descripcion || '').trim();
+        if (!text) return '';
+        return text.length > 95 ? text.slice(0, 92) + '…' : text;
+    }
+
+    get displayPrice(): number {
+        return this.product.precio_oferta ?? this.product.precio;
+    }
 
     goToProduct(): void {
         this.router.navigate(['/producto', this.product.slug]);
@@ -53,7 +67,27 @@ export class ProductCardComponent {
 
     toggleFavorite(event: Event): void {
         event.stopPropagation();
-        this.isFavorite = !this.isFavorite;
+        if (!this.auth.isAuthenticated) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        if (this.isFavorite) {
+            this.favoriteService.removeFavorite(this.product.id).subscribe({
+                next: () => {
+                    this.isFavorite = false;
+                    this.toast.success('Eliminado de favoritos');
+                },
+                error: () => this.toast.error('No se pudo eliminar')
+            });
+        } else {
+            this.favoriteService.addFavorite(this.product.id).subscribe({
+                next: () => {
+                    this.isFavorite = true;
+                    this.toast.success('Agregado a favoritos');
+                },
+                error: (err) => this.toast.error(err.error?.message || 'Error al agregar')
+            });
+        }
     }
 
     addToCart(event: Event): void {
@@ -63,8 +97,8 @@ export class ProductCardComponent {
             return;
         }
         this.cartService.addToCart(this.product.id, 1).subscribe({
-            next: () => {},
-            error: (err) => console.error(err)
+            next: () => this.toast.success('Producto agregado al carrito'),
+            error: (err) => this.toast.error(err.error?.message || 'Error al agregar')
         });
     }
 }

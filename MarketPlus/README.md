@@ -83,7 +83,8 @@ MARKETPLUS/
 │
 ├── database/                    # Scripts de base de datos
 │   ├── marketplus.sql           # Estructura (18 tablas)
-│   └── seed.sql                 # Datos de ejemplo
+│   ├── seed.sql                 # Datos de ejemplo
+│   └── DIAGRAMA-ER.md           # Diagrama entidad-relacion (Mermaid)
 │
 └── README.md                    # Documentacion del proyecto
 ```
@@ -172,8 +173,17 @@ npm start
 |--------|------|-------------|------|
 | POST | `/api/auth/register` | Registrar usuario | No |
 | POST | `/api/auth/login` | Iniciar sesion | No |
+| POST | `/api/auth/forgot-password` | Solicitar recuperacion | No |
+| POST | `/api/auth/reset-password` | Restablecer contraseña | No |
 | GET | `/api/auth/profile` | Obtener perfil | Si |
 | PUT | `/api/auth/profile` | Actualizar perfil | Si |
+
+### Favoritos
+| Metodo | Ruta | Descripcion | Auth |
+|--------|------|-------------|------|
+| GET | `/api/favorites` | Listar favoritos | Si |
+| POST | `/api/favorites` | Agregar favorito | Si |
+| DELETE | `/api/favorites/:productId` | Quitar favorito | Si |
 
 ### Productos
 | Metodo | Ruta | Descripcion | Auth |
@@ -262,7 +272,8 @@ productos (1) ─────< (1) inventario
 - [x] Checkout con cupones de descuento
 - [x] Historial de pedidos
 - [x] Perfil de usuario editable
-- [x] Lista de favoritos
+- [x] Lista de favoritos (`/favoritos`)
+- [x] Seguimiento de pedidos (`/mis-pedidos/:numero`)
 
 ### Administrador
 - [x] Dashboard con estadisticas

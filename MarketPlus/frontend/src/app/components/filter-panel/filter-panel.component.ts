@@ -1,51 +1,15 @@
-import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
-import { CategoryService } from '../../services/category.service';
-import { BrandService } from '../../services/brand.service';
+import { Component, Output, EventEmitter, Input, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { getCategoryLabel } from '../../utils/category-label.util';
 
 @Component({
     selector: 'app-filter-panel',
-    template: `
-        <div class="filter-panel">
-            <h3><span class="material-icons">filter_list</span> Filtros</h3>
-            <div class="filter-group">
-                <label>Categoria</label>
-                <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
-                    <option value="">Todas</option>
-                    <option *ngFor="let c of categories" [value]="c.slug">{{ c.nombre }}</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Marca</label>
-                <select [(ngModel)]="selectedBrand" (change)="applyFilters()">
-                    <option value="">Todas</option>
-                    <option *ngFor="let b of brands" [value]="b.slug">{{ b.nombre }}</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Precio</label>
-                <div class="price-range">
-                    <input type="number" [(ngModel)]="minPrice" placeholder="Min" (change)="applyFilters()">
-                    <span>-</span>
-                    <input type="number" [(ngModel)]="maxPrice" placeholder="Max" (change)="applyFilters()">
-                </div>
-            </div>
-            <div class="filter-group">
-                <label>Ordenar</label>
-                <select [(ngModel)]="sort" (change)="applyFilters()">
-                    <option value="newest">Mas recientes</option>
-                    <option value="price_asc">Precio: Menor a Mayor</option>
-                    <option value="price_desc">Precio: Mayor a Menor</option>
-                    <option value="name_asc">Nombre: A-Z</option>
-                    <option value="popular">Mas vendidos</option>
-                </select>
-            </div>
-            <button class="btn-clear" (click)="clearFilters()">Limpiar Filtros</button>
-        </div>
-    `,
+    templateUrl: './filter-panel.component.html',
     styleUrls: ['./filter-panel.component.css']
 })
-export class FilterPanelComponent implements OnInit {
-    @Output() filterChange = new EventEmitter<any>();
+export class FilterPanelComponent implements OnInit, OnDestroy {
+    @Output() filterChange = new EventEmitter<void>();
     @Input() categories: any[] = [];
     @Input() brands: any[] = [];
 
@@ -55,21 +19,47 @@ export class FilterPanelComponent implements OnInit {
     maxPrice: number | null = null;
     sort = 'newest';
 
-    constructor(private categoryService: CategoryService, private brandService: BrandService) {}
+    private sub?: Subscription;
+
+    constructor(private router: Router, private route: ActivatedRoute) {}
 
     ngOnInit(): void {
-        this.categoryService.getAll().subscribe(res => this.categories = res.data);
-        this.brandService.getAll().subscribe(res => this.brands = res.data);
+        this.syncFromUrl(this.route.snapshot.queryParams);
+        this.sub = this.route.queryParams.subscribe(params => this.syncFromUrl(params));
+    }
+
+    ngOnDestroy(): void {
+        this.sub?.unsubscribe();
+    }
+
+    getCategoryLabel = getCategoryLabel;
+
+    private syncFromUrl(q: Record<string, string>): void {
+        this.selectedCategory = q['categoria'] || '';
+        this.selectedBrand = q['marca'] || '';
+        this.minPrice = q['minPrice'] ? +q['minPrice'] : null;
+        this.maxPrice = q['maxPrice'] ? +q['maxPrice'] : null;
+        this.sort = q['sort'] || 'newest';
     }
 
     applyFilters(): void {
-        this.filterChange.emit({
-            categoria: this.selectedCategory || null,
-            marca: this.selectedBrand || null,
-            minPrice: this.minPrice,
-            maxPrice: this.maxPrice,
-            sort: this.sort
-        });
+        const queryParams: Record<string, string | number> = { page: 1 };
+        if (this.selectedCategory) queryParams['categoria'] = this.selectedCategory;
+        if (this.selectedBrand) queryParams['marca'] = this.selectedBrand;
+        if (this.minPrice) queryParams['minPrice'] = this.minPrice;
+        if (this.maxPrice) queryParams['maxPrice'] = this.maxPrice;
+        if (this.sort && this.sort !== 'newest') queryParams['sort'] = this.sort;
+
+        this.router.navigate(['/catalogo'], { queryParams });
+        this.filterChange.emit();
+    }
+
+    selectCategory(slug: string): void {
+        this.selectedCategory = slug;
+        if (slug !== this.route.snapshot.queryParams['categoria']) {
+            this.selectedBrand = '';
+        }
+        this.applyFilters();
     }
 
     clearFilters(): void {
@@ -78,6 +68,7 @@ export class FilterPanelComponent implements OnInit {
         this.minPrice = null;
         this.maxPrice = null;
         this.sort = 'newest';
-        this.applyFilters();
+        this.router.navigate(['/catalogo'], { queryParams: { sort: 'newest', page: 1 } });
+        this.filterChange.emit();
     }
 }
