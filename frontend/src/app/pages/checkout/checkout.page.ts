@@ -38,12 +38,17 @@ export class CheckoutPage implements OnInit {
         tipo: 'casa',
         destinatario: '',
         direccion_linea1: '',
+        direccion_linea2: '',
         departamento: '',
         provincia: '',
         distrito: '',
+        codigo_postal: '',
+        referencia: '',
         telefono: '',
         es_principal: false
     };
+
+    addressErrors: string[] = [];
 
     constructor(
         private cartService: CartService,
@@ -130,24 +135,56 @@ export class CheckoutPage implements OnInit {
             departamento: '',
             provincia: '',
             distrito: '',
+            codigo_postal: '',
+            referencia: '',
             telefono: '',
             es_principal: false
         };
+        this.addressErrors = [];
         this.showAddressModal = true;
     }
 
     closeAddressModal(): void {
         this.showAddressModal = false;
+        this.addressErrors = [];
+    }
+
+    validateAddress(): boolean {
+        this.addressErrors = [];
+        const a = this.newAddress;
+
+        if (!a.destinatario || a.destinatario.trim().length < 3) {
+            this.addressErrors.push('El destinatario debe tener al menos 3 caracteres');
+        }
+        if (!a.direccion_linea1 || a.direccion_linea1.trim().length < 5) {
+            this.addressErrors.push('La direccion debe tener al menos 5 caracteres');
+        }
+        if (!a.departamento) {
+            this.addressErrors.push('Selecciona un departamento');
+        }
+        if (!a.provincia || a.provincia.trim().length < 2) {
+            this.addressErrors.push('La provincia es obligatoria');
+        }
+        if (!a.distrito || a.distrito.trim().length < 2) {
+            this.addressErrors.push('El distrito es obligatorio');
+        }
+        if (a.telefono && (a.telefono.length !== 9 || !/^\d+$/.test(a.telefono))) {
+            this.addressErrors.push('El telefono debe tener 9 digitos');
+        }
+        if (a.codigo_postal && !/^\d{5}$/.test(a.codigo_postal)) {
+            this.addressErrors.push('El codigo postal debe tener 5 digitos');
+        }
+
+        return this.addressErrors.length === 0;
     }
 
     saveNewAddress(): void {
-        if (!this.newAddress.destinatario || !this.newAddress.direccion_linea1 || !this.newAddress.departamento || !this.newAddress.provincia || !this.newAddress.distrito) {
-            this.toast.warning('Completa todos los campos obligatorios');
+        if (!this.validateAddress()) {
             return;
         }
         this.addressService.create(this.newAddress).subscribe({
             next: (res) => {
-                this.toast.success('Direccion agregada');
+                this.toast.success('Direccion agregada exitosamente');
                 this.closeAddressModal();
                 this.loadAddresses();
                 if (res.data && res.data.id) {
@@ -174,6 +211,10 @@ export class CheckoutPage implements OnInit {
             this.toast.warning('Selecciona una direccion de envio');
             return;
         }
+        if (this.cartItems.length === 0) {
+            this.toast.warning('Tu carrito esta vacio');
+            return;
+        }
         this.loading = true;
         const orderData = {
             direccion_id: Number(this.checkoutData.direccion_id),
@@ -182,14 +223,17 @@ export class CheckoutPage implements OnInit {
             notas: this.checkoutData.notas
         };
         this.orderService.createOrder(orderData).subscribe({
-            next: () => {
+            next: (res) => {
                 this.loading = false;
-                this.toast.success('Pedido creado exitosamente');
-                this.router.navigate(['/mis-pedidos']);
+                const numero = res.data?.numero_pedido || 'N/A';
+                const total = res.data?.total || this.getTotal();
+                this.toast.success(`Pedido ${numero} creado - Total: S/ ${total.toFixed(2)}`);
+                this.router.navigate(['/mis-pedidos', numero]);
             },
-            error: () => {
+            error: (err) => {
                 this.loading = false;
-                this.toast.error('Error al crear el pedido');
+                const msg = err.error?.message || 'Error al crear el pedido. Intenta nuevamente.';
+                this.toast.error(msg);
             }
         });
     }

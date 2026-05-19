@@ -75,6 +75,7 @@ export class ProductCardComponent implements OnInit {
             this.favoriteService.removeFavorite(this.product.id).subscribe({
                 next: () => {
                     this.isFavorite = false;
+                    this.favoriteService.updateCount(this.favoriteService.getCount() - 1);
                     this.toast.success('Eliminado de favoritos');
                 },
                 error: () => this.toast.error('No se pudo eliminar')
@@ -83,6 +84,7 @@ export class ProductCardComponent implements OnInit {
             this.favoriteService.addFavorite(this.product.id).subscribe({
                 next: () => {
                     this.isFavorite = true;
+                    this.favoriteService.updateCount(this.favoriteService.getCount() + 1);
                     this.toast.success('Agregado a favoritos');
                 },
                 error: (err) => this.toast.error(err.error?.message || 'Error al agregar')
@@ -97,7 +99,10 @@ export class ProductCardComponent implements OnInit {
             return;
         }
         this.cartService.addToCart(this.product.id, 1).subscribe({
-            next: () => this.toast.success('Producto agregado al carrito'),
+            next: () => {
+                this.cartService.updateCount(this.cartService.getCount() + 1);
+                this.toast.success('Producto agregado al carrito');
+            },
             error: (err) => this.toast.error(err.error?.message || 'Error al agregar')
         });
     }

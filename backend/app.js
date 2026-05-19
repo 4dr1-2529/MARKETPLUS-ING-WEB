@@ -44,6 +44,29 @@ app.use('/uploads', express.static('uploads'));
 const { pool } = require('./config/database');
 app.locals.pool = pool;
 
+app.get('/', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Bienvenido a MarketPlus API',
+        version: '1.0.0',
+        docs: 'http://localhost:3001/api/products',
+        endpoints: {
+            auth: '/api/auth',
+            products: '/api/products',
+            categories: '/api/categories',
+            brands: '/api/brands',
+            cart: '/api/cart',
+            orders: '/api/orders',
+            favorites: '/api/favorites',
+            addresses: '/api/addresses',
+            reviews: '/api/reviews',
+            notifications: '/api/notifications',
+            coupons: '/api/coupons',
+            admin: '/api/admin'
+        }
+    });
+});
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/categories', require('./routes/categories'));

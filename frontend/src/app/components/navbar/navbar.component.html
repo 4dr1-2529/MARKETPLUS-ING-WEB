@@ -32,9 +32,10 @@
                 <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
             </a>
 
-            <a *ngIf="isLoggedIn" routerLink="/favoritos" class="nav-link">
+            <a *ngIf="isLoggedIn" routerLink="/favoritos" class="nav-link fav-link">
                 <span class="material-icons">favorite</span>
                 <span class="nav-text">Favoritos</span>
+                <span class="fav-badge" *ngIf="favCount > 0">{{ favCount }}</span>
             </a>
 
             <ng-container *ngIf="isLoggedIn; else guestLinks">

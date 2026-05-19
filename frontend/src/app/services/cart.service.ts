@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CarritoItem, CarritoResponse } from '../models/index.model';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
     private apiUrl = environment.apiUrl;
+    private countSubject = new BehaviorSubject<number>(0);
+    count$ = this.countSubject.asObservable();
 
     constructor(private http: HttpClient) {}
 
@@ -28,5 +30,13 @@ export class CartService {
 
     clearCart(): Observable<{ success: boolean; message: string }> {
         return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/cart/clear`);
+    }
+
+    updateCount(count: number): void {
+        this.countSubject.next(count);
+    }
+
+    getCount(): number {
+        return this.countSubject.value;
     }
 }
