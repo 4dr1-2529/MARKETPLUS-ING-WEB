@@ -23,7 +23,7 @@
                 <div class="address-options" *ngIf="!addressesLoading && addresses.length > 0">
                     <label *ngFor="let addr of addresses"
                            class="address-option"
-                           [class.selected]="checkoutData.direccion_id === String(addr.id)">
+                            [class.selected]="checkoutData.direccion_id === toString(addr.id)">
                         <input type="radio" name="address" [value]="addr.id" [(ngModel)]="checkoutData.direccion_id">
                         <div class="address-option-content">
                             <div class="address-option-header">

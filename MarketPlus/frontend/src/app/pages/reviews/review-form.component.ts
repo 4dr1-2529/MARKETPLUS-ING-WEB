@@ -65,4 +65,9 @@ export class ReviewFormComponent implements OnInit {
         this.comentario = '';
         this.submitted = false;
     }
+
+    getRatingText(): string {
+        const texts = ['', 'Malo', 'Regular', 'Bueno', 'Muy bueno', 'Excelente'];
+        return texts[this.rating] || '';
+    }
 }

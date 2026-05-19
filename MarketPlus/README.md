@@ -1,214 +1,247 @@
-# MARKETPLUS - Tienda Online de Productos Tecnologicos
+# MarketPlus - Tienda Online de Productos Tecnologicos
 
-![MarketPlus](https://img.shields.io/badge/version-1.0.0-blue)
-![Angular](https://img.shields.io/badge/Angular-17-DD0031)
-![Node.js](https://img.shields.io/badge/Node.js-Express-339933)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1)
+> Proyecto Universitario - Aplicacion Web Full Stack Moderna y Profesional
 
-Sistema completo de tienda online de productos tecnologicos con frontend en Angular, backend en Node.js/Express y base de datos MySQL. Proyecto universitario profesional.
+![Angular](https://img.shields.io/badge/Angular-17-DD0031?style=for-the-badge&logo=angular)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)
 
----
+## Descripcion
 
-## ESTRUCTURA DEL PROYECTO
+MarketPlus es una tienda online completa de productos tecnologicos, desarrollada con Angular 17 en el frontend y Node.js + Express en el backend, con base de datos MySQL. Incluye sistema de autenticacion JWT, carrito de compras, gestion de pedidos, panel de administracion y mucho mas.
+
+## Caracteristicas Principales
+
+### Usuario
+- Registro e inicio de sesion con JWT
+- Recuperacion y cambio de contraseña
+- Catalogo de productos con busqueda y filtros
+- Carrito de compras
+- Lista de favoritos
+- Gestion de direcciones de envio
+- Checkout con cupones de descuento
+- Historial de pedidos y seguimiento
+- Valoraciones y reseñas de productos
+- Notificaciones en tiempo real
+
+### Administrador
+- Dashboard con estadisticas en tiempo real
+- CRUD completo de productos, categorias y marcas
+- Gestion de usuarios
+- Control de inventario
+- Gestion de pedidos y estados
+- Reportes y estadisticas avanzadas
+- Top clientes y productos mas vendidos
+- Alertas de stock bajo
+
+## Estructura del Proyecto
 
 ```
-MARKETPLUS/
-├── frontend/                    # Aplicacion Angular (Cliente)
+MarketPlus/
+├── frontend/                   # Aplicacion Angular
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── components/      # Componentes reutilizables
-│   │   │   │   ├── navbar/      # Barra de navegacion principal
-│   │   │   │   ├── footer/      # Pie de pagina
-│   │   │   │   ├── sidebar/     # Panel lateral de administracion
-│   │   │   │   ├── loader/      # Indicador de carga
-│   │   │   │   ├── toast/       # Notificaciones emergentes
-│   │   │   │   ├── product-card/# Tarjeta de producto
-│   │   │   │   ├── search-bar/  # Barra de busqueda
-│   │   │   │   └── filter-panel/# Panel de filtros
-│   │   │   ├── pages/           # Paginas principales
-│   │   │   │   ├── home/        # Pagina de inicio
-│   │   │   │   ├── login/       # Inicio de sesion
-│   │   │   │   ├── register/    # Registro de usuario
-│   │   │   │   ├── catalog/     # Catalogo de productos
-│   │   │   │   ├── cart/        # Carrito de compras
-│   │   │   │   ├── checkout/    # Proceso de pago
-│   │   │   │   ├── profile/     # Perfil de usuario
-│   │   │   │   ├── orders/      # Historial de pedidos
-│   │   │   │   └── admin/       # Panel de administracion
-│   │   │   ├── services/        # Servicios HTTP (API calls)
-│   │   │   ├── models/          # Interfaces TypeScript
-│   │   │   ├── guards/          # Guards de rutas (Auth, Admin)
-│   │   │   ├── interceptors/    # Interceptores HTTP (JWT)
-│   │   │   └── shared/          # Modulos compartidos
-│   │   ├── environments/        # Variables de entorno
-│   │   ├── assets/              # Imagenes, iconos, fuentes
-│   │   ├── styles.css           # Estilos globales
-│   │   ├── index.html           # HTML principal
-│   │   └── main.ts              # Punto de entrada Angular
-│   ├── angular.json             # Configuracion Angular
-│   ├── package.json             # Dependencias frontend
-│   └── tsconfig.json            # Configuracion TypeScript
+│   │   │   ├── components/     # Componentes reutilizables
+│   │   │   ├── pages/          # Paginas principales
+│   │   │   │   ├── admin/      # Panel de administracion
+│   │   │   │   ├── addresses/  # Gestion de direcciones
+│   │   │   │   ├── coupons/    # Cupones disponibles
+│   │   │   │   ├── notifications/ # Notificaciones
+│   │   │   │   ├── reviews/    # Reseñas de productos
+│   │   │   │   └── ...
+│   │   │   ├── services/       # Servicios HTTP
+│   │   │   ├── models/         # Interfaces TypeScript
+│   │   │   ├── guards/         # Guards de autenticacion
+│   │   │   ├── interceptors/   # Interceptores HTTP
+│   │   │   ├── pipes/          # Pipes personalizados
+│   │   │   └── shared/         # Modulo compartido
+│   │   ├── assets/             # Recursos estaticos
+│   │   └── environments/       # Configuraciones de entorno
+│   └── package.json
 │
-├── backend/                     # API REST (Servidor)
-│   ├── config/
-│   │   └── database.js          # Conexion a MySQL (pool)
-│   ├── controllers/             # Logica de negocio
-│   │   ├── authController.js    # Login, registro, perfil
-│   │   ├── productController.js # CRUD productos
-│   │   ├── categoryController.js# CRUD categorias
-│   │   ├── brandController.js   # CRUD marcas
-│   │   ├── cartController.js    # Carrito de compras
-│   │   ├── orderController.js   # Gestion de pedidos
-│   │   └── adminController.js   # Dashboard admin
-│   ├── routes/                  # Definicion de rutas API
-│   │   ├── auth.js              # /api/auth/*
-│   │   ├── products.js          # /api/products/*
-│   │   ├── categories.js        # /api/categories/*
-│   │   ├── brands.js            # /api/brands/*
-│   │   ├── cart.js              # /api/cart/*
-│   │   ├── orders.js            # /api/orders/*
-│   │   └── admin.js             # /api/admin/*
-│   ├── middleware/              # Middleware Express
-│   │   ├── auth.js              # Verificacion JWT
-│   │   └── admin.js             # Verificacion rol admin
-│   ├── models/                  # Modelos de datos
-│   ├── services/                # Servicios de negocio
-│   ├── utils/                   # Utilidades
-│   ├── uploads/                 # Archivos subidos
-│   ├── database/                # Scripts SQL
-│   ├── app.js                   # Configuracion Express
-│   ├── server.js                # Punto de entrada servidor
-│   ├── package.json             # Dependencias backend
-│   └── .env                     # Variables de entorno
+├── backend/                    # API REST Node.js
+│   ├── config/                 # Configuracion de base de datos
+│   ├── controllers/            # Controladores de rutas
+│   ├── middleware/             # Middleware (auth, validaciones)
+│   ├── routes/                 # Definicion de rutas API
+│   ├── services/               # Servicios auxiliares
+│   ├── utils/                  # Utilidades y helpers
+│   ├── uploads/                # Archivos subidos
+│   ├── app.js                  # Configuracion de Express
+│   ├── server.js               # Punto de entrada
+│   └── .env                    # Variables de entorno
 │
-├── database/                    # Scripts de base de datos
-│   ├── marketplus.sql           # Estructura (18 tablas)
-│   ├── seed.sql                 # Datos de ejemplo
-│   └── DIAGRAMA-ER.md           # Diagrama entidad-relacion (Mermaid)
+├── database/                   # Scripts de base de datos
+│   ├── marketplus.sql          # Estructura completa (18 tablas)
+│   ├── seed.sql                # Datos de ejemplo
+│   ├── views.sql               # Vistas personalizadas
+│   └── procedures.sql          # Procedimientos almacenados
 │
-└── README.md                    # Documentacion del proyecto
+└── README.md
 ```
 
----
+## Base de Datos
 
-## REQUISITOS PREVIOS
+### Tablas (18)
 
-- **Node.js** v18 o superior
-- **MySQL** v8.0 o superior
-- **Angular CLI** v17
-- **npm** v9 o superior
+| # | Tabla | Descripcion |
+|---|-------|-------------|
+| 1 | roles | Roles de usuario (admin, usuario) |
+| 2 | usuarios | Usuarios registrados |
+| 3 | categorias | Categorias de productos |
+| 4 | marcas | Marcas de productos |
+| 5 | proveedores | Proveedores de productos |
+| 6 | productos | Catalogo de productos |
+| 7 | inventario | Control de stock |
+| 8 | direcciones | Direcciones de envio |
+| 9 | carrito | Carrito de compras |
+| 10 | detalle_carrito | Items del carrito |
+| 11 | pedidos | Ordenes de compra |
+| 12 | detalle_pedido | Items del pedido |
+| 13 | pagos | Historial de pagos |
+| 14 | cupones | Cupones de descuento |
+| 15 | valoraciones | Reseñas y calificaciones |
+| 16 | favoritos | Lista de deseos |
+| 17 | historial_pedidos | Seguimiento de pedidos |
+| 18 | notificaciones | Notificaciones del sistema |
 
----
+## Tecnologias Utilizadas
 
-## INSTALACION PASO A PASO
+### Frontend
+- **Angular 17** - Framework web
+- **TypeScript 5** - Tipado estatico
+- **RxJS** - Programacion reactiva
+- **CSS3** - Diseño moderno con variables CSS
+- **Angular Animations** - Animaciones suaves
+- **Responsive Design** - Mobile-first approach
 
-### 1. BASE DE DATOS
+### Backend
+- **Node.js** - Entorno de ejecucion
+- **Express.js** - Framework web
+- **MySQL 8.0** - Base de datos relacional
+- **JWT** - Autenticacion
+- **bcrypt** - Encriptacion de contraseñas
+- **express-rate-limit** - Proteccion contra abuso
+- **express-validator** - Validacion de datos
+- **multer** - Subida de archivos
+- **morgan** - Logging de requests
 
+## Instalacion y Configuracion
+
+### Requisitos Previos
+- Node.js >= 18.0.0
+- MySQL >= 8.0
+- npm >= 9.0.0
+
+### Paso 1: Clonar el repositorio
+```bash
+git clone <repository-url>
+cd MarketPlus
+```
+
+### Paso 2: Configurar la Base de Datos
 ```bash
 # Iniciar MySQL
 mysql -u root -p
 
-# Ejecutar scripts SQL
+# Crear base de datos y tablas
 source database/marketplus.sql
-source database/seed.sql
 
-# Verificar
-USE marketplus_db;
-SHOW TABLES;
+# Cargar datos de ejemplo
+source database/seed.sql
 ```
 
-### 2. BACKEND
-
+### Paso 3: Configurar el Backend
 ```bash
 cd backend
-
-# Instalar dependencias
 npm install
 
 # Configurar variables de entorno
-copy .env.example .env
-
 # Editar .env con tus credenciales de MySQL
-# DB_PASSWORD=tu_password_aqui
-# JWT_SECRET=tu_secreto_super_secreto
-
-# Iniciar servidor
-npm run dev
-
-# El backend correra en http://localhost:3000
+cp .env.example .env
 ```
 
-### 3. FRONTEND
+**Archivo .env:**
+```env
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=tu_password
+DB_NAME=marketplus_db
+JWT_SECRET=tu_secreto_super_secreto
+JWT_EXPIRES_IN=7d
+FRONTEND_URL=http://localhost:2626
+NODE_ENV=development
+```
 
+### Paso 4: Configurar el Frontend
 ```bash
 cd frontend
-
-# Instalar dependencias
 npm install
-
-# Iniciar servidor de desarrollo
-npm start
-
-# El frontend correra en http://localhost:2626
 ```
 
----
+### Paso 5: Ejecutar la Aplicacion
 
-## CREDENCIALES DE PRUEBA
+**Opcion 1: Ejecutar por separado**
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend
+ng serve --port 2626
+```
+
+**Opcion 2: Ejecutar simultaneamente (desde la raiz)**
+```bash
+npm install
+npm run dev
+```
+
+### Acceder a la Aplicacion
+- **Frontend:** http://localhost:2626
+- **Backend API:** http://localhost:3000/api
+
+## Credenciales de Prueba
 
 ### Administrador
-- **Email:** admin@marketplus.pe
-- **Password:** 12345678
+- **Email:** admin@marketplus.com
+- **Contraseña:** 12345678
 
-### Usuario Cliente
-- **Email:** carlos.rodriguez@gmail.com
-- **Password:** 12345678
+### Usuario
+- **Email:** usuario@marketplus.com
+- **Contraseña:** 12345678
 
----
-
-## API REST - ENDPOINTS
+## API REST Endpoints
 
 ### Autenticacion
 | Metodo | Ruta | Descripcion | Auth |
 |--------|------|-------------|------|
-| POST | `/api/auth/register` | Registrar usuario | No |
-| POST | `/api/auth/login` | Iniciar sesion | No |
-| POST | `/api/auth/forgot-password` | Solicitar recuperacion | No |
+| POST | `/api/auth/register` | Registro de usuario | No |
+| POST | `/api/auth/login` | Inicio de sesion | No |
+| POST | `/api/auth/forgot-password` | Recuperar contraseña | No |
 | POST | `/api/auth/reset-password` | Restablecer contraseña | No |
 | GET | `/api/auth/profile` | Obtener perfil | Si |
 | PUT | `/api/auth/profile` | Actualizar perfil | Si |
-
-### Favoritos
-| Metodo | Ruta | Descripcion | Auth |
-|--------|------|-------------|------|
-| GET | `/api/favorites` | Listar favoritos | Si |
-| POST | `/api/favorites` | Agregar favorito | Si |
-| DELETE | `/api/favorites/:productId` | Quitar favorito | Si |
+| PUT | `/api/auth/change-password` | Cambiar contraseña | Si |
 
 ### Productos
 | Metodo | Ruta | Descripcion | Auth |
 |--------|------|-------------|------|
-| GET | `/api/products` | Listar productos (con filtros) | No |
+| GET | `/api/products` | Listar productos | No |
 | GET | `/api/products/destacados` | Productos destacados | No |
 | GET | `/api/products/:slug` | Detalle de producto | No |
 | POST | `/api/products` | Crear producto | Admin |
 | PUT | `/api/products/:id` | Actualizar producto | Admin |
 | DELETE | `/api/products/:id` | Eliminar producto | Admin |
 
-### Categorias
-| Metodo | Ruta | Descripcion | Auth |
-|--------|------|-------------|------|
-| GET | `/api/categories` | Listar categorias | No |
-| GET | `/api/categories/admin` | Listar categorias (admin) | Admin |
-| POST | `/api/categories` | Crear categoria | Admin |
-| PUT | `/api/categories/:id` | Actualizar categoria | Admin |
-| DELETE | `/api/categories/:id` | Eliminar categoria | Admin |
-
 ### Carrito
 | Metodo | Ruta | Descripcion | Auth |
 |--------|------|-------------|------|
 | GET | `/api/cart` | Obtener carrito | Si |
-| POST | `/api/cart/add` | Agregar producto | Si |
+| POST | `/api/cart/add` | Agregar item | Si |
 | PUT | `/api/cart/item/:id` | Actualizar cantidad | Si |
 | DELETE | `/api/cart/item/:id` | Eliminar item | Si |
 | DELETE | `/api/cart/clear` | Vaciar carrito | Si |
@@ -218,116 +251,113 @@ npm start
 |--------|------|-------------|------|
 | POST | `/api/orders` | Crear pedido | Si |
 | GET | `/api/orders/my-orders` | Mis pedidos | Si |
-| GET | `/api/orders/:numero` | Detalle pedido | Si |
-| GET | `/api/orders/admin/all` | Todos los pedidos | Admin |
-| PUT | `/api/orders/admin/:id/status` | Cambiar estado | Admin |
+| GET | `/api/orders/:numero` | Detalle de pedido | Si |
+| GET | `/api/orders` | Todos los pedidos | Admin |
+| PUT | `/api/orders/:id/status` | Actualizar estado | Admin |
+
+### Direcciones
+| Metodo | Ruta | Descripcion | Auth |
+|--------|------|-------------|------|
+| GET | `/api/addresses` | Listar direcciones | Si |
+| POST | `/api/addresses` | Crear direccion | Si |
+| PUT | `/api/addresses/:id` | Actualizar direccion | Si |
+| DELETE | `/api/addresses/:id` | Eliminar direccion | Si |
+| PUT | `/api/addresses/:id/primary` | Establecer como principal | Si |
+
+### Valoraciones
+| Metodo | Ruta | Descripcion | Auth |
+|--------|------|-------------|------|
+| GET | `/api/reviews/product/:id` | Reviews de producto | No |
+| POST | `/api/reviews` | Crear review | Si |
+| GET | `/api/reviews/my-review/:id` | Mi review | Si |
+| DELETE | `/api/reviews/:id` | Eliminar review | Si |
+
+### Notificaciones
+| Metodo | Ruta | Descripcion | Auth |
+|--------|------|-------------|------|
+| GET | `/api/notifications` | Listar notificaciones | Si |
+| GET | `/api/notifications/unread-count` | Contador no leidas | Si |
+| PUT | `/api/notifications/:id/read` | Marcar como leida | Si |
+| PUT | `/api/notifications/read-all` | Marcar todas leidas | Si |
+| DELETE | `/api/notifications/:id` | Eliminar notificacion | Si |
+
+### Cupones
+| Metodo | Ruta | Descripcion | Auth |
+|--------|------|-------------|------|
+| GET | `/api/coupons` | Listar cupones activos | No |
+| POST | `/api/coupons/validate` | Validar cupon | Si |
+
+### Favoritos
+| Metodo | Ruta | Descripcion | Auth |
+|--------|------|-------------|------|
+| GET | `/api/favorites` | Mis favoritos | Si |
+| POST | `/api/favorites` | Agregar favorito | Si |
+| DELETE | `/api/favorites/:id` | Eliminar favorito | Si |
 
 ### Admin
 | Metodo | Ruta | Descripcion | Auth |
 |--------|------|-------------|------|
-| GET | `/api/admin/dashboard` | Estadisticas dashboard | Admin |
+| GET | `/api/admin/dashboard` | Dashboard stats | Admin |
+| GET | `/api/admin/reports` | Reportes avanzados | Admin |
 | GET | `/api/admin/users` | Listar usuarios | Admin |
 | PUT | `/api/admin/users/:id` | Actualizar usuario | Admin |
-| GET | `/api/admin/inventory` | Ver inventario | Admin |
+| GET | `/api/admin/inventory` | Inventario | Admin |
 | PUT | `/api/admin/inventory/:id` | Actualizar inventario | Admin |
 
----
+## Capturas de Pantalla
 
-## BASE DE DATOS - DIAGRAMA RELACIONAL
+### Pagina Principal
+- Hero section con productos destacados
+- Categorias populares
+- Ofertas especiales
+- Productos mas vendidos
 
-```
-roles (1) ────< (N) usuarios
-                        │
-                        ├──> (N) direcciones
-                        ├──> (N) carrito ────< (N) detalle_carrito >─── (N) productos
-                        ├──> (N) pedidos ────< (N) detalle_pedido ────> (N) productos
-                        │       │
-                        │       └──> (N) pagos
-                        │       └──> (N) historial_pedidos
-                        ├──> (N) valoraciones >─── (N) productos
-                        ├──> (N) favoritos >─── (N) productos
-                        └──> (N) notificaciones
+### Panel de Administracion
+- Dashboard con metricas en tiempo real
+- Graficos de ventas
+- Gestion completa de productos
+- Control de inventario
+- Reportes avanzados
 
-categorias (1) ────< (N) productos
-marcas (1) ────────< (N) productos
-proveedores (1) ───< (N) productos
-productos (1) ─────< (1) inventario
-```
+## Caracteristicas de Diseño
 
-### Relaciones
-- **Uno a Muchos:** roles → usuarios, categorias → productos, marcas → productos
-- **Muchos a Muchos:** usuarios ↔ productos (via favoritos, valoraciones)
-- **Uno a Uno:** productos → inventario
+- **Responsive:** Compatible con PC, tablet y movil
+- **Tema Claro/Oscuro:** Toggle de tema
+- **Animaciones:** Transiciones suaves y efectos hover
+- **Componentes Reutilizables:** Cards, modales, loaders, toasts
+- **CSS Grid y Flexbox:** Layout moderno
+- **Variables CSS:** Sistema de diseño consistente
+- **Google Material Icons:** Iconografia profesional
 
----
+## Seguridad
 
-## FUNCIONALIDADES
+- Autenticacion con JWT tokens
+- Contraseñas encriptadas con bcrypt
+- Validacion de datos en backend
+- Rate limiting para prevenir abuso
+- CORS configurado
+- Proteccion contra SQL injection (prepared statements)
 
-### Usuario Cliente
-- [x] Registro e inicio de sesion con JWT
-- [x] Recuperar contraseña
-- [x] Catalogo con busqueda y filtros
-- [x] Detalle de producto con valoraciones
-- [x] Carrito de compras
-- [x] Checkout con cupones de descuento
-- [x] Historial de pedidos
-- [x] Perfil de usuario editable
-- [x] Lista de favoritos (`/favoritos`)
-- [x] Seguimiento de pedidos (`/mis-pedidos/:numero`)
+## Buenas Practicas Implementadas
 
-### Administrador
-- [x] Dashboard con estadisticas
-- [x] CRUD completo de productos
-- [x] CRUD de categorias y marcas
-- [x] Gestion de usuarios
-- [x] Gestion de pedidos (cambiar estados)
-- [x] Control de inventario
-- [x] Reportes y estadisticas
+- Separacion de responsabilidades (MVC)
+- Servicios inyectables en Angular
+- Guards para proteccion de rutas
+- Interceptores para tokens JWT
+- Interfaces TypeScript para tipado fuerte
+- Manejo de errores centralizado
+- Transacciones de base de datos
+- Indices en tablas para optimizacion
+- Código limpio y documentado
 
----
+## Autor
 
-## TECNOLOGIAS USADAS
+**MarketPlus** - Proyecto Universitario
 
-| Area | Tecnologia |
-|------|------------|
-| Frontend | Angular 17, TypeScript, HTML5, CSS3 |
-| Backend | Node.js, Express.js |
-| Base de Datos | MySQL 8.0 |
-| Autenticacion | JWT (jsonwebtoken), bcrypt |
-| Estilos | CSS Grid, Flexbox, CSS Variables, Animaciones |
-| HTTP | Angular HttpClient, Axios (backend) |
-| Validacion | express-validator |
+## Licencia
+
+MIT License
 
 ---
 
-## PRODUCTOS INCLUIDOS (Precios en Soles Peruanos)
-
-| Producto | Precio | Oferta |
-|----------|--------|--------|
-| Samsung Galaxy S24 Ultra 256GB | S/ 5,499 | S/ 4,899 |
-| iPhone 15 Pro Max 256GB | S/ 6,999 | S/ 6,299 |
-| Xiaomi Redmi Note 13 Pro 256GB | S/ 1,399 | S/ 1,199 |
-| Lenovo Legion 5 Pro RTX 4060 | S/ 5,299 | S/ 4,799 |
-| ASUS ROG Strix G16 RTX 4070 | S/ 7,499 | S/ 6,899 |
-| MacBook Air M3 15" 256GB | S/ 5,999 | S/ 5,499 |
-| AirPods Pro 2da Gen USB-C | S/ 1,199 | S/ 999 |
-| Samsung Galaxy Watch 6 Classic | S/ 1,799 | S/ 1,499 |
-| Apple Watch Series 9 45mm | S/ 2,199 | S/ 1,899 |
-| Samsung Smart TV 55" 4K | S/ 2,499 | S/ 2,199 |
-
----
-
-## CUPONES DE DESCUENTO
-
-| Codigo | Tipo | Valor | Min. Compra |
-|--------|------|-------|-------------|
-| TECH2026 | Porcentaje | 10% | S/ 200 |
-| GAMING15 | Porcentaje | 15% | S/ 500 |
-| ENVIO50 | Fijo | S/ 5 | S/ 100 |
-| SAMSUNG20 | Porcentaje | 20% | S/ 1,000 |
-
----
-
-## LICENCIA
-
-MIT License - Proyecto Universitario MarketPlus 2026
+> Desarrollado con Angular 17, Node.js, Express y MySQL

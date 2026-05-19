@@ -2,88 +2,149 @@
     <app-sidebar></app-sidebar>
     <div class="admin-content">
         <div class="admin-header">
-            <div>
-                <h1>Reportes y Estadisticas</h1>
-                <p>Analisis detallado del rendimiento de la tienda</p>
-            </div>
+            <h1>Reportes y Estadisticas</h1>
+            <button class="btn btn-primary" (click)="loadData()" [disabled]="loading">
+                <span class="material-icons">refresh</span>
+                Actualizar
+            </button>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(108,92,231,0.1); color: var(--primary);">
-                    <span class="material-icons">trending_up</span>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ stats.pedidos_mes || 0 }}</h3>
-                    <p>Pedidos este Mes</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(0,184,148,0.1); color: var(--success);">
-                    <span class="material-icons">savings</span>
-                </div>
-                <div class="stat-info">
-                    <h3>S/ {{ stats.ingresos_mes || 0 | number:'1.2-2' }}</h3>
-                    <p>Ingresos del Mes</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(0,206,201,0.1); color: var(--secondary);">
-                    <span class="material-icons">group</span>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ stats.total_usuarios || 0 }}</h3>
-                    <p>Total Usuarios</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(253,203,110,0.2); color: #E17055;">
-                    <span class="material-icons">inventory_2</span>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ stats.total_productos || 0 }}</h3>
-                    <p>Total Productos</p>
-                </div>
-            </div>
+        <div class="loading-spinner" *ngIf="loading">
+            <div class="spinner"></div>
+            <p>Cargando reportes...</p>
         </div>
 
-        <div class="admin-grid">
-            <div class="admin-card">
-                <h2><span class="material-icons">pie_chart</span> Pedidos por Estado</h2>
-                <div class="report-list">
-                    <div class="report-item" *ngFor="let item of orderStatusSummary">
-                        <div class="report-label">
-                            <span class="status-dot" [class]="'dot-' + item.estado.toLowerCase()"></span>
-                            {{ item.estado }}
-                        </div>
-                        <span class="report-value">{{ item.total }}</span>
+        <div class="reports-content" *ngIf="!loading">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(108,92,231,0.1); color: var(--primary);">
+                        <span class="material-icons">attach_money</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ formatCurrency(reports.totalRevenue || 0) }}</h3>
+                        <p>Ingresos Totales</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(0,184,148,0.1); color: var(--success);">
+                        <span class="material-icons">shopping_cart</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ stats.pedidos_mes || 0 }}</h3>
+                        <p>Pedidos este Mes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(253,126,20,0.1); color: var(--warning);">
+                        <span class="material-icons">receipt_long</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ formatCurrency(reports.avgOrderValue || 0) }}</h3>
+                        <p>Valor Promedio Pedido</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(234,84,85,0.1); color: var(--danger);">
+                        <span class="material-icons">people</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ reports.conversionRate?.toFixed(1) || '0.0' }}%</h3>
+                        <p>Tasa de Conversion</p>
                     </div>
                 </div>
             </div>
 
-            <div class="admin-card">
-                <h2><span class="material-icons">category</span> Top Categorias</h2>
-                <div class="report-list">
-                    <div class="report-item" *ngFor="let cat of topCategories; let i = index">
-                        <div class="report-label">
-                            <span class="rank-badge">{{ i + 1 }}</span>
-                            {{ cat.nombre }}
+            <div class="admin-grid">
+                <div class="admin-card">
+                    <h2>Resumen por Estado de Pedidos</h2>
+                    <div class="report-list">
+                        <div class="report-item" *ngFor="let item of reports.orderStatusSummary">
+                            <div class="report-info">
+                                <span class="report-label">{{ item.estado | titlecase }}</span>
+                                <span class="report-sublabel">{{ item.total }} pedidos</span>
+                            </div>
+                            <span class="report-value">{{ formatCurrency(item.monto) }}</span>
                         </div>
-                        <span class="report-value">{{ cat.total }} productos</span>
+                        <div class="empty-state" *ngIf="!reports.orderStatusSummary?.length">
+                            <span class="material-icons">inbox</span>
+                            <p>Sin datos disponibles</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Top Categorias por Ventas</h2>
+                    <div class="report-list">
+                        <div class="report-item" *ngFor="let cat of reports.topCategories; let i = index">
+                            <div class="report-info">
+                                <span class="report-rank">#{{ i + 1 }}</span>
+                                <span class="report-label">{{ cat.nombre }}</span>
+                            </div>
+                            <span class="report-value">{{ cat.total_ventas }} ventas</span>
+                        </div>
+                        <div class="empty-state" *ngIf="!reports.topCategories?.length">
+                            <span class="material-icons">inbox</span>
+                            <p>Sin datos disponibles</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="admin-card" style="margin-top: 24px;">
-            <h2><span class="material-icons">info</span> Informacion del Sistema</h2>
-            <div class="system-info">
-                <div class="info-row"><span>Version del Sistema</span><span class="info-value">1.0.0</span></div>
-                <div class="info-row"><span>Framework Frontend</span><span class="info-value">Angular 17</span></div>
-                <div class="info-row"><span>Framework Backend</span><span class="info-value">Node.js + Express</span></div>
-                <div class="info-row"><span>Base de Datos</span><span class="info-value">MySQL 8.0</span></div>
-                <div class="info-row"><span>Autenticacion</span><span class="info-value">JWT (JSON Web Token)</span></div>
-                <div class="info-row"><span>Moneda</span><span class="info-value">Sol Peruano (S/)</span></div>
+            <div class="admin-grid" style="margin-top: 24px;">
+                <div class="admin-card">
+                    <h2>Top Clientes</h2>
+                    <div class="report-list">
+                        <div class="report-item" *ngFor="let customer of reports.topCustomers; let i = index">
+                            <div class="report-info">
+                                <span class="report-rank">#{{ i + 1 }}</span>
+                                <div>
+                                    <span class="report-label">{{ customer.nombres }} {{ customer.apellidos }}</span>
+                                    <span class="report-sublabel">{{ customer.email }}</span>
+                                </div>
+                            </div>
+                            <div class="customer-stats">
+                                <span class="customer-pedidos">{{ customer.total_pedidos }} pedidos</span>
+                                <span class="customer-gastado">{{ formatCurrency(customer.total_gastado) }}</span>
+                            </div>
+                        </div>
+                        <div class="empty-state" *ngIf="!reports.topCustomers?.length">
+                            <span class="material-icons">inbox</span>
+                            <p>Sin datos disponibles</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Productos con Stock Bajo</h2>
+                    <div class="report-list">
+                        <div class="report-item warning" *ngFor="let product of reports.lowStockProducts">
+                            <div class="report-info">
+                                <span class="report-label">{{ product.nombre }}</span>
+                                <span class="report-sublabel">SKU: {{ product.sku }}</span>
+                            </div>
+                            <div class="stock-badge" [class.critical]="product.stock <= 0">
+                                <span class="material-icons">{{ product.stock <= 0 ? 'error' : 'warning' }}</span>
+                                <span>{{ product.stock }} / {{ product.stock_minimo }}</span>
+                            </div>
+                        </div>
+                        <div class="empty-state" *ngIf="!reports.lowStockProducts?.length">
+                            <span class="material-icons">check_circle</span>
+                            <p>Todo el inventario esta bien</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card" style="margin-top: 24px;">
+                <h2>Informacion del Sistema</h2>
+                <div class="system-info">
+                    <div class="info-row"><span>Version</span><span>1.0.0</span></div>
+                    <div class="info-row"><span>Framework Frontend</span><span>Angular 17</span></div>
+                    <div class="info-row"><span>Backend</span><span>Node.js + Express.js</span></div>
+                    <div class="info-row"><span>Base de Datos</span><span>MySQL 8.0</span></div>
+                    <div class="info-row"><span>Autenticacion</span><span>JWT (JSON Web Token)</span></div>
+                    <div class="info-row"><span>Moneda</span><span>Sol Peruano (S/)</span></div>
+                </div>
             </div>
         </div>
     </div>
