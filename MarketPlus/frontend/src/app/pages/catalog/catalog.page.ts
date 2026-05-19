@@ -57,7 +57,7 @@ export class CatalogPage implements OnInit, OnDestroy {
             this.activePriceLabel = this.buildPriceLabel(params);
             this.updateActiveFilterCount(params);
             this.loadBrands(params['categoria']);
-            this.loadProducts();
+            this.loadProducts(params);
         });
         if (this.auth.isAuthenticated) {
             this.favoriteService.getFavorites().subscribe({
@@ -121,24 +121,50 @@ export class CatalogPage implements OnInit, OnDestroy {
         return '';
     }
 
-    loadProducts(): void {
+    loadProducts(params?: Record<string, string>): void {
         this.loading = true;
-        console.log('[Catalog] Loading products with filters:', this.filters);
-        this.productService.getAll(this.filters).subscribe({
-            next: (res) => {
-                console.log('[Catalog] Products response:', res);
-                this.products = res.data || [];
-                this.pagination = res.pagination || {};
-                this.loading = false;
-                console.log('[Catalog] Products loaded:', this.products.length, 'Total:', this.pagination.total);
-            },
-            error: (err) => {
-                console.error('[Catalog] Error loading products:', err);
-                this.products = [];
-                this.pagination = {};
-                this.loading = false;
-            }
-        });
+        const hasFilters = params && (
+            params['categorias'] || params['categoria'] ||
+            params['marcas'] || params['marca'] ||
+            params['search'] || params['minPrice'] || params['maxPrice'] ||
+            params['destacados']
+        );
+
+        if (!hasFilters) {
+            console.log('[Catalog] No filters, loading featured products');
+            this.productService.getFeatured().subscribe({
+                next: (res) => {
+                    console.log('[Catalog] Featured products response:', res);
+                    this.products = res.data || [];
+                    this.pagination = { total: this.products.length, page: 1, limit: this.products.length, pages: 1 };
+                    this.loading = false;
+                    console.log('[Catalog] Featured products loaded:', this.products.length);
+                },
+                error: (err) => {
+                    console.error('[Catalog] Error loading featured products:', err);
+                    this.products = [];
+                    this.pagination = {};
+                    this.loading = false;
+                }
+            });
+        } else {
+            console.log('[Catalog] Loading products with filters:', this.filters);
+            this.productService.getAll(this.filters).subscribe({
+                next: (res) => {
+                    console.log('[Catalog] Products response:', res);
+                    this.products = res.data || [];
+                    this.pagination = res.pagination || {};
+                    this.loading = false;
+                    console.log('[Catalog] Products loaded:', this.products.length, 'Total:', this.pagination.total);
+                },
+                error: (err) => {
+                    console.error('[Catalog] Error loading products:', err);
+                    this.products = [];
+                    this.pagination = {};
+                    this.loading = false;
+                }
+            });
+        }
     }
 
     onFilterApplied(): void {

@@ -26,6 +26,11 @@
                 <span class="nav-text">Catálogo</span>
             </a>
 
+            <a routerLink="/nosotros" class="nav-link">
+                <span class="material-icons">info</span>
+                <span class="nav-text">Nosotros</span>
+            </a>
+
             <a routerLink="/carrito" class="nav-link cart-link">
                 <span class="material-icons">shopping_cart</span>
                 <span class="nav-text">Carrito</span>
@@ -78,6 +83,7 @@
     <div class="mobile-menu" *ngIf="mobileMenuOpen">
         <a routerLink="/" class="mobile-link" (click)="mobileMenuOpen = false">Inicio</a>
         <a routerLink="/catalogo" class="mobile-link" (click)="mobileMenuOpen = false">Catálogo</a>
+        <a routerLink="/nosotros" class="mobile-link" (click)="mobileMenuOpen = false">Nosotros</a>
         <a routerLink="/carrito" class="mobile-link" (click)="mobileMenuOpen = false">Carrito</a>
         <ng-container *ngIf="!isLoggedIn">
             <a routerLink="/login" class="mobile-link" (click)="mobileMenuOpen = false">Iniciar Sesion</a>

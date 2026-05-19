@@ -4,6 +4,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
 import { HomePage } from './pages/home/home.page';
+import { AboutPage } from './pages/about/about.page';
 import { LoginPage } from './pages/login/login.page';
 import { RegisterPage } from './pages/register/register.page';
 import { ForgotPasswordPage } from './pages/forgot-password/forgot-password.page';
@@ -29,6 +30,7 @@ import { CouponsPage } from './pages/coupons/coupons.page';
 
 const routes: Routes = [
     { path: '', component: HomePage },
+    { path: 'nosotros', component: AboutPage },
     { path: 'login', component: LoginPage },
     { path: 'register', component: RegisterPage },
     { path: 'forgot-password', component: ForgotPasswordPage },
