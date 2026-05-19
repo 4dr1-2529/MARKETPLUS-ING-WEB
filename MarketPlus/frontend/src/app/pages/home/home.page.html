@@ -1,34 +1,44 @@
 <!-- HERO -->
 <section class="hero">
     <div class="hero-bg"></div>
+    <div class="hero-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
     <div class="container hero-grid">
         <div class="hero-content">
-            <span class="hero-badge">Tienda oficial · Perú</span>
-            <h1 class="hero-title">
+            <span class="hero-badge animate-fade-in">Tienda oficial · Perú</span>
+            <h1 class="hero-title animate-fade-up">
                 Tecnología que<br>
-                <span class="highlight">sí llega</span> a tu puerta
+                <span class="highlight">transforma</span> tu vida
             </h1>
-            <p class="hero-subtitle">
-                Más de 300 productos en 20 categorías: celulares, laptops, gaming, Smart TV y más.
-                Precios en soles, envío nacional y garantía oficial.
+            <p class="hero-subtitle animate-fade-up-delay">
+                Encuentra los mejores productos tecnológicos: celulares, laptops, gaming, audio y más.
+                Precios en soles, envío a todo el Perú y garantía oficial.
             </p>
 
-            <div class="hero-pills">
-                <a *ngFor="let cat of mainCategories"
-                   routerLink="/catalogo"
-                   [queryParams]="{ categoria: cat.slug }"
-                   class="hero-pill">
-                    <span class="material-icons">{{ getCategoryIcon(cat.slug) }}</span>
-                    {{ getCategoryLabel(cat.slug, cat.nombre) }}
+            <div class="hero-buttons animate-fade-up-delay-2">
+                <a routerLink="/catalogo" class="btn btn-primary btn-lg hero-cta">
+                    <span class="material-icons">storefront</span>
+                    Explorar catálogo completo
                 </a>
             </div>
 
-            <div class="hero-buttons">
-                <a routerLink="/catalogo" [queryParams]="{ categoria: 'celulares' }" class="btn btn-primary btn-lg">
-                    <span class="material-icons">smartphone</span>
-                    Ver celulares
-                </a>
-                <a routerLink="/catalogo" class="btn btn-secondary btn-lg hero-btn-outline">Explorar catálogo</a>
+            <div class="hero-pills animate-fade-up-delay-3">
+                <span class="pill-label">Explora por categoría:</span>
+                <div class="pills-row">
+                    <a *ngFor="let cat of mainCategories; let i = index"
+                       routerLink="/catalogo"
+                       [queryParams]="{ categorias: cat.slug }"
+                       class="hero-pill"
+                       [style.animation-delay]="(i * 0.1) + 's'">
+                        <span class="material-icons">{{ getCategoryIcon(cat.slug) }}</span>
+                        {{ getCategoryLabel(cat.slug, cat.nombre) }}
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -36,7 +46,7 @@
             <div class="hero-card hero-card-1">
                 <span class="material-icons">smartphone</span>
                 <strong>Celulares</strong>
-                <small>15 modelos</small>
+                <small>Últimos modelos</small>
             </div>
             <div class="hero-card hero-card-2">
                 <span class="material-icons">laptop</span>
@@ -45,29 +55,33 @@
             </div>
             <div class="hero-card hero-card-3">
                 <span class="material-icons">headphones</span>
-                <strong>Auriculares</strong>
-                <small>Audio premium</small>
+                <strong>Audio</strong>
+                <small>Sonido premium</small>
             </div>
         </div>
     </div>
 </section>
 
 <!-- STATS -->
-<section class="stats-bar">
+<section class="stats-bar animate-on-scroll">
     <div class="container stats-grid">
         <div class="stat-item">
-            <span class="stat-value">300</span>
-            <span class="stat-label">Productos</span>
+            <span class="stat-icon material-icons">inventory_2</span>
+            <span class="stat-value">300+</span>
+            <span class="stat-label">Productos disponibles</span>
         </div>
         <div class="stat-item">
+            <span class="stat-icon material-icons">category</span>
             <span class="stat-value">20</span>
             <span class="stat-label">Categorías</span>
         </div>
         <div class="stat-item">
+            <span class="stat-icon material-icons">payments</span>
             <span class="stat-value">S/</span>
             <span class="stat-label">Precios en soles</span>
         </div>
         <div class="stat-item">
+            <span class="stat-icon material-icons">local_shipping</span>
             <span class="stat-value">24h</span>
             <span class="stat-label">Despacho Lima</span>
         </div>
@@ -75,15 +89,19 @@
 </section>
 
 <!-- CATEGORÍAS -->
-<section class="section categories-section">
+<section class="section categories-section animate-on-scroll">
     <div class="container">
-        <h2 class="section-title title-display">Compra por categoría</h2>
-        <p class="section-subtitle">20 categorías con 15 productos cada una</p>
+        <div class="section-header-center">
+            <span class="section-tag">Navega fácilmente</span>
+            <h2 class="section-title">Compra por categoría</h2>
+            <p class="section-subtitle">Encuentra exactamente lo que buscas en nuestras categorías especializadas</p>
+        </div>
         <div class="categories-grid" *ngIf="categories.length; else noCategories">
-            <a *ngFor="let cat of categories"
+            <a *ngFor="let cat of categories; let i = index"
                routerLink="/catalogo"
-               [queryParams]="{ categoria: cat.slug }"
-               class="category-card">
+               [queryParams]="{ categorias: cat.slug }"
+               class="category-card"
+               [style.animation-delay]="(i * 0.05) + 's'">
                 <div class="category-icon-wrap" [class.has-image]="cat.imagen">
                     <img *ngIf="cat.imagen" [src]="cat.imagen" [alt]="cat.nombre" loading="lazy">
                     <span class="material-icons" *ngIf="!cat.imagen">{{ getCategoryIcon(cat.slug) }}</span>
@@ -100,11 +118,17 @@
 </section>
 
 <!-- DESTACADOS -->
-<section class="section featured-section">
+<section class="section featured-section animate-on-scroll">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title title-display">Productos destacados</h2>
-            <a routerLink="/catalogo" class="btn btn-secondary btn-sm">Ver todos</a>
+            <div>
+                <span class="section-tag">Lo más buscado</span>
+                <h2 class="section-title">Productos destacados</h2>
+            </div>
+            <a routerLink="/catalogo" class="btn btn-secondary btn-sm">
+                Ver todos los productos
+                <span class="material-icons">arrow_forward</span>
+            </a>
         </div>
         <div class="products-grid" *ngIf="!loading && featuredProducts.length">
             <app-product-card *ngFor="let product of featuredProducts" [product]="product"></app-product-card>
@@ -112,34 +136,231 @@
         <div class="loading-skeleton" *ngIf="loading">
             <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
         </div>
+        <div class="empty-state" *ngIf="!loading && !featuredProducts.length">
+            <span class="material-icons">inventory_2</span>
+            <p>No hay productos destacados disponibles</p>
+            <a routerLink="/catalogo" class="btn btn-primary">Ver catálogo</a>
+        </div>
+    </div>
+</section>
+
+<!-- INFORMACIÓN DE LA TIENDA -->
+<section class="section store-info-section animate-on-scroll">
+    <div class="container">
+        <div class="section-header-center">
+            <span class="section-tag">Datos útiles</span>
+            <h2 class="section-title">Información de la Tienda</h2>
+            <p class="section-subtitle">Todo lo que necesitas saber para comprar con confianza en MarketPlus</p>
+        </div>
+        <div class="store-info-grid">
+            <div class="store-info-card">
+                <div class="store-info-icon">
+                    <span class="material-icons">location_on</span>
+                </div>
+                <h4>Dirección</h4>
+                <p>Av. Arequipa 1234, Lima Centro</p>
+                <p class="info-value">Lima, Perú</p>
+            </div>
+            <div class="store-info-card">
+                <div class="store-info-icon">
+                    <span class="material-icons">schedule</span>
+                </div>
+                <h4>Horario de Atención</h4>
+                <p>Lunes a Sábado: 9:00 AM - 8:00 PM</p>
+                <p class="info-value">Domingos: 10:00 AM - 6:00 PM</p>
+            </div>
+            <div class="store-info-card">
+                <div class="store-info-icon">
+                    <span class="material-icons">phone</span>
+                </div>
+                <h4>Contacto</h4>
+                <p>Teléfono: (01) 234-5678</p>
+                <p class="info-value">WhatsApp: +51 987 654 321</p>
+            </div>
+            <div class="store-info-card">
+                <div class="store-info-icon">
+                    <span class="material-icons">email</span>
+                </div>
+                <h4>Email</h4>
+                <p>ventas&#64;marketplus.pe</p>
+                <p class="info-value">soporte&#64;marketplus.pe</p>
+            </div>
+            <div class="store-info-card">
+                <div class="store-info-icon">
+                    <span class="material-icons">payments</span>
+                </div>
+                <h4>Métodos de Pago</h4>
+                <p>Yape, Plin, Tarjetas, Transferencia</p>
+                <p class="info-value">Pago contra entrega disponible</p>
+            </div>
+            <div class="store-info-card">
+                <div class="store-info-icon">
+                    <span class="material-icons">local_shipping</span>
+                </div>
+                <h4>Envíos</h4>
+                <p>Gratis en compras mayores a S/ 500</p>
+                <p class="info-value">Despacho a todo el Perú</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- EQUIPO -->
+<section class="section team-section animate-on-scroll">
+    <div class="container">
+        <div class="section-header-center">
+            <span class="section-tag">Nuestro Equipo</span>
+            <h2 class="section-title">Quiénes hacemos MarketPlus</h2>
+            <p class="section-subtitle">Un equipo comprometido con brindarte la mejor experiencia tecnológica</p>
+        </div>
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-avatar">
+                    <span class="material-icons">person</span>
+                </div>
+                <h4>Carlos Rodríguez</h4>
+                <p class="team-role">CEO & Fundador</p>
+                <p>Apasionado por la tecnología con más de 10 años de experiencia en el sector retail tecnológico.</p>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">
+                    <span class="material-icons">person</span>
+                </div>
+                <h4>Ana Martínez</h4>
+                <p class="team-role">Directora de Operaciones</p>
+                <p>Experta en logística y gestión de inventarios para garantizar entregas rápidas y eficientes.</p>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">
+                    <span class="material-icons">person</span>
+                </div>
+                <h4>Luis Torres</h4>
+                <p class="team-role">Jefe de Soporte Técnico</p>
+                <p>Ingeniero de sistemas dedicado a resolver tus dudas y brindarte asistencia personalizada.</p>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">
+                    <span class="material-icons">person</span>
+                </div>
+                <h4>María Fernández</h4>
+                <p class="team-role">Directora de Marketing</p>
+                <p>Creativa digital enfocada en traerte las mejores ofertas y promociones exclusivas.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SOBRE NOSOTROS / MISIÓN / VISIÓN -->
+<section class="section about-section animate-on-scroll">
+    <div class="container">
+        <div class="section-header-center">
+            <span class="section-tag">Conócenos</span>
+            <h2 class="section-title">Sobre MarketPlus</h2>
+            <p class="section-subtitle">Somos una tienda tecnológica peruana comprometida con la innovación y la satisfacción de nuestros clientes</p>
+        </div>
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="about-icon">
+                    <span class="material-icons">flag</span>
+                </div>
+                <h3>Nuestra Historia</h3>
+                <p>Fundada en 2024, MarketPlus nació con la visión de democratizar el acceso a la tecnología en el Perú. Desde nuestros inicios en Lima, nos hemos expandido para atender a clientes en todo el país, ofreciendo productos de calidad a precios justos.</p>
+                <p style="margin-top: 12px;">Hoy contamos con más de 300 productos en catálogo y una comunidad de miles de clientes satisfechos que confían en nosotros para sus necesidades tecnológicas.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">
+                    <span class="material-icons">rocket_launch</span>
+                </div>
+                <h3>Misión</h3>
+                <p>Brindar a los peruanos acceso a tecnología de última generación con un servicio excepcional, precios competitivos y garantía total.</p>
+                <ul>
+                    <li><span class="material-icons">check_circle</span> Productos 100% originales con garantía</li>
+                    <li><span class="material-icons">check_circle</span> Atención personalizada y soporte técnico</li>
+                    <li><span class="material-icons">check_circle</span> Envíos rápidos y seguros a todo el Perú</li>
+                    <li><span class="material-icons">check_circle</span> Precios justos en soles peruanos</li>
+                </ul>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">
+                    <span class="material-icons">visibility</span>
+                </div>
+                <h3>Visión</h3>
+                <p>Ser la tienda tecnológica líder en Perú, reconocida por la calidad de nuestros productos, la excelencia en el servicio y la confianza de nuestros clientes.</p>
+                <ul>
+                    <li><span class="material-icons">check_circle</span> Expandirnos a todo el territorio nacional</li>
+                    <li><span class="material-icons">check_circle</span> Innovar constantemente en experiencia de compra</li>
+                    <li><span class="material-icons">check_circle</span> Construir relaciones a largo plazo con clientes</li>
+                    <li><span class="material-icons">check_circle</span> Ser referentes en tecnología y servicio al cliente</li>
+                </ul>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">
+                    <span class="material-icons">handshake</span>
+                </div>
+                <h3>Nuestros Valores</h3>
+                <p>Los principios que guían cada decisión que tomamos en MarketPlus:</p>
+                <ul>
+                    <li><span class="material-icons">check_circle</span> <strong>Integridad:</strong> Transparencia total en precios y condiciones</li>
+                    <li><span class="material-icons">check_circle</span> <strong>Innovación:</strong> Siempre a la vanguardia tecnológica</li>
+                    <li><span class="material-icons">check_circle</span> <strong>Compromiso:</strong> Tu satisfacción es nuestra prioridad</li>
+                    <li><span class="material-icons">check_circle</span> <strong>Calidad:</strong> Solo productos originales y certificados</li>
+                </ul>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- BENEFICIOS -->
-<section class="section benefits-section">
+<section class="section benefits-section animate-on-scroll">
     <div class="container">
-        <h2 class="section-title title-display">¿Por qué MarketPlus?</h2>
+        <div class="section-header-center">
+            <span class="section-tag">Tu confianza importa</span>
+            <h2 class="section-title">¿Por qué elegir MarketPlus?</h2>
+            <p class="section-subtitle">Nos comprometemos a brindarte la mejor experiencia de compra</p>
+        </div>
         <div class="benefits-grid">
             <div class="benefit-card">
-                <span class="material-icons">local_shipping</span>
+                <div class="benefit-icon">
+                    <span class="material-icons">local_shipping</span>
+                </div>
                 <h3>Envío gratis</h3>
-                <p>En compras mayores a S/ 500 en Lima Metropolitana</p>
+                <p>En compras mayores a S/ 500 en Lima Metropolitana. Despacho rápido a todo el Perú.</p>
             </div>
             <div class="benefit-card">
-                <span class="material-icons">verified</span>
+                <div class="benefit-icon">
+                    <span class="material-icons">verified</span>
+                </div>
                 <h3>Garantía oficial</h3>
-                <p>12 a 24 meses según el producto</p>
+                <p>12 a 24 meses de garantía según el producto. Todos nuestros productos son originales.</p>
             </div>
             <div class="benefit-card">
-                <span class="material-icons">payments</span>
+                <div class="benefit-icon">
+                    <span class="material-icons">payments</span>
+                </div>
                 <h3>Pago seguro</h3>
-                <p>Yape, Plin, tarjeta y transferencia</p>
+                <p>Yape, Plin, tarjeta de crédito/débito y transferencia bancaria. Compra con tranquilidad.</p>
             </div>
             <div class="benefit-card">
-                <span class="material-icons">support_agent</span>
+                <div class="benefit-icon">
+                    <span class="material-icons">support_agent</span>
+                </div>
                 <h3>Soporte humano</h3>
-                <p>Te ayudamos antes y después de comprar</p>
+                <p>Te ayudamos antes y después de comprar. Atención personalizada por WhatsApp y email.</p>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="section cta-section animate-on-scroll">
+    <div class="container">
+        <div class="cta-content">
+            <h2>¿Listo para encontrar tu próximo producto?</h2>
+            <p>Explora nuestro catálogo completo con más de 300 productos tecnológicos</p>
+            <a routerLink="/catalogo" class="btn btn-primary btn-lg">
+                <span class="material-icons">storefront</span>
+                Ir al catálogo
+            </a>
         </div>
+    </div>
 </section>

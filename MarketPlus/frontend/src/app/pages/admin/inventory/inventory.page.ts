@@ -42,18 +42,6 @@ export class AdminInventoryPage implements OnInit {
         this.stockOutCount = this.inventory.filter(i => i.stock <= 0).length;
     }
 
-    loadData(): void {
-        this.loading = true;
-        this.adminService.getInventory().subscribe({
-            next: (res) => {
-                this.inventory = res.data || [];
-                this.applyFilters();
-                this.loading = false;
-            },
-            error: () => { this.loading = false; }
-        });
-    }
-
     applyFilters(): void {
         let items = [...this.inventory];
         if (this.lowStockOnly) {

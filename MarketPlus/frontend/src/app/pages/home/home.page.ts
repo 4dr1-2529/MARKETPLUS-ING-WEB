@@ -34,6 +34,23 @@ export class HomePage implements OnInit {
     ngOnInit(): void {
         this.loadFeatured();
         this.loadCategories();
+        this.initScrollAnimations();
+    }
+
+    initScrollAnimations(): void {
+        setTimeout(() => {
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                },
+                { threshold: 0.1 }
+            );
+            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+        }, 100);
     }
 
     loadFeatured(): void {

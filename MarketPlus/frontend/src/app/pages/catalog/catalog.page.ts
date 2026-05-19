@@ -75,7 +75,8 @@ export class CatalogPage implements OnInit, OnDestroy {
         const f: Record<string, string | number> = { page: params['page'] ? +params['page'] : 1, limit: 12 };
         const catParam = params['categorias'] || params['categoria'] || '';
         if (catParam) f['categorias'] = catParam;
-        if (params['marca']) f['marca'] = params['marca'];
+        const brandParam = params['marcas'] || params['marca'] || '';
+        if (brandParam) f['marcas'] = brandParam;
         if (params['search']) f['search'] = params['search'];
         if (params['minPrice']) f['minPrice'] = params['minPrice'];
         if (params['maxPrice']) f['maxPrice'] = params['maxPrice'];
@@ -85,27 +86,30 @@ export class CatalogPage implements OnInit, OnDestroy {
 
     loadBrands(categoriaSlug?: string): void {
         if (!categoriaSlug) {
-            this.brands = [];
-            this.activeBrandLabel = '';
-            if (this.filters['marca']) {
-                delete this.filters['marca'];
-            }
-            return;
-        }
-        this.brandService.getAll(categoriaSlug).subscribe(res => {
-            this.brands = res.data;
-            const marcaSlug = this.filters['marca'] as string | undefined;
-            if (marcaSlug) {
-                const found = this.brands.find(b => b.slug === marcaSlug);
-                this.activeBrandLabel = found?.nombre || marcaSlug;
-                if (!found) {
-                    delete this.filters['marca'];
+            this.brandService.getAll().subscribe(res => {
+                this.brands = res.data;
+                const marcaSlugs = this.filters['marcas'] as string | undefined;
+                if (marcaSlugs) {
+                    const selected = marcaSlugs.split(',').filter(Boolean);
+                    const found = selected.map(s => this.brands.find(b => b.slug === s)).filter(Boolean);
+                    this.activeBrandLabel = found.map(b => (b as any).nombre).join(', ');
+                } else {
                     this.activeBrandLabel = '';
                 }
-            } else {
-                this.activeBrandLabel = '';
-            }
-        });
+            });
+        } else {
+            this.brandService.getAll(categoriaSlug).subscribe(res => {
+                this.brands = res.data;
+                const marcaSlugs = this.filters['marcas'] as string | undefined;
+                if (marcaSlugs) {
+                    const selected = marcaSlugs.split(',').filter(Boolean);
+                    const found = selected.map(s => this.brands.find(b => b.slug === s)).filter(Boolean);
+                    this.activeBrandLabel = found.map(b => (b as any).nombre).join(', ');
+                } else {
+                    this.activeBrandLabel = '';
+                }
+            });
+        }
     }
 
     private buildPriceLabel(params: Record<string, string>): string {
