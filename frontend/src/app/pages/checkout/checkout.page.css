@@ -176,6 +176,35 @@
 .modal-alert ul { margin: 8px 0 0; padding-left: 20px; }
 .modal-alert li { font-size: 13px; margin-bottom: 2px; }
 
+/* ORDER SUCCESS MODAL */
+.order-success-modal { max-width: 600px; }
+.success-header { flex-direction: column; align-items: center; text-align: center; padding: 32px 24px 20px; border-bottom: none; }
+.success-header .success-icon { width: 80px; height: 80px; border-radius: 50%; background: var(--success); color: white; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.success-header .success-icon .material-icons { font-size: 48px; }
+.success-header h2 { margin: 0; font-size: 24px; color: var(--success); }
+.success-header .btn-close { position: absolute; top: 16px; right: 16px; }
+
+.order-number { text-align: center; padding: 16px; background: var(--light); border-radius: var(--radius-sm); margin-bottom: 20px; }
+.order-number .label { font-size: 13px; color: var(--dark-light); display: block; }
+.order-number .value { font-size: 20px; font-weight: 800; color: var(--primary); }
+
+.order-details-grid { display: flex; flex-direction: column; gap: 20px; }
+.detail-section h3 { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
+.detail-section h3 .material-icons { font-size: 20px; color: var(--primary); }
+.detail-value { font-size: 14px; color: var(--dark-light); margin: 4px 0; line-height: 1.5; }
+
+.order-items-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+.order-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--light); border-radius: var(--radius-sm); }
+.item-info { display: flex; align-items: center; gap: 8px; }
+.item-name { font-size: 13px; font-weight: 600; }
+.item-qty { font-size: 12px; color: var(--dark-light); background: var(--gray-light); padding: 2px 8px; border-radius: 12px; }
+.item-price { font-size: 14px; font-weight: 700; color: var(--primary); }
+
+.order-total-section { margin-top: 20px; padding-top: 16px; border-top: 2px solid var(--gray-light); }
+.total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+.grand-total { font-size: 18px; font-weight: 800; color: var(--text-primary); padding-top: 12px; border-top: 1px solid var(--gray-light); }
+.grand-total span:last-child { color: var(--success); }
+
 @media (max-width: 992px) {
     .checkout-layout { grid-template-columns: 1fr; }
     .checkout-summary { position: static; }

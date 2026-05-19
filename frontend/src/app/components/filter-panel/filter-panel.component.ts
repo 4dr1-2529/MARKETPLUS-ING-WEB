@@ -13,7 +13,7 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
     @Input() categories: any[] = [];
     @Input() brands: any[] = [];
 
-    selectedCategory = '';
+    selectedCategories: string[] = [];
     selectedBrand = '';
     minPrice: number | null = null;
     maxPrice: number | null = null;
@@ -36,7 +36,8 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
     getCategoryLabel = getCategoryLabel;
 
     private syncFromUrl(q: Record<string, string>): void {
-        this.selectedCategory = q['categoria'] || '';
+        const catParam = q['categorias'] || q['categoria'] || '';
+        this.selectedCategories = catParam ? catParam.split(',').filter(Boolean) : [];
         this.selectedBrand = q['marca'] || '';
         this.minPrice = q['minPrice'] ? +q['minPrice'] : null;
         this.maxPrice = q['maxPrice'] ? +q['maxPrice'] : null;
@@ -45,7 +46,7 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
 
     get activeFilterCount(): number {
         let count = 0;
-        if (this.selectedCategory) count++;
+        if (this.selectedCategories.length > 0) count++;
         if (this.selectedBrand) count++;
         if (this.minPrice || this.maxPrice) count++;
         if (this.sort !== 'newest') count++;
@@ -55,10 +56,12 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
     get activeFilters(): { label: string, clear: () => void }[] {
         const filters: { label: string, clear: () => void }[] = [];
         
-        if (this.selectedCategory) {
-            const cat = this.categories.find(c => c.slug === this.selectedCategory);
-            const label = cat ? this.getCategoryLabel(cat.slug, cat.nombre) : this.selectedCategory;
-            filters.push({ label: `Categoría: ${label}`, clear: () => { this.selectedCategory = ''; this.applyFilters(); } });
+        if (this.selectedCategories.length > 0) {
+            const labels = this.selectedCategories.map(slug => {
+                const cat = this.categories.find(c => c.slug === slug);
+                return cat ? this.getCategoryLabel(cat.slug, cat.nombre) : slug;
+            });
+            filters.push({ label: `Categorias: ${labels.join(', ')}`, clear: () => { this.selectedCategories = []; this.applyFilters(); } });
         }
         
         if (this.selectedBrand) {
@@ -87,7 +90,7 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
 
     applyFilters(): void {
         const queryParams: Record<string, string | number> = { page: 1 };
-        if (this.selectedCategory) queryParams['categoria'] = this.selectedCategory;
+        if (this.selectedCategories.length > 0) queryParams['categorias'] = this.selectedCategories.join(',');
         if (this.selectedBrand) queryParams['marca'] = this.selectedBrand;
         if (this.minPrice) queryParams['minPrice'] = this.minPrice;
         if (this.maxPrice) queryParams['maxPrice'] = this.maxPrice;
@@ -97,16 +100,22 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
         this.filterChange.emit();
     }
 
-    selectCategory(slug: string): void {
-        this.selectedCategory = slug;
-        if (slug !== this.route.snapshot.queryParams['categoria']) {
-            this.selectedBrand = '';
+    toggleCategory(slug: string): void {
+        const idx = this.selectedCategories.indexOf(slug);
+        if (idx >= 0) {
+            this.selectedCategories.splice(idx, 1);
+        } else {
+            this.selectedCategories.push(slug);
         }
         this.applyFilters();
     }
 
+    isCategorySelected(slug: string): boolean {
+        return this.selectedCategories.includes(slug);
+    }
+
     clearFilters(): void {
-        this.selectedCategory = '';
+        this.selectedCategories = [];
         this.selectedBrand = '';
         this.minPrice = null;
         this.maxPrice = null;

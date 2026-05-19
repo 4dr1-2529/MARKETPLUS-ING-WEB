@@ -20,22 +20,16 @@
     </div>
 
     <div class="filter-section" *ngIf="categories.length">
-        <label class="section-label">Categoría</label>
-        <div class="chips-row">
-            <button type="button"
-                    class="chip"
-                    [class.active]="!selectedCategory"
-                    (click)="selectCategory('')">
-                Todas
-            </button>
-            <button type="button"
-                    *ngFor="let c of categories"
-                    class="chip"
-                    [class.active]="selectedCategory === c.slug"
-                    (click)="selectCategory(c.slug)">
-                {{ getCategoryLabel(c.slug, c.nombre) }}
-                <span class="chip-count">{{ c.total_productos }}</span>
-            </button>
+        <label class="section-label">Categorias (selecciona varias)</label>
+        <div class="category-list">
+            <label class="category-item" *ngFor="let c of categories">
+                <input type="checkbox" 
+                       [checked]="isCategorySelected(c.slug)" 
+                       (change)="toggleCategory(c.slug)">
+                <span class="checkbox-custom"></span>
+                <span class="category-name">{{ getCategoryLabel(c.slug, c.nombre) }}</span>
+                <span class="category-count" *ngIf="c.total_productos">{{ c.total_productos }}</span>
+            </label>
         </div>
     </div>
 
@@ -73,4 +67,3 @@
         <span class="material-icons">clear_all</span> Limpiar filtros
     </button>
 </div>
-

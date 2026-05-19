@@ -73,7 +73,8 @@ export class CatalogPage implements OnInit, OnDestroy {
 
     private buildFilters(params: Record<string, string>): Record<string, string | number> {
         const f: Record<string, string | number> = { page: params['page'] ? +params['page'] : 1, limit: 12 };
-        if (params['categoria']) f['categoria'] = params['categoria'];
+        const catParam = params['categorias'] || params['categoria'] || '';
+        if (catParam) f['categorias'] = catParam;
         if (params['marca']) f['marca'] = params['marca'];
         if (params['search']) f['search'] = params['search'];
         if (params['minPrice']) f['minPrice'] = params['minPrice'];
