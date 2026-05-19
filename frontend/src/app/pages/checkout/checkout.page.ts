@@ -165,6 +165,10 @@ export class CheckoutPage implements OnInit {
         return parts.join(', ');
     }
 
+    toString(value: any): string {
+        return String(value);
+    }
+
     placeOrder(): void {
         if (!this.checkoutData.direccion_id) {
             this.toast.warning('Selecciona una direccion de envio');
