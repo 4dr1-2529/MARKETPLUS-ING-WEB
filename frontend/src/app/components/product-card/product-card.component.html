@@ -1,27 +1,25 @@
-<div class="product-card" (click)="goToProduct()">
-    <div class="product-image">
-        <img [src]="product.imagen_principal || 'assets/images/placeholder.jpg'" [alt]="product.nombre">
+<article class="product-card" (click)="goToProduct()">
+    <div class="product-image-wrap">
         <span class="badge-discount" *ngIf="product.descuento_porcentaje">-{{ product.descuento_porcentaje }}%</span>
-        <span class="badge-new" *ngIf="product.nuevo">NUEVO</span>
-        <button class="btn-favorite" (click)="toggleFavorite($event)">
+        <button type="button" class="btn-favorite" (click)="toggleFavorite($event)" aria-label="Favorito">
             <span class="material-icons">{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
         </button>
+        <img [src]="imageUrl" [alt]="product.nombre" loading="lazy" (error)="onImageError()">
     </div>
-    <div class="product-info">
-        <span class="product-category">{{ product.categoria }}</span>
+
+    <div class="product-body">
+        <span class="product-category">{{ categoryLabelUpper }}</span>
         <h3 class="product-name">{{ product.nombre }}</h3>
-        <div class="product-rating" *ngIf="product.promedio_valoracion">
-            <span class="material-icons star" *ngFor="let s of [1,2,3,4,5]">{{ s <= (product.promedio_valoracion || 0) ? 'star' : 'star_border' }}</span>
-            <span>({{ product.total_valoraciones }})</span>
+        <p class="product-desc" *ngIf="shortDescription">{{ shortDescription }}</p>
+
+        <div class="product-footer">
+            <div class="product-price">
+                <span class="price-current">S/ {{ displayPrice | number:'1.0-0' }}</span>
+                <span class="price-original" *ngIf="product.precio_oferta">S/ {{ product.precio | number:'1.0-0' }}</span>
+            </div>
+            <button type="button" class="btn-cart-float" (click)="addToCart($event)" aria-label="Agregar al carrito">
+                <span class="material-icons">add_shopping_cart</span>
+            </button>
         </div>
-        <div class="product-price">
-            <span class="price-current" *ngIf="product.precio_oferta">S/ {{ product.precio_oferta | number:'1.2-2' }}</span>
-            <span class="price-original" *ngIf="product.precio_oferta">S/ {{ product.precio | number:'1.2-2' }}</span>
-            <span class="price-current" *ngIf="!product.precio_oferta">S/ {{ product.precio | number:'1.2-2' }}</span>
-        </div>
-        <button class="btn-add-cart" (click)="addToCart($event)">
-            <span class="material-icons">shopping_cart</span>
-            Agregar
-        </button>
     </div>
-</div>
+</article>

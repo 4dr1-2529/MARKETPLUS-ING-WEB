@@ -1,5 +1,30 @@
 const { pool } = require('../config/database');
 
+/** Búsqueda por palabras (todas deben coincidir) + parámetros de relevancia para ORDER BY */
+function applySearchFilters(search, params, countParams) {
+    const raw = String(search || '').trim().replace(/\s+/g, ' ');
+    if (raw.length < 2) {
+        return { clause: '', orderParams: [], hasSearch: false };
+    }
+
+    const words = raw.toLowerCase().split(' ').filter((w) => w.length >= 2);
+    let clause = '';
+    for (const word of words) {
+        const term = `%${word}%`;
+        clause += ` AND (
+            p.nombre LIKE ? OR p.descripcion LIKE ? OR m.nombre LIKE ?
+            OR c.nombre LIKE ? OR p.sku LIKE ?
+        )`;
+        params.push(term, term, term, term, term);
+        countParams.push(term, term, term, term, term);
+    }
+
+    const full = `%${raw}%`;
+    const starts = `${raw}%`;
+    const orderParams = [starts, full, full, full, full];
+    return { clause, orderParams, hasSearch: true };
+}
+
 const getAll = async (req, res) => {
     try {
         const { page = 1, limit = 12, categoria, marca, search, minPrice, maxPrice, sort } = req.query;
@@ -7,14 +32,19 @@ const getAll = async (req, res) => {
 
         let query = `SELECT p.id, p.nombre, p.slug, p.descripcion, p.precio, p.precio_oferta, 
                      p.descuento_porcentaje, p.sku, p.estado, p.destacado, p.nuevo, p.imagen_principal, 
-                     p.visitas, p.ventas, c.nombre as categoria, m.nombre as marca
+                     p.visitas, p.ventas, c.nombre as categoria, c.slug as categoria_slug, m.nombre as marca, m.slug as marca_slug
                      FROM productos p 
                      JOIN categorias c ON p.categoria_id = c.id 
                      JOIN marcas m ON p.marca_id = m.id 
                      WHERE p.estado = 'activo'`;
-        let countQuery = 'SELECT COUNT(*) as total FROM productos p WHERE p.estado = \'activo\'';
+        let countQuery = `SELECT COUNT(*) as total FROM productos p 
+            JOIN categorias c ON p.categoria_id = c.id 
+            JOIN marcas m ON p.marca_id = m.id 
+            WHERE p.estado = 'activo'`;
         const params = [];
         const countParams = [];
+        let searchOrderParams = [];
+        let hasSearch = false;
 
         if (categoria) {
             query += ' AND c.slug = ?';
@@ -29,32 +59,44 @@ const getAll = async (req, res) => {
             countParams.push(marca);
         }
         if (search) {
-            query += ' AND (p.nombre LIKE ? OR p.descripcion LIKE ?)';
-            countQuery += ' AND (p.nombre LIKE ? OR p.descripcion LIKE ?)';
-            params.push(`%${search}%`, `%${search}%`);
-            countParams.push(`%${search}%`, `%${search}%`);
+            const sf = applySearchFilters(search, params, countParams);
+            query += sf.clause;
+            countQuery += sf.clause;
+            searchOrderParams = sf.orderParams;
+            hasSearch = sf.hasSearch;
         }
         if (minPrice) {
-            query += ' AND p.precio >= ?';
-            countQuery += ' AND p.precio >= ?';
+            query += ' AND COALESCE(p.precio_oferta, p.precio) >= ?';
+            countQuery += ' AND COALESCE(p.precio_oferta, p.precio) >= ?';
             params.push(minPrice);
             countParams.push(minPrice);
         }
         if (maxPrice) {
-            query += ' AND p.precio <= ?';
-            countQuery += ' AND p.precio <= ?';
+            query += ' AND COALESCE(p.precio_oferta, p.precio) <= ?';
+            countQuery += ' AND COALESCE(p.precio_oferta, p.precio) <= ?';
             params.push(maxPrice);
             countParams.push(maxPrice);
         }
 
-        switch (sort) {
-            case 'price_asc': query += ' ORDER BY p.precio ASC'; break;
-            case 'price_desc': query += ' ORDER BY p.precio DESC'; break;
-            case 'name_asc': query += ' ORDER BY p.nombre ASC'; break;
-            case 'name_desc': query += ' ORDER BY p.nombre DESC'; break;
-            case 'newest': query += ' ORDER BY p.creado_en DESC'; break;
-            case 'popular': query += ' ORDER BY p.ventas DESC'; break;
-            default: query += ' ORDER BY p.creado_en DESC';
+        if (hasSearch) {
+            query += ` ORDER BY (
+                (CASE WHEN p.nombre LIKE ? THEN 50 ELSE 0 END) +
+                (CASE WHEN p.nombre LIKE ? THEN 30 ELSE 0 END) +
+                (CASE WHEN m.nombre LIKE ? THEN 20 ELSE 0 END) +
+                (CASE WHEN c.nombre LIKE ? THEN 12 ELSE 0 END) +
+                (CASE WHEN p.descripcion LIKE ? THEN 5 ELSE 0 END)
+            ) DESC, p.ventas DESC`;
+            params.push(...searchOrderParams);
+        } else {
+            switch (sort) {
+                case 'price_asc': query += ' ORDER BY COALESCE(p.precio_oferta, p.precio) ASC'; break;
+                case 'price_desc': query += ' ORDER BY COALESCE(p.precio_oferta, p.precio) DESC'; break;
+                case 'name_asc': query += ' ORDER BY p.nombre ASC'; break;
+                case 'name_desc': query += ' ORDER BY p.nombre DESC'; break;
+                case 'newest': query += ' ORDER BY p.creado_en DESC'; break;
+                case 'popular': query += ' ORDER BY p.ventas DESC'; break;
+                default: query += ' ORDER BY p.creado_en DESC';
+            }
         }
 
         query += ' LIMIT ? OFFSET ?';

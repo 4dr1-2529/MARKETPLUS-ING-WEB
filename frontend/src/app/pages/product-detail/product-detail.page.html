@@ -1,7 +1,7 @@
 <div class="detail-page container" *ngIf="product && !loading">
     <div class="detail-layout">
         <div class="detail-image">
-            <img [src]="product.imagen_principal || 'assets/images/placeholder.jpg'" [alt]="product.nombre">
+            <img [src]="mainImageUrl" [alt]="product.nombre" loading="lazy" (error)="onMainImageError()">
         </div>
 
         <div class="detail-info">

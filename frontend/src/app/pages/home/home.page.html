@@ -1,39 +1,112 @@
-<!-- HERO SECTION -->
+<!-- HERO -->
 <section class="hero">
-    <div class="container">
-        <div class="hero-content animate-slide-up">
-            <span class="hero-badge">🔥 Ofertas Especiales</span>
-            <h1>La Mejor Tecnologia <br>al <span class="highlight">Mejor Precio</span></h1>
-            <p>Descubre los ultimos smartphones, laptops, audifonos y mas con envio a todo el Peru.</p>
+    <div class="hero-bg"></div>
+    <div class="container hero-grid">
+        <div class="hero-content">
+            <span class="hero-badge">Tienda oficial · Perú</span>
+            <h1 class="hero-title">
+                Tecnología que<br>
+                <span class="highlight">sí llega</span> a tu puerta
+            </h1>
+            <p class="hero-subtitle">
+                Más de 300 productos en 20 categorías: celulares, laptops, gaming, Smart TV y más.
+                Precios en soles, envío nacional y garantía oficial.
+            </p>
+
+            <div class="hero-pills">
+                <a *ngFor="let cat of mainCategories"
+                   routerLink="/catalogo"
+                   [queryParams]="{ categoria: cat.slug }"
+                   class="hero-pill">
+                    <span class="material-icons">{{ getCategoryIcon(cat.slug) }}</span>
+                    {{ getCategoryLabel(cat.slug, cat.nombre) }}
+                </a>
+            </div>
+
             <div class="hero-buttons">
-                <a routerLink="/catalogo" class="btn btn-primary btn-lg">Ver Catalogo</a>
-                <a routerLink="/catalogo?sort=popular" class="btn btn-secondary btn-lg">Mas Vendidos</a>
+                <a routerLink="/catalogo" [queryParams]="{ categoria: 'celulares' }" class="btn btn-primary btn-lg">
+                    <span class="material-icons">smartphone</span>
+                    Ver celulares
+                </a>
+                <a routerLink="/catalogo" class="btn btn-secondary btn-lg hero-btn-outline">Explorar catálogo</a>
+            </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+            <div class="hero-card hero-card-1">
+                <span class="material-icons">smartphone</span>
+                <strong>Celulares</strong>
+                <small>15 modelos</small>
+            </div>
+            <div class="hero-card hero-card-2">
+                <span class="material-icons">laptop</span>
+                <strong>Laptops</strong>
+                <small>Gaming y trabajo</small>
+            </div>
+            <div class="hero-card hero-card-3">
+                <span class="material-icons">headphones</span>
+                <strong>Auriculares</strong>
+                <small>Audio premium</small>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CATEGORIES -->
-<section class="section categories-section">
-    <div class="container">
-        <h2 class="section-title">Categorias Populares</h2>
-        <div class="categories-grid">
-            <a *ngFor="let cat of categories" routerLink="/catalogo" [queryParams]="{categoria: cat.slug}" class="category-card">
-                <span class="material-icons">{{ getCategoryIcon(cat.slug) }}</span>
-                <h3>{{ cat.nombre }}</h3>
-            </a>
+<!-- STATS -->
+<section class="stats-bar">
+    <div class="container stats-grid">
+        <div class="stat-item">
+            <span class="stat-value">300</span>
+            <span class="stat-label">Productos</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">20</span>
+            <span class="stat-label">Categorías</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">S/</span>
+            <span class="stat-label">Precios en soles</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">24h</span>
+            <span class="stat-label">Despacho Lima</span>
         </div>
     </div>
 </section>
 
-<!-- FEATURED PRODUCTS -->
+<!-- CATEGORÍAS -->
+<section class="section categories-section">
+    <div class="container">
+        <h2 class="section-title title-display">Compra por categoría</h2>
+        <p class="section-subtitle">20 categorías con 15 productos cada una</p>
+        <div class="categories-grid" *ngIf="categories.length; else noCategories">
+            <a *ngFor="let cat of categories"
+               routerLink="/catalogo"
+               [queryParams]="{ categoria: cat.slug }"
+               class="category-card">
+                <div class="category-icon-wrap" [class.has-image]="cat.imagen">
+                    <img *ngIf="cat.imagen" [src]="cat.imagen" [alt]="cat.nombre" loading="lazy">
+                    <span class="material-icons" *ngIf="!cat.imagen">{{ getCategoryIcon(cat.slug) }}</span>
+                </div>
+                <h3>{{ getCategoryLabel(cat.slug, cat.nombre) }}</h3>
+                <span class="category-count">{{ cat.total_productos }} productos</span>
+                <span class="category-arrow material-icons">arrow_forward</span>
+            </a>
+        </div>
+        <ng-template #noCategories>
+            <p class="section-subtitle">Cargando categorías…</p>
+        </ng-template>
+    </div>
+</section>
+
+<!-- DESTACADOS -->
 <section class="section featured-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Productos Destacados</h2>
-            <a routerLink="/catalogo" class="btn btn-secondary btn-sm">Ver Todos</a>
+            <h2 class="section-title title-display">Productos destacados</h2>
+            <a routerLink="/catalogo" class="btn btn-secondary btn-sm">Ver todos</a>
         </div>
-        <div class="products-grid" *ngIf="!loading">
+        <div class="products-grid" *ngIf="!loading && featuredProducts.length">
             <app-product-card *ngFor="let product of featuredProducts" [product]="product"></app-product-card>
         </div>
         <div class="loading-skeleton" *ngIf="loading">
@@ -42,30 +115,31 @@
     </div>
 </section>
 
-<!-- BENEFITS -->
+<!-- BENEFICIOS -->
 <section class="section benefits-section">
     <div class="container">
+        <h2 class="section-title title-display">¿Por qué MarketPlus?</h2>
         <div class="benefits-grid">
             <div class="benefit-card">
                 <span class="material-icons">local_shipping</span>
-                <h3>Envio Gratis</h3>
-                <p>En compras mayores a S/ 500</p>
+                <h3>Envío gratis</h3>
+                <p>En compras mayores a S/ 500 en Lima Metropolitana</p>
             </div>
             <div class="benefit-card">
-                <span class="material-icons">shield</span>
-                <h3>Garantia Oficial</h3>
-                <p>12 a 24 meses de garantia</p>
+                <span class="material-icons">verified</span>
+                <h3>Garantía oficial</h3>
+                <p>12 a 24 meses según el producto</p>
             </div>
             <div class="benefit-card">
-                <span class="material-icons">payment</span>
-                <h3>Pago Seguro</h3>
-                <p>Yape, Plin, Tarjeta y mas</p>
+                <span class="material-icons">payments</span>
+                <h3>Pago seguro</h3>
+                <p>Yape, Plin, tarjeta y transferencia</p>
             </div>
             <div class="benefit-card">
-                <span class="material-icons">headset_mic</span>
-                <h3>Soporte 24/7</h3>
-                <p>Atencion personalizada</p>
+                <span class="material-icons">support_agent</span>
+                <h3>Soporte humano</h3>
+                <p>Te ayudamos antes y después de comprar</p>
             </div>
         </div>
-    </div>
+        </div>
 </section>

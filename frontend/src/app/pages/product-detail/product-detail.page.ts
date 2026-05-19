@@ -4,6 +4,7 @@ import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { Producto } from '../../models/producto.model';
+import { getProductImageUrl, getCategoryFallbackUrl } from '../../utils/product-image.util';
 
 @Component({
     selector: 'app-product-detail',
@@ -16,6 +17,8 @@ export class ProductDetailPage implements OnInit {
     reviews: any[] = [];
     loading = true;
     quantity = 1;
+    mainImageUrl = '';
+    private imageFallbackStep = 0;
 
     constructor(
         private route: ActivatedRoute,
@@ -36,6 +39,8 @@ export class ProductDetailPage implements OnInit {
         this.productService.getBySlug(slug).subscribe({
             next: (res) => {
                 this.product = res.data;
+                this.mainImageUrl = getProductImageUrl(res.data);
+                this.imageFallbackStep = 0;
                 this.related = res.related;
                 this.reviews = res.reviews;
                 this.loading = false;
@@ -54,6 +59,16 @@ export class ProductDetailPage implements OnInit {
                 next: () => {},
                 error: (err) => console.error(err)
             });
+        }
+    }
+
+    onMainImageError(): void {
+        if (!this.product) return;
+        if (this.imageFallbackStep === 0) {
+            this.imageFallbackStep = 1;
+            this.mainImageUrl = getCategoryFallbackUrl(this.product.categoria_slug);
+        } else {
+            this.mainImageUrl = 'assets/images/placeholder.svg';
         }
     }
 

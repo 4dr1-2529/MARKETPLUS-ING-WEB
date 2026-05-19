@@ -2,7 +2,20 @@ const { pool } = require('../config/database');
 
 const getAll = async (req, res) => {
     try {
-        const [categories] = await pool.query('SELECT * FROM categorias WHERE estado = \'activo\' ORDER BY nombre');
+        const soloConProductos = req.query.con_productos === '1' || req.query.con_productos === 'true';
+        let query = `
+            SELECT c.id, c.nombre, c.slug, c.descripcion, c.imagen, c.padre_id, c.estado,
+                   COUNT(p.id) AS total_productos
+            FROM categorias c
+            LEFT JOIN productos p ON p.categoria_id = c.id AND p.estado = 'activo'
+            WHERE c.estado = 'activo'
+            GROUP BY c.id, c.nombre, c.slug, c.descripcion, c.imagen, c.padre_id, c.estado
+        `;
+        if (soloConProductos) {
+            query += ' HAVING total_productos > 0';
+        }
+        query += ' ORDER BY total_productos DESC, c.nombre ASC';
+        const [categories] = await pool.query(query);
         res.json({ success: true, data: categories });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al obtener categorias', error: error.message });

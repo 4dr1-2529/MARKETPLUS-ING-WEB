@@ -1,21 +1,64 @@
 <div class="catalog-page container">
     <div class="catalog-header">
-        <h1>Catalogo de Productos</h1>
-        <p>{{ pagination.total }} productos encontrados</p>
+        <h1 *ngIf="activeSearchQuery">Resultados para «{{ activeSearchQuery }}»</h1>
+        <h1 *ngIf="!activeSearchQuery">{{ activeCategoryLabel || 'Catálogo de productos' }}</h1>
+        <p>{{ pagination.total || 0 }} producto{{ (pagination.total || 0) === 1 ? '' : 's' }} encontrado{{ (pagination.total || 0) === 1 ? '' : 's' }}</p>
+    </div>
+
+    <div class="active-filters" *ngIf="activeFilterCount > 0">
+        <span class="active-filters-label">Filtros activos:</span>
+        <button type="button" class="active-tag" *ngIf="filters['categoria']" (click)="removeFilter('categoria')">
+            {{ activeCategoryLabel }} <span class="material-icons">close</span>
+        </button>
+        <button type="button" class="active-tag" *ngIf="filters['marca']" (click)="removeFilter('marca')">
+            {{ activeBrandLabel }} <span class="material-icons">close</span>
+        </button>
+        <button type="button" class="active-tag" *ngIf="filters['search']" (click)="removeFilter('search')">
+            «{{ activeSearchQuery }}» <span class="material-icons">close</span>
+        </button>
+        <button type="button" class="active-tag" *ngIf="activePriceLabel" (click)="removePriceFilters()">
+            {{ activePriceLabel }} <span class="material-icons">close</span>
+        </button>
+        <button type="button" class="link-clear" (click)="clearAllFilters()">Limpiar todo</button>
     </div>
 
     <div class="catalog-layout">
-        <aside class="catalog-filters">
-            <app-filter-panel [categories]="categories" [brands]="brands" (filterChange)="onFilterChange($event)"></app-filter-panel>
+        <div class="filters-overlay" *ngIf="filtersOpen" (click)="closeFilters()"></div>
+
+        <aside class="catalog-filters" [class.open]="filtersOpen">
+            <div class="filters-mobile-header">
+                <h2>Filtros</h2>
+                <button type="button" class="close-filters" (click)="closeFilters()" aria-label="Cerrar filtros">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <app-filter-panel
+                [categories]="categories"
+                [brands]="brands"
+                (filterChange)="onFilterApplied()">
+            </app-filter-panel>
         </aside>
 
         <main class="catalog-content">
             <div class="catalog-toolbar">
+                <button type="button" class="btn-filters-mobile" (click)="openFilters()">
+                    <span class="material-icons">tune</span>
+                    Filtros
+                    <span class="filter-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+                </button>
                 <app-search-bar (search)="onSearch($event)"></app-search-bar>
             </div>
 
-            <div class="products-grid" *ngIf="!loading">
-                <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+            <div class="products-grid" *ngIf="!loading && products.length">
+                <app-product-card *ngFor="let product of products" [product]="product" [favoriteIds]="favoriteIds"></app-product-card>
+            </div>
+
+            <div class="empty-state" *ngIf="!loading && products.length === 0">
+                <span class="material-icons">inventory_2</span>
+                <p>No hay productos con estos filtros.</p>
+                <p class="empty-hint" *ngIf="activeSearchQuery">No encontramos «{{ activeSearchQuery }}». Prueba con menos palabras o revisa la ortografía.</p>
+                <p class="empty-hint" *ngIf="!activeSearchQuery">Prueba otra categoría o limpia los filtros.</p>
+                <button type="button" class="btn btn-secondary btn-sm" (click)="clearAllFilters()">Ver todos los productos</button>
             </div>
 
             <div class="loading-grid" *ngIf="loading">
@@ -23,16 +66,16 @@
             </div>
 
             <div class="pagination" *ngIf="pagination.pages > 1">
-                <button [disabled]="filters.page === 1" (click)="changePage(filters.page - 1)" class="page-btn">
+                <button [disabled]="filters['page'] === 1" (click)="changePage(+filters['page'] - 1)" class="page-btn">
                     <span class="material-icons">chevron_left</span>
                 </button>
                 <button *ngFor="let p of [].constructor(pagination.pages); let i = index"
                         (click)="changePage(i + 1)"
-                        [class.active]="filters.page === i + 1"
+                        [class.active]="filters['page'] === i + 1"
                         class="page-btn">
                     {{ i + 1 }}
                 </button>
-                <button [disabled]="filters.page === pagination.pages" (click)="changePage(filters.page + 1)" class="page-btn">
+                <button [disabled]="filters['page'] === pagination.pages" (click)="changePage(+filters['page'] + 1)" class="page-btn">
                     <span class="material-icons">chevron_right</span>
                 </button>
             </div>

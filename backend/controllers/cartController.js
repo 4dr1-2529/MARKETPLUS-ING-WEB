@@ -9,8 +9,10 @@ const getCart = async (req, res) => {
         }
 
         const [items] = await pool.query(
-            `SELECT dc.id, dc.cantidad, dc.precio_unitario, p.id as producto_id, p.nombre, p.slug, p.imagen_principal, p.precio, p.precio_oferta, c.nombre as categoria, m.nombre as marca
-             FROM detalle_carrito dc JOIN productos p ON dc.producto_id = p.id JOIN categorias c ON p.categoria_id = c.id JOIN marcas m ON p.marca_id = m.id
+            `SELECT dc.id, dc.cantidad, dc.precio_unitario, p.id as producto_id, p.nombre, p.slug, p.imagen_principal, p.precio, p.precio_oferta, 
+             c.nombre as categoria, c.slug as categoria_slug, m.nombre as marca
+             FROM detalle_carrito dc JOIN productos p ON dc.producto_id = p.id 
+             JOIN categorias c ON p.categoria_id = c.id JOIN marcas m ON p.marca_id = m.id
              WHERE dc.carrito_id = ?`,
             [carts[0].id]
         );

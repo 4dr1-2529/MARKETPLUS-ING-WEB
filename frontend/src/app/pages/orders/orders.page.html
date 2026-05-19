@@ -5,7 +5,7 @@
         <span class="material-icons">receipt_long</span>
         <h2>No tienes pedidos</h2>
         <p>Aun no has realizado ninguna compra</p>
-        <a routerLink="/catalogo" class="btn btn-primary">Ir al Catalogo</a>
+        <a routerLink="/catalogo" class="btn btn-primary">Ir al catálogo</a>
     </div>
 
     <div class="orders-list" *ngIf="orders.length > 0">
@@ -23,7 +23,7 @@
                     <p><strong>Metodo:</strong> {{ order.metodo_pago }}</p>
                     <p *ngIf="order.tracking_numero"><strong>Tracking:</strong> {{ order.tracking_numero }}</p>
                 </div>
-                <a routerLink="/mis-pedidos" class="btn btn-secondary btn-sm">Ver Detalle</a>
+                <a [routerLink]="['/mis-pedidos', order.numero_pedido]" class="btn btn-secondary btn-sm">Seguimiento</a>
             </div>
         </div>
     </div>

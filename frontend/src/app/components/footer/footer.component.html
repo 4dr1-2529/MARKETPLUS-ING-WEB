@@ -6,43 +6,46 @@
                     <span class="material-icons">storefront</span>
                     <span>Market<span class="highlight">Plus</span></span>
                 </div>
-                <p class="footer-desc">Tu tienda online de confianza con los mejores productos tecnologicos al mejor precio en Peru.</p>
+                <p class="footer-desc">Tu tienda online de confianza con los mejores productos tecnológicos al mejor precio en Perú.</p>
                 <div class="social-links">
-                    <a href="#" class="social-link"><span class="material-icons">facebook</span></a>
-                    <a href="#" class="social-link"><span class="material-icons">smart_display</span></a>
-                    <a href="#" class="social-link"><span class="material-icons">photo_camera</span></a>
-                    <a href="#" class="social-link"><span class="material-icons">chat</span></a>
+                    <a href="#" class="social-link" aria-label="Facebook"><span class="material-icons">facebook</span></a>
+                    <a href="#" class="social-link" aria-label="YouTube"><span class="material-icons">smart_display</span></a>
+                    <a href="#" class="social-link" aria-label="Instagram"><span class="material-icons">photo_camera</span></a>
+                    <a href="#" class="social-link" aria-label="WhatsApp"><span class="material-icons">chat</span></a>
                 </div>
             </div>
 
             <div class="footer-col">
-                <h4>Categorias</h4>
+                <h4>Categorías</h4>
                 <ul class="footer-links">
-                    <li><a routerLink="/catalogo?categoria=celulares-smartphones">Celulares</a></li>
-                    <li><a routerLink="/catalogo?categoria=laptops-computadoras">Laptops</a></li>
-                    <li><a routerLink="/catalogo?categoria=tablets">Tablets</a></li>
-                    <li><a routerLink="/catalogo?categoria=audifonos-audio">Audifonos</a></li>
-                    <li><a routerLink="/catalogo?categoria=smartwatch-wearables">Smartwatch</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'celulares'}">Celulares</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'laptops'}">Laptops</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'audifonos-headsets'}">Audífonos</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'smart-tv'}">Smart TV</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'consolas-videojuegos'}">Consolas</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'tablets'}">Tablets</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'smartwatches'}">Smartwatches</a></li>
+                    <li><a routerLink="/catalogo" [queryParams]="{categoria: 'accesorios-gamer'}">Gaming</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
-                <h4>Mi Cuenta</h4>
+                <h4>Mi cuenta</h4>
                 <ul class="footer-links">
-                    <li><a routerLink="/mi-perfil">Mi Perfil</a></li>
-                    <li><a routerLink="/mis-pedidos">Mis Pedidos</a></li>
+                    <li><a routerLink="/mi-perfil">Mi perfil</a></li>
+                    <li><a routerLink="/mis-pedidos">Mis pedidos</a></li>
                     <li><a routerLink="/carrito">Carrito</a></li>
-                    <li><a routerLink="/catalogo">Catalogo</a></li>
+                    <li><a routerLink="/catalogo">Catálogo</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
                 <h4>Contacto</h4>
                 <ul class="footer-links">
-                    <li><span class="material-icons">location_on</span> Lima, Peru</li>
+                    <li><span class="material-icons">location_on</span> Lima, Perú</li>
                     <li><span class="material-icons">phone</span> +51 999 888 777</li>
-                    <li><span class="material-icons">email</span> soporte@marketplus.pe</li>
-                    <li><span class="material-icons">schedule</span> Lun - Sab: 9am - 8pm</li>
+                    <li><span class="material-icons">email</span> soporte&#64;marketplus.pe</li>
+                    <li><span class="material-icons">schedule</span> Lun - Sáb: 9am - 8pm</li>
                 </ul>
             </div>
         </div>

@@ -19,7 +19,10 @@ const testConnection = async () => {
         console.log('✅ Conexión exitosa a MySQL - marketplus_db');
         connection.release();
     } catch (error) {
-        console.error('❌ Error conectando a MySQL:', error.message);
+        console.error('❌ Error conectando a MySQL:', error.code || '', error.message || 'Servicio no disponible');
+        console.error('   → Verifica que MySQL esté INICIADO (XAMPP o servicio MySQL80)');
+        console.error('   → Revisa DB_PASSWORD en backend/.env');
+        console.error('   → Crea la BD: mysql -u root -p < database/marketplus.sql');
     }
 };
 

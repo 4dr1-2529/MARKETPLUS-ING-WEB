@@ -1,60 +1,177 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
 import { BrandService } from '../../services/brand.service';
 import { Producto } from '../../models/producto.model';
+import { FavoriteService } from '../../services/favorite.service';
+import { AuthService } from '../../services/auth.service';
+import { getCategoryLabel } from '../../utils/category-label.util';
 
 @Component({
     selector: 'app-catalog',
     templateUrl: './catalog.page.html',
     styleUrls: ['./catalog.page.css']
 })
-export class CatalogPage implements OnInit {
+export class CatalogPage implements OnInit, OnDestroy {
     products: Producto[] = [];
     categories: any[] = [];
     brands: any[] = [];
     loading = true;
     pagination: any = {};
-    filters: any = { page: 1, limit: 12 };
+    filters: Record<string, string | number> = { page: 1, limit: 12 };
+    favoriteIds: number[] = [];
+    filtersOpen = false;
+    activeFilterCount = 0;
+    activeCategoryLabel = '';
+    activeBrandLabel = '';
+    activeSearchQuery = '';
+    activePriceLabel = '';
+
+    private routeSub?: Subscription;
+
+    getCategoryLabel = getCategoryLabel;
 
     constructor(
         private productService: ProductService,
         private categoryService: CategoryService,
         private brandService: BrandService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private router: Router,
+        private favoriteService: FavoriteService,
+        private auth: AuthService
     ) {}
 
     ngOnInit(): void {
-        this.route.queryParams.subscribe(params => {
-            this.filters = { ...this.filters, ...params, page: 1 };
+        this.categoryService.getAll(true).subscribe(res => { this.categories = res.data; });
+        this.routeSub = this.route.queryParams.subscribe(params => {
+            this.filters = this.buildFilters(params);
+            this.activeCategoryLabel = params['categoria']
+                ? getCategoryLabel(params['categoria'])
+                : '';
+            this.activeSearchQuery = params['search']?.trim() || '';
+            this.activePriceLabel = this.buildPriceLabel(params);
+            this.updateActiveFilterCount(params);
+            this.loadBrands(params['categoria']);
             this.loadProducts();
         });
-        this.categoryService.getAll().subscribe(res => this.categories = res.data);
-        this.brandService.getAll().subscribe(res => this.brands = res.data);
+        if (this.auth.isAuthenticated) {
+            this.favoriteService.getFavorites().subscribe(res => {
+                this.favoriteIds = res.data.map((f: any) => f.producto_id);
+            });
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.routeSub?.unsubscribe();
+    }
+
+    private buildFilters(params: Record<string, string>): Record<string, string | number> {
+        const f: Record<string, string | number> = { page: params['page'] ? +params['page'] : 1, limit: 12 };
+        if (params['categoria']) f['categoria'] = params['categoria'];
+        if (params['marca']) f['marca'] = params['marca'];
+        if (params['search']) f['search'] = params['search'];
+        if (params['minPrice']) f['minPrice'] = params['minPrice'];
+        if (params['maxPrice']) f['maxPrice'] = params['maxPrice'];
+        if (params['sort']) f['sort'] = params['sort'];
+        return f;
+    }
+
+    loadBrands(categoriaSlug?: string): void {
+        if (!categoriaSlug) {
+            this.brands = [];
+            this.activeBrandLabel = '';
+            if (this.filters['marca']) {
+                delete this.filters['marca'];
+            }
+            return;
+        }
+        this.brandService.getAll(categoriaSlug).subscribe(res => {
+            this.brands = res.data;
+            const marcaSlug = this.filters['marca'] as string | undefined;
+            if (marcaSlug) {
+                const found = this.brands.find(b => b.slug === marcaSlug);
+                this.activeBrandLabel = found?.nombre || marcaSlug;
+                if (!found) {
+                    delete this.filters['marca'];
+                    this.activeBrandLabel = '';
+                }
+            } else {
+                this.activeBrandLabel = '';
+            }
+        });
+    }
+
+    private buildPriceLabel(params: Record<string, string>): string {
+        const min = params['minPrice'];
+        const max = params['maxPrice'];
+        if (min && max) return `S/ ${min} – ${max}`;
+        if (min) return `Desde S/ ${min}`;
+        if (max) return `Hasta S/ ${max}`;
+        return '';
     }
 
     loadProducts(): void {
         this.loading = true;
         this.productService.getAll(this.filters).subscribe({
-            next: (res) => { this.products = res.data; this.pagination = res.pagination; this.loading = false; },
+            next: (res) => {
+                this.products = res.data;
+                this.pagination = res.pagination;
+                this.loading = false;
+            },
             error: () => { this.loading = false; }
         });
     }
 
-    onFilterChange(filters: any): void {
-        this.filters = { ...this.filters, ...filters, page: 1 };
-        this.loadProducts();
+    onFilterApplied(): void {
+        this.closeFilters();
     }
 
     onSearch(query: string): void {
-        this.filters = { ...this.filters, search: query, page: 1 };
-        this.loadProducts();
+        const q = query?.trim() || '';
+        const params: Record<string, string> = { ...this.route.snapshot.queryParams, page: '1' };
+        if (q.length >= 2) {
+            params['search'] = q;
+        } else {
+            delete params['search'];
+        }
+        this.router.navigate(['/catalogo'], { queryParams: params });
     }
 
     changePage(page: number): void {
-        this.filters.page = page;
-        this.loadProducts();
+        this.router.navigate(['/catalogo'], {
+            queryParams: { ...this.route.snapshot.queryParams, page }
+        });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    removeFilter(key: string): void {
+        const params: Record<string, string> = { ...this.route.snapshot.queryParams, page: '1' };
+        delete params[key];
+        this.router.navigate(['/catalogo'], { queryParams: params });
+    }
+
+    openFilters(): void { this.filtersOpen = true; }
+    closeFilters(): void { this.filtersOpen = false; }
+
+    clearAllFilters(): void {
+        this.router.navigate(['/catalogo'], { queryParams: { sort: 'newest', page: 1 } });
+    }
+
+    removePriceFilters(): void {
+        const params: Record<string, string> = { ...this.route.snapshot.queryParams, page: '1' };
+        delete params['minPrice'];
+        delete params['maxPrice'];
+        this.router.navigate(['/catalogo'], { queryParams: params });
+    }
+
+    private updateActiveFilterCount(params: Record<string, string>): void {
+        let n = 0;
+        if (params['categoria']) n++;
+        if (params['marca']) n++;
+        if (params['minPrice'] || params['maxPrice']) n++;
+        if (params['search']) n++;
+        this.activeFilterCount = n;
     }
 }

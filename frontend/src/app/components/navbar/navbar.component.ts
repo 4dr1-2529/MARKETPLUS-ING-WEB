@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
     selector: 'app-navbar',
@@ -15,11 +16,13 @@ export class NavbarComponent implements OnInit {
     cartCount = 0;
     mobileMenuOpen = false;
     searchQuery = '';
+    isDark = false;
 
     constructor(
         public auth: AuthService,
         private cartService: CartService,
-        private router: Router
+        private router: Router,
+        public theme: ThemeService
     ) {}
 
     ngOnInit(): void {
@@ -28,6 +31,16 @@ export class NavbarComponent implements OnInit {
             this.isAdmin = user?.role === 'admin';
             this.userName = user ? `${user.nombres} ${user.apellidos}` : '';
         });
+        if (this.auth.isAuthenticated) {
+            this.cartService.getCart().subscribe(res => {
+                this.cartCount = res.data?.total_items || 0;
+            });
+        }
+        this.theme.isDark$.subscribe(d => this.isDark = d);
+    }
+
+    toggleTheme(): void {
+        this.theme.toggle();
     }
 
     onSearch(): void {

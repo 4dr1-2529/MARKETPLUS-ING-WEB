@@ -21,6 +21,8 @@ import { AdminUsersPage } from './pages/admin/users/users.page';
 import { AdminOrdersPage } from './pages/admin/orders/orders.page';
 import { AdminInventoryPage } from './pages/admin/inventory/inventory.page';
 import { AdminReportsPage } from './pages/admin/reports/reports.page';
+import { FavoritesPage } from './pages/favorites/favorites.page';
+import { OrderDetailPage } from './pages/order-detail/order-detail.page';
 
 const routes: Routes = [
     { path: '', component: HomePage },
@@ -33,6 +35,8 @@ const routes: Routes = [
     { path: 'checkout', component: CheckoutPage, canActivate: [AuthGuard] },
     { path: 'mi-perfil', component: ProfilePage, canActivate: [AuthGuard] },
     { path: 'mis-pedidos', component: OrdersPage, canActivate: [AuthGuard] },
+    { path: 'mis-pedidos/:numero', component: OrderDetailPage, canActivate: [AuthGuard] },
+    { path: 'favoritos', component: FavoritesPage, canActivate: [AuthGuard] },
     { path: 'admin', component: AdminDashboardPage, canActivate: [AdminGuard] },
     { path: 'admin/productos', component: AdminProductsPage, canActivate: [AdminGuard] },
     { path: 'admin/categorias', component: AdminCategoriesPage, canActivate: [AdminGuard] },
@@ -45,7 +49,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot({ scrollPositionRestoration: 'top' })],
+    imports: [RouterModule.forRoot(routes, { scrollPositionRestoration: 'top' })],
     exports: [RouterModule]
 })
 export class AppRoutingModule { }

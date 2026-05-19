@@ -36,6 +36,9 @@ import { AdminUsersPage } from './pages/admin/users/users.page';
 import { AdminOrdersPage } from './pages/admin/orders/orders.page';
 import { AdminInventoryPage } from './pages/admin/inventory/inventory.page';
 import { AdminReportsPage } from './pages/admin/reports/reports.page';
+import { FavoritesPage } from './pages/favorites/favorites.page';
+import { OrderDetailPage } from './pages/order-detail/order-detail.page';
+import { ProductImagePipe } from './pipes/product-image.pipe';
 
 @NgModule({
     declarations: [
@@ -65,7 +68,10 @@ import { AdminReportsPage } from './pages/admin/reports/reports.page';
         AdminUsersPage,
         AdminOrdersPage,
         AdminInventoryPage,
-        AdminReportsPage
+        AdminReportsPage,
+        FavoritesPage,
+        OrderDetailPage,
+        ProductImagePipe
     ],
     imports: [
         BrowserModule,

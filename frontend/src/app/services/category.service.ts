@@ -10,8 +10,11 @@ export class CategoryService {
 
     constructor(private http: HttpClient) {}
 
-    getAll(): Observable<{ success: boolean; data: Categoria[] }> {
-        return this.http.get<{ success: boolean; data: Categoria[] }>(`${this.apiUrl}/categories`);
+    getAll(conProductos = false): Observable<{ success: boolean; data: Categoria[] }> {
+        const url = conProductos
+            ? `${this.apiUrl}/categories?con_productos=1`
+            : `${this.apiUrl}/categories`;
+        return this.http.get<{ success: boolean; data: Categoria[] }>(url);
     }
 
     getAllAdmin(): Observable<{ success: boolean; data: Categoria[] }> {

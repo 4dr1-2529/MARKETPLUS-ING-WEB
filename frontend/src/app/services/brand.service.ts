@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Marca } from '../models/index.model';
@@ -10,8 +10,12 @@ export class BrandService {
 
     constructor(private http: HttpClient) {}
 
-    getAll(): Observable<{ success: boolean; data: Marca[] }> {
-        return this.http.get<{ success: boolean; data: Marca[] }>(`${this.apiUrl}/brands`);
+    getAll(categoriaSlug?: string): Observable<{ success: boolean; data: Marca[] }> {
+        let params = new HttpParams();
+        if (categoriaSlug) {
+            params = params.set('categoria', categoriaSlug);
+        }
+        return this.http.get<{ success: boolean; data: Marca[] }>(`${this.apiUrl}/brands`, { params });
     }
 
     getAllAdmin(): Observable<{ success: boolean; data: Marca[] }> {
