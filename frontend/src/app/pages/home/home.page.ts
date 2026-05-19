@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
 import { Producto } from '../../models/producto.model';
@@ -18,11 +18,15 @@ const FALLBACK_CATEGORIES: Categoria[] = [
     templateUrl: './home.page.html',
     styleUrls: ['./home.page.css']
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
     featuredProducts: Producto[] = [];
     categories: Categoria[] = [];
     mainCategories: Categoria[] = [];
     loading = true;
+    countdownHours = '08';
+    countdownMinutes = '45';
+    countdownSeconds = '30';
+    private countdownInterval?: any;
 
     getCategoryLabel = getCategoryLabel;
 
@@ -35,6 +39,32 @@ export class HomePage implements OnInit {
         this.loadFeatured();
         this.loadCategories();
         this.initScrollAnimations();
+        this.startCountdown();
+    }
+
+    ngOnDestroy(): void {
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+        }
+    }
+
+    startCountdown(): void {
+        let totalSeconds = 8 * 3600 + 45 * 60 + 30;
+
+        this.countdownInterval = setInterval(() => {
+            if (totalSeconds <= 0) {
+                totalSeconds = 24 * 3600;
+            }
+            totalSeconds--;
+
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+
+            this.countdownHours = h.toString().padStart(2, '0');
+            this.countdownMinutes = m.toString().padStart(2, '0');
+            this.countdownSeconds = s.toString().padStart(2, '0');
+        }, 1000);
     }
 
     initScrollAnimations(): void {

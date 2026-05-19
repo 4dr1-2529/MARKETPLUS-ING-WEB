@@ -1,8 +1,10 @@
 <div class="catalog-page container">
     <div class="catalog-header">
         <h1 *ngIf="activeSearchQuery">Resultados para «{{ activeSearchQuery }}»</h1>
-        <h1 *ngIf="!activeSearchQuery">{{ activeCategoryLabel || 'Catálogo de productos' }}</h1>
-        <p>{{ pagination.total || 0 }} producto{{ (pagination.total || 0) === 1 ? '' : 's' }} encontrado{{ (pagination.total || 0) === 1 ? '' : 's' }}</p>
+        <h1 *ngIf="!activeSearchQuery && activeCategoryLabel">{{ activeCategoryLabel }}</h1>
+        <h1 *ngIf="!activeSearchQuery && !activeCategoryLabel">Productos destacados</h1>
+        <p *ngIf="activeFilterCount > 0">{{ pagination.total || 0 }} producto{{ (pagination.total || 0) === 1 ? '' : 's' }} encontrado{{ (pagination.total || 0) === 1 ? '' : 's' }}</p>
+        <p *ngIf="activeFilterCount === 0 && !activeSearchQuery">Lo más buscado en MarketPlus</p>
     </div>
 
     <div class="active-filters" *ngIf="activeFilterCount > 0">
