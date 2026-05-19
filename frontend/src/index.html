@@ -11,8 +11,39 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        #pre-diag { position: fixed; top: 10px; right: 10px; z-index: 99999; background: #1e293b; color: #e2e8f0; padding: 10px; border-radius: 8px; font-size: 12px; font-family: monospace; max-width: 300px; }
+        #pre-diag .ok { color: #10b981; }
+        #pre-diag .err { color: #ef4444; }
+        #pre-diag .pending { color: #3b82f6; }
+    </style>
 </head>
 <body>
+    <div id="pre-diag">
+        <div>🔍 Diagnóstico...</div>
+        <div id="api-status" class="pending">⏳ Conectando API...</div>
+        <div id="angular-status" class="pending">⏳ Cargando Angular...</div>
+    </div>
     <app-root></app-root>
+    <script>
+        (function() {
+            const API = 'http://localhost:3000/api';
+            const apiStatus = document.getElementById('api-status');
+            fetch(API + '/products?page=1&limit=1', { mode: 'cors' })
+                .then(r => r.json())
+                .then(d => {
+                    apiStatus.className = 'ok';
+                    apiStatus.textContent = '✅ API OK - ' + d.pagination.total + ' productos';
+                })
+                .catch(e => {
+                    apiStatus.className = 'err';
+                    apiStatus.textContent = '❌ API ERROR: ' + e.message;
+                });
+            setTimeout(function() {
+                var el = document.getElementById('pre-diag');
+                if (el) el.style.display = 'none';
+            }, 5000);
+        })();
+    </script>
 </body>
 </html>

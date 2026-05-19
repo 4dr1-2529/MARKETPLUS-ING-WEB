@@ -13,8 +13,8 @@ export class ProductService {
     getAll(params: any = {}): Observable<ProductoResponse> {
         let httpParams = new HttpParams();
         Object.keys(params).forEach(key => {
-            if (params[key] !== null && params[key] !== undefined) {
-                httpParams = httpParams.set(key, params[key]);
+            if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                httpParams = httpParams.set(key, String(params[key]));
             }
         });
         return this.http.get<ProductoResponse>(`${this.apiUrl}/products`, { params: httpParams });

@@ -20,7 +20,7 @@ export class CatalogPage implements OnInit, OnDestroy {
     brands: any[] = [];
     loading = true;
     pagination: any = {};
-    filters: Record<string, string | number> = { page: 1, limit: 12 };
+    filters: Record<string, string | number> = { page: 1, limit: 12, sort: 'newest' };
     favoriteIds: number[] = [];
     filtersOpen = false;
     activeFilterCount = 0;
@@ -44,7 +44,10 @@ export class CatalogPage implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-        this.categoryService.getAll(true).subscribe(res => { this.categories = res.data; });
+        this.categoryService.getAll(true).subscribe({
+            next: (res) => { this.categories = res.data || []; },
+            error: (err) => console.error('Error loading categories:', err)
+        });
         this.routeSub = this.route.queryParams.subscribe(params => {
             this.filters = this.buildFilters(params);
             this.activeCategoryLabel = params['categoria']
@@ -57,8 +60,9 @@ export class CatalogPage implements OnInit, OnDestroy {
             this.loadProducts();
         });
         if (this.auth.isAuthenticated) {
-            this.favoriteService.getFavorites().subscribe(res => {
-                this.favoriteIds = res.data.map((f: any) => f.producto_id);
+            this.favoriteService.getFavorites().subscribe({
+                next: (res) => { this.favoriteIds = res.data.map((f: any) => f.producto_id); },
+                error: (err) => console.error('Error loading favorites:', err)
             });
         }
     }
@@ -114,13 +118,21 @@ export class CatalogPage implements OnInit, OnDestroy {
 
     loadProducts(): void {
         this.loading = true;
+        console.log('[Catalog] Loading products with filters:', this.filters);
         this.productService.getAll(this.filters).subscribe({
             next: (res) => {
-                this.products = res.data;
-                this.pagination = res.pagination;
+                console.log('[Catalog] Products response:', res);
+                this.products = res.data || [];
+                this.pagination = res.pagination || {};
                 this.loading = false;
+                console.log('[Catalog] Products loaded:', this.products.length, 'Total:', this.pagination.total);
             },
-            error: () => { this.loading = false; }
+            error: (err) => {
+                console.error('[Catalog] Error loading products:', err);
+                this.products = [];
+                this.pagination = {};
+                this.loading = false;
+            }
         });
     }
 
