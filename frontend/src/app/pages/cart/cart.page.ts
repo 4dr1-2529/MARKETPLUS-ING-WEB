@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { ToastService } from '../../services/toast.service';
+import { AuthService } from '../../services/auth.service';
 import { CarritoItem } from '../../models/index.model';
 
 @Component({
@@ -13,14 +16,26 @@ export class CartPage implements OnInit {
     totalItems = 0;
     loading = true;
 
-    constructor(private cartService: CartService) {}
+    constructor(
+        private cartService: CartService,
+        private toast: ToastService,
+        private auth: AuthService,
+        private router: Router
+    ) {}
 
-    ngOnInit(): void { this.loadCart(); }
+    ngOnInit(): void {
+        if (!this.auth.isAuthenticated) {
+            this.toast.warning('Inicia sesion para ver tu carrito');
+            this.router.navigate(['/login'], { queryParams: { return: '/carrito' } });
+            return;
+        }
+        this.loadCart();
+    }
 
     loadCart(): void {
         this.cartService.getCart().subscribe({
             next: (res) => { this.items = res.data.items; this.subtotal = res.data.subtotal; this.totalItems = res.data.total_items; this.loading = false; },
-            error: () => { this.loading = false; }
+            error: () => { this.loading = false; this.toast.error('Error al cargar el carrito'); }
         });
     }
 
