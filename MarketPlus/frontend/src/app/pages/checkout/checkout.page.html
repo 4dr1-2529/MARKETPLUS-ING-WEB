@@ -149,6 +149,12 @@
                 <button (click)="closeAddressModal()" class="btn-close"><span class="material-icons">close</span></button>
             </div>
             <div class="modal-body">
+                <div *ngIf="addressErrors.length > 0" class="alert-error modal-alert">
+                    <span class="material-icons">error</span>
+                    <ul>
+                        <li *ngFor="let err of addressErrors">{{ err }}</li>
+                    </ul>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Tipo</label>
@@ -160,12 +166,14 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Destinatario *</label>
-                        <input type="text" [(ngModel)]="newAddress.destinatario" class="form-control" placeholder="Nombre completo">
+                        <input type="text" [(ngModel)]="newAddress.destinatario" class="form-control" placeholder="Nombre completo" minlength="3" required>
+                        <small class="form-hint">Minimo 3 caracteres</small>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Direccion *</label>
-                    <input type="text" [(ngModel)]="newAddress.direccion_linea1" class="form-control" placeholder="Av. / Jr. / Calle">
+                    <input type="text" [(ngModel)]="newAddress.direccion_linea1" class="form-control" placeholder="Av. / Jr. / Calle" minlength="5" required>
+                    <small class="form-hint">Minimo 5 caracteres</small>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -184,7 +192,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Telefono</label>
-                        <input type="tel" [(ngModel)]="newAddress.telefono" class="form-control" placeholder="999 999 999">
+                        <input type="tel" [(ngModel)]="newAddress.telefono" class="form-control" placeholder="999999999" maxlength="9" pattern="\d{9}" inputmode="numeric">
+                        <small class="form-hint">9 digitos</small>
                     </div>
                 </div>
             </div>

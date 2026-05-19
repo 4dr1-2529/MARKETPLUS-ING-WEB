@@ -29,6 +29,7 @@ export class FavoritesPage implements OnInit {
             next: (res) => {
                 this.favorites = res.data;
                 this.loading = false;
+                this.favoriteService.updateCount(res.data.length);
             },
             error: () => {
                 this.loading = false;
@@ -41,6 +42,7 @@ export class FavoritesPage implements OnInit {
         this.favoriteService.removeFavorite(productoId).subscribe({
             next: () => {
                 this.favorites = this.favorites.filter(f => f.producto_id !== productoId);
+                this.favoriteService.updateCount(this.favoriteService.getCount() - 1);
                 this.toast.success('Eliminado de favoritos');
             },
             error: () => this.toast.error('No se pudo eliminar')

@@ -34,7 +34,13 @@ export class CartPage implements OnInit {
 
     loadCart(): void {
         this.cartService.getCart().subscribe({
-            next: (res) => { this.items = res.data.items; this.subtotal = res.data.subtotal; this.totalItems = res.data.total_items; this.loading = false; },
+            next: (res) => {
+                this.items = res.data.items;
+                this.subtotal = res.data.subtotal;
+                this.totalItems = res.data.total_items;
+                this.loading = false;
+                this.cartService.updateCount(this.totalItems);
+            },
             error: () => { this.loading = false; this.toast.error('Error al cargar el carrito'); }
         });
     }
