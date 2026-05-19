@@ -47,10 +47,19 @@ const getAll = async (req, res) => {
         let hasSearch = false;
 
         if (categoria) {
-            query += ' AND c.slug = ?';
-            countQuery += ' AND c.slug = ?';
-            params.push(categoria);
-            countParams.push(categoria);
+            const slugs = categoria.split(',').map(s => s.trim()).filter(Boolean);
+            if (slugs.length === 1) {
+                query += ' AND c.slug = ?';
+                countQuery += ' AND c.slug = ?';
+                params.push(slugs[0]);
+                countParams.push(slugs[0]);
+            } else {
+                const placeholders = slugs.map(() => '?').join(',');
+                query += ` AND c.slug IN (${placeholders})`;
+                countQuery += ` AND c.slug IN (${placeholders})`;
+                params.push(...slugs);
+                countParams.push(...slugs);
+            }
         }
         if (marca) {
             query += ' AND m.slug = ?';

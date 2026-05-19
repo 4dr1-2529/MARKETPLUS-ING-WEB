@@ -19,6 +19,9 @@ export class CheckoutPage implements OnInit {
     subtotal = 0;
     loading = false;
 
+    showOrderSuccess = false;
+    lastOrder: any = null;
+
     addresses: Direccion[] = [];
     addressesLoading = true;
 
@@ -225,10 +228,18 @@ export class CheckoutPage implements OnInit {
         this.orderService.createOrder(orderData).subscribe({
             next: (res) => {
                 this.loading = false;
-                const numero = res.data?.numero_pedido || 'N/A';
-                const total = res.data?.total || this.getTotal();
-                this.toast.success(`Pedido ${numero} creado - Total: S/ ${total.toFixed(2)}`);
-                this.router.navigate(['/mis-pedidos', numero]);
+                const selectedAddress = this.addresses.find(a => String(a.id) === this.checkoutData.direccion_id);
+                this.lastOrder = {
+                    numero: res.data?.numero_pedido || 'N/A',
+                    total: res.data?.total || this.getTotal(),
+                    items: [...this.cartItems],
+                    metodoPago: this.getPaymentMethodName(this.checkoutData.metodo_pago),
+                    direccion: selectedAddress ? this.getFullAddress(selectedAddress) : 'N/A',
+                    destinatario: selectedAddress?.destinatario || 'N/A',
+                    fecha: new Date().toLocaleString('es-PE'),
+                    notas: this.checkoutData.notas
+                };
+                this.showOrderSuccess = true;
             },
             error: (err) => {
                 this.loading = false;
@@ -236,5 +247,29 @@ export class CheckoutPage implements OnInit {
                 this.toast.error(msg);
             }
         });
+    }
+
+    getPaymentMethodName(method: string): string {
+        const methods: Record<string, string> = {
+            'tarjeta_credito': 'Tarjeta de Credito',
+            'tarjeta_debito': 'Tarjeta de Debito',
+            'yape': 'Yape',
+            'plin': 'Plin',
+            'transferencia': 'Transferencia Bancaria',
+            'contra_entrega': 'Contra Entrega'
+        };
+        return methods[method] || method;
+    }
+
+    closeOrderSuccess(): void {
+        this.showOrderSuccess = false;
+        this.lastOrder = null;
+        this.router.navigate(['/mis-pedidos']);
+    }
+
+    continueShopping(): void {
+        this.showOrderSuccess = false;
+        this.lastOrder = null;
+        this.router.navigate(['/catalogo']);
     }
 }

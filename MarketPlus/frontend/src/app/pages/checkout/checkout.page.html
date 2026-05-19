@@ -203,4 +203,63 @@
             </div>
         </div>
     </div>
+
+    <!-- ORDER SUCCESS MODAL -->
+    <div class="modal-overlay" *ngIf="showOrderSuccess" (click)="closeOrderSuccess()">
+        <div class="modal-content order-success-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header success-header">
+                <div class="success-icon">
+                    <span class="material-icons">check_circle</span>
+                </div>
+                <h2>¡Pedido Confirmado!</h2>
+                <button (click)="closeOrderSuccess()" class="btn-close"><span class="material-icons">close</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="order-number">
+                    <span class="label">Numero de Pedido:</span>
+                    <span class="value">{{ lastOrder?.numero }}</span>
+                </div>
+
+                <div class="order-details-grid">
+                    <div class="detail-section">
+                        <h3><span class="material-icons">shopping_bag</span> Productos Pedidos</h3>
+                        <div class="order-items-list">
+                            <div class="order-item-row" *ngFor="let item of lastOrder?.items">
+                                <div class="item-info">
+                                    <span class="item-name">{{ item.nombre }}</span>
+                                    <span class="item-qty">x{{ item.cantidad }}</span>
+                                </div>
+                                <span class="item-price">S/ {{ (item.precio_unitario * item.cantidad) | number:'1.2-2' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3><span class="material-icons">payment</span> Metodo de Pago</h3>
+                        <p class="detail-value">{{ lastOrder?.metodoPago }}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3><span class="material-icons">location_on</span> Direccion de Envio</h3>
+                        <p class="detail-value"><strong>{{ lastOrder?.destinatario }}</strong></p>
+                        <p class="detail-value">{{ lastOrder?.direccion }}</p>
+                    </div>
+
+                    <div class="detail-section" *ngIf="lastOrder?.notas">
+                        <h3><span class="material-icons">note</span> Notas</h3>
+                        <p class="detail-value">{{ lastOrder?.notas }}</p>
+                    </div>
+                </div>
+
+                <div class="order-total-section">
+                    <div class="total-row"><span>Fecha del Pedido</span><span>{{ lastOrder?.fecha }}</span></div>
+                    <div class="total-row grand-total"><span>TOTAL PAGADO</span><span>S/ {{ lastOrder?.total | number:'1.2-2' }}</span></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="continueShopping()" class="btn btn-outline">Seguir Comprando</button>
+                <button (click)="closeOrderSuccess()" class="btn btn-primary">Ver Mis Pedidos</button>
+            </div>
+        </div>
+    </div>
 </div>
