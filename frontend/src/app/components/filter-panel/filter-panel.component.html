@@ -1,9 +1,7 @@
 <div class="filter-panel">
     <div class="filter-header">
-        <h3><span class="material-icons">filter_list</span> Filtros</h3>
-        <button type="button" class="btn-filter-count" *ngIf="activeFilterCount > 0">
-            {{ activeFilterCount }} activo{{ activeFilterCount > 1 ? 's' : '' }}
-        </button>
+        <h3><span class="material-icons">tune</span> Filtros</h3>
+        <span class="filter-count-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
     </div>
 
     <!-- Filtros activos -->
@@ -19,51 +17,73 @@
         </button>
     </div>
 
-    <div class="filter-section" *ngIf="categories.length">
-        <label class="section-label">Categorias (selecciona varias)</label>
-        <div class="category-list">
-            <label class="category-item" *ngFor="let c of categories">
-                <input type="checkbox" 
-                       [checked]="isCategorySelected(c.slug)" 
-                       (change)="toggleCategory(c.slug)">
-                <span class="checkbox-custom"></span>
-                <span class="category-name">{{ getCategoryLabel(c.slug, c.nombre) }}</span>
-                <span class="category-count" *ngIf="c.total_productos">{{ c.total_productos }}</span>
+    <!-- CATEGORIAS -->
+    <div class="filter-section">
+        <div class="section-header">
+            <label class="section-label">Categorias</label>
+            <span class="section-count" *ngIf="selectedCategories.length > 0">{{ selectedCategories.length }} seleccionadas</span>
+        </div>
+        <div class="checkbox-list">
+            <label class="checkbox-item" *ngFor="let c of categories">
+                <input type="checkbox" [checked]="isCategorySelected(c.slug)" (change)="toggleCategory(c.slug)">
+                <span class="checkbox-custom">
+                    <span class="material-icons check-icon">check</span>
+                </span>
+                <span class="checkbox-label">{{ getCategoryLabel(c.slug, c.nombre) }}</span>
+                <span class="checkbox-count" *ngIf="c.total_productos">{{ c.total_productos }}</span>
             </label>
         </div>
     </div>
 
-    <div class="filter-section">
-        <label class="section-label">Marca</label>
-        <select [(ngModel)]="selectedBrand" (change)="applyFilters()" [disabled]="!brands.length">
-            <option value="">{{ brands.length ? 'Todas las marcas' : 'Elige una categoría' }}</option>
-            <option *ngFor="let b of brands" [value]="b.slug">
-                {{ b.nombre }} ({{ b.total_productos }})
-            </option>
-        </select>
-    </div>
-
-    <div class="filter-section">
-        <label class="section-label">Precio (soles)</label>
-        <div class="price-range">
-            <input type="number" [(ngModel)]="minPrice" placeholder="Mín" min="0" (change)="applyFilters()">
-            <span>—</span>
-            <input type="number" [(ngModel)]="maxPrice" placeholder="Máx" min="0" (change)="applyFilters()">
+    <!-- MARCAS -->
+    <div class="filter-section" *ngIf="brands.length > 0">
+        <div class="section-header">
+            <label class="section-label">Marcas</label>
+            <span class="section-count" *ngIf="selectedBrands.length > 0">{{ selectedBrands.length }} seleccionadas</span>
+        </div>
+        <div class="checkbox-list">
+            <label class="checkbox-item" *ngFor="let b of brands">
+                <input type="checkbox" [checked]="isBrandSelected(b.slug)" (change)="toggleBrand(b.slug)">
+                <span class="checkbox-custom">
+                    <span class="material-icons check-icon">check</span>
+                </span>
+                <span class="checkbox-label">{{ b.nombre }}</span>
+                <span class="checkbox-count" *ngIf="b.total_productos">{{ b.total_productos }}</span>
+            </label>
         </div>
     </div>
 
+    <!-- PRECIO -->
     <div class="filter-section">
-        <label class="section-label">Ordenar</label>
-        <select [(ngModel)]="sort" (change)="applyFilters()">
-            <option value="newest">Más recientes</option>
-            <option value="popular">Más vendidos</option>
-            <option value="price_asc">Precio: menor a mayor</option>
-            <option value="price_desc">Precio: mayor a menor</option>
-            <option value="name_asc">Nombre: A → Z</option>
-        </select>
+        <div class="section-header">
+            <label class="section-label">Rango de Precio</label>
+        </div>
+        <div class="price-dropdown">
+            <select [(ngModel)]="selectedPriceRange" (change)="applyFilters()">
+                <option *ngFor="let range of priceRanges" [value]="range.value">{{ range.label }}</option>
+            </select>
+            <span class="material-icons dropdown-arrow">keyboard_arrow_down</span>
+        </div>
+    </div>
+
+    <!-- ORDENAR -->
+    <div class="filter-section">
+        <div class="section-header">
+            <label class="section-label">Ordenar por</label>
+        </div>
+        <div class="price-dropdown">
+            <select [(ngModel)]="sort" (change)="applyFilters()">
+                <option value="newest">Más recientes</option>
+                <option value="popular">Más vendidos</option>
+                <option value="price_asc">Precio: menor a mayor</option>
+                <option value="price_desc">Precio: mayor a menor</option>
+                <option value="name_asc">Nombre: A → Z</option>
+            </select>
+            <span class="material-icons dropdown-arrow">keyboard_arrow_down</span>
+        </div>
     </div>
 
     <button type="button" class="btn-clear" (click)="clearFilters()">
-        <span class="material-icons">clear_all</span> Limpiar filtros
+        <span class="material-icons">restart_alt</span> Limpiar todos los filtros
     </button>
 </div>

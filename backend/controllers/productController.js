@@ -27,7 +27,9 @@ function applySearchFilters(search, params, countParams) {
 
 const getAll = async (req, res) => {
     try {
-        const { page = 1, limit = 12, categoria, marca, search, minPrice, maxPrice, sort } = req.query;
+        const { page = 1, limit = 12, categoria, categorias, marca, marcas, search, minPrice, maxPrice, sort } = req.query;
+        const filtroCategoria = categorias || categoria;
+        const filtroMarca = marcas || marca;
         const offset = (page - 1) * limit;
 
         let query = `SELECT p.id, p.nombre, p.slug, p.descripcion, p.precio, p.precio_oferta, 
@@ -46,8 +48,8 @@ const getAll = async (req, res) => {
         let searchOrderParams = [];
         let hasSearch = false;
 
-        if (categoria) {
-            const slugs = categoria.split(',').map(s => s.trim()).filter(Boolean);
+        if (filtroCategoria) {
+            const slugs = filtroCategoria.split(',').map(s => s.trim()).filter(Boolean);
             if (slugs.length === 1) {
                 query += ' AND c.slug = ?';
                 countQuery += ' AND c.slug = ?';
@@ -61,11 +63,20 @@ const getAll = async (req, res) => {
                 countParams.push(...slugs);
             }
         }
-        if (marca) {
-            query += ' AND m.slug = ?';
-            countQuery += ' AND m.slug = ?';
-            params.push(marca);
-            countParams.push(marca);
+        if (filtroMarca) {
+            const slugs = filtroMarca.split(',').map(s => s.trim()).filter(Boolean);
+            if (slugs.length === 1) {
+                query += ' AND m.slug = ?';
+                countQuery += ' AND m.slug = ?';
+                params.push(slugs[0]);
+                countParams.push(slugs[0]);
+            } else {
+                const placeholders = slugs.map(() => '?').join(',');
+                query += ` AND m.slug IN (${placeholders})`;
+                countQuery += ` AND m.slug IN (${placeholders})`;
+                params.push(...slugs);
+                countParams.push(...slugs);
+            }
         }
         if (search) {
             const sf = applySearchFilters(search, params, countParams);
