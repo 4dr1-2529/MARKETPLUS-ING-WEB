@@ -2,13 +2,60 @@
     <app-sidebar></app-sidebar>
     <div class="admin-content">
         <div class="admin-header">
-            <div>
-                <h1>Gestion de Inventario</h1>
-                <p>Control de stock de todos los productos</p>
+            <h1>Gestion de Inventario</h1>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="material-icons">search</span>
+                    <input type="text" [(ngModel)]="searchQuery" (input)="applyFilters()" placeholder="Buscar...">
+                </div>
+                <label class="toggle-low-stock">
+                    <input type="checkbox" [(ngModel)]="lowStockOnly" (change)="applyFilters()">
+                    <span class="toggle-slider"></span>
+                    Solo stock bajo
+                </label>
+                <button class="btn btn-primary" (click)="loadData()">
+                    <span class="material-icons">refresh</span>
+                    Actualizar
+                </button>
             </div>
         </div>
 
-        <div class="admin-card">
+        <div class="loading-state" *ngIf="loading">
+            <div class="spinner"></div>
+            <p>Cargando inventario...</p>
+        </div>
+
+        <div class="stats-row" *ngIf="!loading">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(0,184,148,0.1); color: var(--success);">
+                    <span class="material-icons">check_circle</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ inventory.filter(i => i.stock > i.stock_minimo).length }}</h3>
+                    <p>Stock OK</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(253,126,20,0.1); color: var(--warning);">
+                    <span class="material-icons">warning</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ inventory.filter(i => i.stock > 0 && i.stock <= i.stock_minimo).length }}</h3>
+                    <p>Stock Bajo</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(234,84,85,0.1); color: var(--danger);">
+                    <span class="material-icons">error</span>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ inventory.filter(i => i.stock <= 0).length }}</h3>
+                    <p>Agotados</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card" *ngIf="!loading">
             <div class="table-container">
                 <table>
                     <thead>
@@ -19,27 +66,33 @@
                             <th>Marca</th>
                             <th>Stock Actual</th>
                             <th>Stock Minimo</th>
-                            <th>Ubicacion</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let item of inventory" [class.low-stock]="item.stock <= item.stock_minimo">
-                            <td><strong>{{ item.nombre }}</strong></td>
+                        <tr *ngFor="let item of filteredInventory">
+                            <td>
+                                <div class="product-name">{{ item.nombre }}</div>
+                            </td>
                             <td><code>{{ item.sku }}</code></td>
-                            <td>{{ item.categoria }}</td>
+                            <td><span class="category-tag">{{ item.categoria }}</span></td>
                             <td>{{ item.marca }}</td>
                             <td>
-                                <input type="number" [(ngModel)]="item.stock" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input">
+                                <input type="number" [(ngModel)]="item.stock" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input" min="0">
                             </td>
                             <td>
-                                <input type="number" [(ngModel)]="item.stock_minimo" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input">
+                                <input type="number" [(ngModel)]="item.stock_minimo" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input" min="0">
                             </td>
-                            <td>{{ item.ubicacion }}</td>
                             <td>
-                                <span class="badge" [class]="item.stock <= item.stock_minimo ? 'badge-danger' : 'badge-success'">
-                                    {{ item.stock <= item.stock_minimo ? 'Bajo Stock' : 'OK' }}
+                                <span class="badge" [class]="getStockBadgeClass(getStockStatus(item))">
+                                    {{ getStockLabel(getStockStatus(item)) }}
                                 </span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredInventory.length === 0">
+                            <td colspan="7" class="empty-state">
+                                <span class="material-icons">inventory_2</span>
+                                <p>No hay productos que coincidan</p>
                             </td>
                         </tr>
                     </tbody>
