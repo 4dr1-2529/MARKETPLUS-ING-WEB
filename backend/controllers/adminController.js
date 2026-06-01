@@ -101,11 +101,75 @@ const getInventory = async (req, res) => {
 
 const updateInventory = async (req, res) => {
     try {
-        const { stock, stock_minimo } = req.body;
-        await pool.query('UPDATE inventario SET stock = ?, stock_minimo = ? WHERE producto_id = ?', [stock, stock_minimo, req.params.id]);
+        const stock = Math.max(0, Number(req.body.stock));
+        const stockMinimo = Math.max(0, Number(req.body.stock_minimo));
+        let stockMaximo = req.body.stock_maximo !== undefined && req.body.stock_maximo !== null
+            ? Math.max(0, Number(req.body.stock_maximo))
+            : null;
+
+        if (stockMaximo !== null && stock > stockMaximo) {
+            stockMaximo = stock;
+        }
+
+        const sql = stockMaximo !== null
+            ? 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = ? WHERE producto_id = ?'
+            : 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = GREATEST(COALESCE(stock_maximo, stock), ?) WHERE producto_id = ?';
+        const params = stockMaximo !== null
+            ? [stock, stockMinimo, stockMaximo, req.params.id]
+            : [stock, stockMinimo, stock, req.params.id];
+
+        const [result] = await pool.query(sql, params);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Producto no encontrado en inventario' });
+        }
         res.json({ success: true, message: 'Inventario actualizado' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al actualizar inventario', error: error.message });
+    }
+};
+
+const updateInventoryBatch = async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        const items = Array.isArray(req.body?.items) ? req.body.items : [];
+        if (items.length === 0) {
+            return res.status(400).json({ success: false, message: 'No hay items para actualizar' });
+        }
+
+        await connection.beginTransaction();
+        let updated = 0;
+
+        for (const item of items) {
+            const productoId = Number(item.producto_id);
+            const stock = Math.max(0, Number(item.stock));
+            const stockMinimo = Math.max(0, Number(item.stock_minimo));
+            if (!productoId || Number.isNaN(stock) || Number.isNaN(stockMinimo)) continue;
+
+            let stockMaximo = item.stock_maximo !== undefined && item.stock_maximo !== null
+                ? Math.max(0, Number(item.stock_maximo))
+                : null;
+            if (stockMaximo !== null && stock > stockMaximo) {
+                stockMaximo = stock;
+            }
+
+            const sql = stockMaximo !== null
+                ? 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = ? WHERE producto_id = ?'
+                : 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = GREATEST(COALESCE(stock_maximo, stock), ?) WHERE producto_id = ?';
+            const params = stockMaximo !== null
+                ? [stock, stockMinimo, stockMaximo, productoId]
+                : [stock, stockMinimo, stock, productoId];
+
+            const [result] = await connection.query(sql, params);
+            updated += result.affectedRows;
+        }
+
+        await connection.commit();
+        res.json({ success: true, message: 'Inventario actualizado', data: { updated } });
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ success: false, message: 'Error al actualizar inventario', error: error.message });
+    } finally {
+        connection.release();
     }
 };
 
@@ -161,4 +225,12 @@ const getReports = async (req, res) => {
     }
 };
 
-module.exports = { getDashboard, getAllUsers, updateUser, getInventory, updateInventory, getReports };
+module.exports = {
+    getDashboard,
+    getAllUsers,
+    updateUser,
+    getInventory,
+    updateInventory,
+    updateInventoryBatch,
+    getReports
+};

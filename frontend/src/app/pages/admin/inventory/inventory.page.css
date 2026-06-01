@@ -39,8 +39,11 @@ tr:hover td { background: var(--light); }
 code { background: var(--light); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
 .category-tag { background: var(--primary-light); color: var(--primary); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
 
-.stock-input { width: 70px; padding: 6px 8px; border: 2px solid var(--gray-light); border-radius: var(--radius-sm); font-size: 13px; text-align: center; }
-.stock-input:focus { border-color: var(--primary); }
+.stock-input { width: 80px; padding: 6px 8px; border: 2px solid var(--gray-light); border-radius: var(--radius-sm); font-size: 13px; text-align: center; -moz-appearance: textfield; appearance: textfield; }
+.stock-input-wide { width: 96px; }
+.stock-input::-webkit-outer-spin-button,
+.stock-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stock-input:focus { border-color: var(--primary); outline: none; }
 
 .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
 .badge-success { background: rgba(0, 184, 148, 0.15); color: var(--success); }

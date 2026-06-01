@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BrandService } from '../../../services/brand.service';
 import { ToastService } from '../../../services/toast.service';
+import { getApiErrorMessage } from '../../../utils/api-error.util';
 
 @Component({
     selector: 'app-admin-brands',
@@ -11,6 +12,7 @@ export class AdminBrandsPage implements OnInit {
     brands: any[] = [];
     showModal = false;
     isNew = false;
+    saving = false;
     form: any = {};
 
     constructor(
@@ -68,13 +70,18 @@ export class AdminBrandsPage implements OnInit {
         const req = this.isNew
             ? this.brandService.create(payload)
             : this.brandService.update(this.form.id, payload);
+        this.saving = true;
         req.subscribe({
             next: () => {
+                this.saving = false;
                 this.toast.success(this.isNew ? 'Marca creada' : 'Marca actualizada');
                 this.closeModal();
                 this.loadBrands();
             },
-            error: (err) => this.toast.error(err.error?.message || 'Error al guardar marca')
+            error: (err) => {
+                this.saving = false;
+                this.toast.error(getApiErrorMessage(err, 'Error al guardar marca'));
+            }
         });
     }
 

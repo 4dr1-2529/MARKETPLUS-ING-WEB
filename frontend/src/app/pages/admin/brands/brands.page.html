@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <div class="admin-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="admin-modal-overlay" *ngIf="showModal" (click)="!saving && closeModal()">
         <div class="admin-modal" (click)="$event.stopPropagation()">
             <h2>{{ isNew ? 'Nueva marca' : 'Editar marca' }}</h2>
             <div class="form-group">
@@ -78,7 +78,9 @@
             </div>
             <div class="admin-modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-                <button type="button" class="btn btn-primary" (click)="save()">Guardar</button>
+                <button type="button" class="btn btn-primary" (click)="save()" [disabled]="saving">
+                    {{ saving ? 'Guardando...' : 'Guardar' }}
+                </button>
             </div>
         </div>
     </div>

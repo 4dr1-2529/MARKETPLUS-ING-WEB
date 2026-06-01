@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CategoryService } from '../../../services/category.service';
 import { ToastService } from '../../../services/toast.service';
+import { getApiErrorMessage } from '../../../utils/api-error.util';
 
 @Component({
     selector: 'app-admin-categories',
@@ -11,6 +12,7 @@ export class AdminCategoriesPage implements OnInit {
     categories: any[] = [];
     showModal = false;
     isNew = false;
+    saving = false;
     form: any = {};
 
     constructor(
@@ -66,13 +68,18 @@ export class AdminCategoriesPage implements OnInit {
         const req = this.isNew
             ? this.categoryService.create(payload)
             : this.categoryService.update(this.form.id, payload);
+        this.saving = true;
         req.subscribe({
             next: () => {
+                this.saving = false;
                 this.toast.success(this.isNew ? 'Categoria creada' : 'Categoria actualizada');
                 this.closeModal();
                 this.loadCategories();
             },
-            error: (err) => this.toast.error(err.error?.message || 'Error al guardar categoria')
+            error: (err) => {
+                this.saving = false;
+                this.toast.error(getApiErrorMessage(err, 'Error al guardar categoria'));
+            }
         });
     }
 

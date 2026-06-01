@@ -55,6 +55,33 @@ const validateProduct = (req, res, next) => {
     next();
 };
 
+/** PUT parcial: solo valida los campos enviados en el body */
+const validateProductUpdate = (req, res, next) => {
+    const { nombre, categoria_id, marca_id, precio, sku } = req.body;
+    const errors = [];
+
+    if (nombre !== undefined && (!nombre || String(nombre).trim().length < 3)) {
+        errors.push({ field: 'nombre', message: 'Nombre requerido (min 3 caracteres)' });
+    }
+    if (categoria_id !== undefined && !categoria_id) {
+        errors.push({ field: 'categoria_id', message: 'Categoria requerida' });
+    }
+    if (marca_id !== undefined && !marca_id) {
+        errors.push({ field: 'marca_id', message: 'Marca requerida' });
+    }
+    if (precio !== undefined && (Number.isNaN(Number(precio)) || Number(precio) <= 0)) {
+        errors.push({ field: 'precio', message: 'Precio valido requerido' });
+    }
+    if (sku !== undefined && !sku) {
+        errors.push({ field: 'sku', message: 'SKU requerido' });
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).json({ success: false, message: 'Error de validacion', errors });
+    }
+    next();
+};
+
 const validateForgotPassword = (req, res, next) => {
     const { email } = req.body;
     if (!email || !EMAIL_REGEX.test(email)) {
@@ -210,6 +237,7 @@ module.exports = {
     validateRegistration,
     validateLogin,
     validateProduct,
+    validateProductUpdate,
     validateForgotPassword,
     validateResetPassword,
     validateProfileUpdate,

@@ -70,6 +70,7 @@
                             <th>Marca</th>
                             <th>Stock Actual</th>
                             <th>Stock Minimo</th>
+                            <th>Stock Maximo</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
@@ -82,10 +83,13 @@
                             <td><span class="category-tag">{{ item.categoria }}</span></td>
                             <td>{{ item.marca }}</td>
                             <td>
-                                <input type="number" [(ngModel)]="item.stock" class="stock-input" min="0">
+                                <input type="number" [(ngModel)]="item.stock" class="stock-input" min="0" step="1">
                             </td>
                             <td>
-                                <input type="number" [(ngModel)]="item.stock_minimo" class="stock-input" min="0">
+                                <input type="number" [(ngModel)]="item.stock_minimo" class="stock-input" min="0" step="1">
+                            </td>
+                            <td>
+                                <input type="number" [(ngModel)]="item.stock_maximo" class="stock-input stock-input-wide" min="0" step="1">
                             </td>
                             <td>
                                 <span class="badge" [class]="getStockBadgeClass(getStockStatus(item))">
@@ -94,7 +98,7 @@
                             </td>
                         </tr>
                         <tr *ngIf="filteredInventory.length === 0">
-                            <td colspan="7" class="empty-state">
+                            <td colspan="8" class="empty-state">
                                 <span class="material-icons">inventory_2</span>
                                 <p>No hay productos que coincidan</p>
                             </td>

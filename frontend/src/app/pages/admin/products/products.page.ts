@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ProductService } from '../../../services/product.service';
 import { AdminService } from '../../../services/admin.service';
 import { ToastService } from '../../../services/toast.service';
-import { Producto } from '../../../models/producto.model';
+import { getApiErrorMessage } from '../../../utils/api-error.util';
 
 @Component({
     selector: 'app-admin-products',
@@ -17,6 +17,7 @@ export class AdminProductsPage implements OnInit {
     searchQuery = '';
     filteredProducts: any[] = [];
     showModal = false;
+    saving = false;
     editForm: any = {};
 
     constructor(
@@ -32,7 +33,7 @@ export class AdminProductsPage implements OnInit {
 
     loadData(): void {
         this.loading = true;
-        this.productService.getAll({ limit: 200 }).subscribe({
+        this.productService.getAllAdmin(500).subscribe({
             next: (res) => {
                 this.products = res.data || [];
                 this.adminService.getInventory().subscribe({
@@ -118,13 +119,18 @@ export class AdminProductsPage implements OnInit {
             destacado: !!this.editForm.destacado,
             imagen_principal: this.editForm.imagen_principal
         };
+        this.saving = true;
         this.productService.update(this.editForm.id, payload).subscribe({
             next: () => {
+                this.saving = false;
                 this.toast.success('Producto actualizado');
                 this.closeModal();
                 this.loadData();
             },
-            error: (err) => this.toast.error(err.error?.message || 'Error al actualizar producto')
+            error: (err) => {
+                this.saving = false;
+                this.toast.error(getApiErrorMessage(err, 'Error al actualizar producto'));
+            }
         });
     }
 
@@ -135,7 +141,7 @@ export class AdminProductsPage implements OnInit {
                 product.estado = newStatus;
                 this.toast.success(`Producto ${newStatus === 'activo' ? 'activado' : 'desactivado'}`);
             },
-            error: () => this.toast.error('Error al actualizar estado')
+            error: (err) => this.toast.error(getApiErrorMessage(err, 'Error al actualizar estado'))
         });
     }
 

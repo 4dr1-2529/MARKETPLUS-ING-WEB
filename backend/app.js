@@ -26,14 +26,30 @@ app.use((req, res, next) => {
     next();
 });
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: isProduction ? 300 : 5000,
+    standardHeaders: true,
+    legacyHeaders: false,
     message: { success: false, message: 'Demasiadas solicitudes, intenta mas tarde' },
     skip: (req) => req.method === 'OPTIONS'
 });
 
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: isProduction ? 30 : 200,
+    message: { success: false, message: 'Demasiados intentos de acceso, intenta mas tarde' }
+});
+
+app.get('/api/health', (req, res) => {
+    res.json({ success: true, message: 'API OK' });
+});
+
 app.use('/api/', limiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));

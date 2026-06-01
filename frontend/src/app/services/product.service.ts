@@ -10,6 +10,11 @@ export class ProductService {
 
     constructor(private http: HttpClient) {}
 
+    getAllAdmin(limit = 500): Observable<{ success: boolean; data: Producto[] }> {
+        const params = new HttpParams().set('limit', String(limit));
+        return this.http.get<{ success: boolean; data: Producto[] }>(`${this.apiUrl}/products/admin/list`, { params });
+    }
+
     getAll(params: any = {}): Observable<ProductoResponse> {
         let httpParams = new HttpParams();
         Object.keys(params).forEach(key => {

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../../services/admin.service';
 import { ToastService } from '../../../services/toast.service';
+import { getApiErrorMessage } from '../../../utils/api-error.util';
 
 @Component({
     selector: 'app-admin-inventory',
@@ -28,7 +29,15 @@ export class AdminInventoryPage implements OnInit {
         this.loading = true;
         this.adminService.getInventory().subscribe({
             next: (res) => {
-                this.inventory = res.data || [];
+                this.inventory = (res.data || []).map((item: any) => {
+                    const row = { ...item };
+                    const stock = Number(row.stock) || 0;
+                    const max = Number(row.stock_maximo) || 0;
+                    if (max < stock) {
+                        row.stock_maximo = stock;
+                    }
+                    return row;
+                });
                 this.updateCounts();
                 this.applyFilters();
                 this.loading = false;
@@ -60,15 +69,37 @@ export class AdminInventoryPage implements OnInit {
         this.filteredInventory = items;
     }
 
+    private normalizeItemStock(item: any): void {
+        item.stock = Math.max(0, Number(item.stock) || 0);
+        item.stock_minimo = Math.max(0, Number(item.stock_minimo) || 0);
+        item.stock_maximo = Math.max(0, Number(item.stock_maximo) || 0);
+        if (item.stock_maximo > 0 && item.stock > item.stock_maximo) {
+            item.stock_maximo = item.stock;
+        }
+    }
+
+    private toPayload(item: any): { producto_id: number; stock: number; stock_minimo: number; stock_maximo: number } {
+        this.normalizeItemStock(item);
+        return {
+            producto_id: item.producto_id,
+            stock: item.stock,
+            stock_minimo: item.stock_minimo,
+            stock_maximo: item.stock_maximo
+        };
+    }
+
     updateStock(id: number, stock: number, min: number): void {
-        const stockNum = Math.max(0, Number(stock));
-        const minNum = Math.max(0, Number(min));
-        this.adminService.updateInventory(id, { stock: stockNum, stock_minimo: minNum }).subscribe({
+        const item = this.inventory.find(i => i.producto_id === id);
+        if (!item) return;
+        item.stock = stock;
+        item.stock_minimo = min;
+        const payload = this.toPayload(item);
+        this.adminService.updateInventory(id, payload).subscribe({
             next: () => {
-                const item = this.inventory.find(i => i.producto_id === id);
                 if (item) {
-                    item.stock = stockNum;
-                    item.stock_minimo = minNum;
+                    item.stock = payload.stock;
+                    item.stock_minimo = payload.stock_minimo;
+                    item.stock_maximo = payload.stock_maximo;
                 }
                 this.updateCounts();
                 this.applyFilters();
@@ -78,41 +109,24 @@ export class AdminInventoryPage implements OnInit {
     }
 
     saveAllInventory(): void {
-        if (!this.filteredInventory.length) {
+        if (!this.inventory.length) {
             this.toast.warning('No hay productos para guardar');
             return;
         }
+        const items = this.inventory.map((item) => this.toPayload(item));
+
         this.saving = true;
-        let completed = 0;
-        let errors = 0;
-        const total = this.filteredInventory.length;
-
-        this.filteredInventory.forEach((item) => {
-            const stockNum = Math.max(0, Number(item.stock));
-            const minNum = Math.max(0, Number(item.stock_minimo));
-            this.adminService.updateInventory(item.producto_id, { stock: stockNum, stock_minimo: minNum }).subscribe({
-                next: () => {
-                    item.stock = stockNum;
-                    item.stock_minimo = minNum;
-                    completed++;
-                    if (completed + errors === total) this.finishSave(errors);
-                },
-                error: () => {
-                    errors++;
-                    if (completed + errors === total) this.finishSave(errors);
-                }
-            });
+        this.adminService.updateInventoryBatch(items).subscribe({
+            next: () => {
+                this.saving = false;
+                this.toast.success('Inventario guardado correctamente');
+                this.loadData();
+            },
+            error: (err) => {
+                this.saving = false;
+                this.toast.error(getApiErrorMessage(err, 'Error al guardar inventario'));
+            }
         });
-    }
-
-    private finishSave(errors: number): void {
-        this.saving = false;
-        this.updateCounts();
-        if (errors > 0) {
-            this.toast.warning(`Guardado con ${errors} error(es)`);
-        } else {
-            this.toast.success('Inventario guardado correctamente');
-        }
     }
 
     getStockStatus(item: any): string {

@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const { toSlug } = require('../utils/slug');
 
 const getAll = async (req, res) => {
     try {
@@ -37,7 +38,7 @@ const getAllAdmin = async (req, res) => {
 const create = async (req, res) => {
     try {
         const { nombre, pais_origen, sitio_web } = req.body;
-        const slug = nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const slug = toSlug(nombre);
         const [result] = await pool.query('INSERT INTO marcas (nombre, slug, pais_origen, sitio_web) VALUES (?, ?, ?, ?)', [nombre, slug, pais_origen, sitio_web]);
         res.status(201).json({ success: true, message: 'Marca creada', data: { id: result.insertId, slug } });
     } catch (error) {
@@ -48,8 +49,17 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { nombre, pais_origen, sitio_web, estado, logo } = req.body;
-        const slug = nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        await pool.query('UPDATE marcas SET nombre = ?, slug = ?, pais_origen = ?, sitio_web = ?, estado = ?, logo = ? WHERE id = ?', [nombre, slug, pais_origen, sitio_web, estado, logo, req.params.id]);
+        if (!nombre || !String(nombre).trim()) {
+            return res.status(400).json({ success: false, message: 'El nombre es obligatorio' });
+        }
+        const slug = toSlug(nombre);
+        const [result] = await pool.query(
+            'UPDATE marcas SET nombre = ?, slug = ?, pais_origen = ?, sitio_web = ?, estado = ?, logo = ? WHERE id = ?',
+            [nombre.trim(), slug, pais_origen, sitio_web, estado, logo, req.params.id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Marca no encontrada' });
+        }
         res.json({ success: true, message: 'Marca actualizada' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al actualizar marca', error: error.message });
