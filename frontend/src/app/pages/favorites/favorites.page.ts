@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FavoriteService } from '../../services/favorite.service';
 import { ToastService } from '../../services/toast.service';
 import { listAnimation } from '../../shared/animations';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-favorites',
@@ -17,10 +18,16 @@ export class FavoritesPage implements OnInit {
     constructor(
         private favoriteService: FavoriteService,
         private toast: ToastService,
+        private auth: AuthService,
         private router: Router
     ) {}
 
     ngOnInit(): void {
+        if (!this.auth.isAuthenticated) {
+            this.toast.warning('Inicia sesion para ver tus favoritos');
+            this.router.navigate(['/login'], { queryParams: { return: '/favoritos' } });
+            return;
+        }
         this.loadFavorites();
     }
 

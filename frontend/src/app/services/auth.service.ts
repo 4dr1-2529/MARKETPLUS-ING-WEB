@@ -16,10 +16,17 @@ export class AuthService {
     }
 
     private loadUser(): void {
+        const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
-        if (user) {
+        if (token && user) {
             this.currentUserSubject.next(JSON.parse(user));
+            return;
         }
+
+        // Keep auth state consistent if one of the values is missing/corrupted.
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        this.currentUserSubject.next(null);
     }
 
     get token(): string | null {

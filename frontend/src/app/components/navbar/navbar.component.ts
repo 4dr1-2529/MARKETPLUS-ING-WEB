@@ -33,10 +33,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.subs.push(
             this.auth.currentUser$.subscribe(user => {
-                this.isLoggedIn = !!user;
+                this.isLoggedIn = !!user && this.auth.isAuthenticated;
                 this.isAdmin = user?.role === 'admin';
                 this.userName = user ? `${user.nombres} ${user.apellidos}` : '';
-                if (user) {
+                if (this.isLoggedIn) {
                     this.loadCounts();
                 } else {
                     this.cartCount = 0;
