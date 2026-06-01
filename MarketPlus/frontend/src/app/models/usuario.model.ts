@@ -1,5 +1,6 @@
 export interface Usuario {
     id: number;
+    username?: string;
     nombres: string;
     apellidos: string;
     email: string;
@@ -16,6 +17,7 @@ export interface AuthResponse {
     message: string;
     data: {
         id: number;
+        username?: string;
         nombres: string;
         apellidos: string;
         email: string;
@@ -26,11 +28,13 @@ export interface AuthResponse {
 }
 
 export interface LoginRequest {
-    email: string;
+    email?: string;
+    identifier?: string;
     password: string;
 }
 
 export interface RegisterRequest {
+    username: string;
     nombres: string;
     apellidos: string;
     email: string;

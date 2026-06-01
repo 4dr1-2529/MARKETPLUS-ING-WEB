@@ -37,11 +37,29 @@ export class AdminReportsPage implements OnInit {
         });
     }
 
-    formatCurrency(amount: number): string {
-        return `S/ ${amount?.toFixed(2) || '0.00'}`;
+    formatCurrency(amount: unknown): string {
+        const value = this.toNumber(amount);
+        return `S/ ${value.toFixed(2)}`;
+    }
+
+    formatPercent(value: unknown, decimals = 1): string {
+        const numeric = this.toNumber(value);
+        return `${numeric.toFixed(decimals)}%`;
     }
 
     formatDate(date: string): string {
         return new Date(date).toLocaleDateString('es-PE');
+    }
+
+    private toNumber(value: unknown): number {
+        if (typeof value === 'number') {
+            return Number.isFinite(value) ? value : 0;
+        }
+        if (typeof value === 'string') {
+            const normalized = value.replace(',', '.').trim();
+            const parsed = Number(normalized);
+            return Number.isFinite(parsed) ? parsed : 0;
+        }
+        return 0;
     }
 }

@@ -8,22 +8,28 @@ import { AuthService } from '../../services/auth.service';
     styleUrls: ['./login.page.css']
 })
 export class LoginPage {
-    email = '';
+    identifier = '';
     password = '';
     showPassword = false;
     error = '';
     loading = false;
 
-    constructor(private auth: AuthService, private router: Router) {}
+    constructor(private readonly auth: AuthService, private readonly router: Router) {}
 
     login(): void {
-        if (!this.email || !this.password) {
+        const identifier = this.identifier.trim();
+        const password = this.password;
+        if (!identifier || !password) {
             this.error = 'Completa todos los campos';
+            return;
+        }
+        if (/^\d{8,15}$/.test(identifier)) {
+            this.error = 'Ingresa email o nombre de usuario, no DNI ni telefono';
             return;
         }
         this.loading = true;
         this.error = '';
-        this.auth.login({ email: this.email, password: this.password }).subscribe({
+        this.auth.login({ identifier, password }).subscribe({
             next: (res) => {
                 this.loading = false;
                 if (res.data.role === 'admin') {

@@ -10,54 +10,73 @@
                 <p>Registrate para empezar a comprar</p>
             </div>
 
-            <form (ngSubmit)="register()" class="auth-form">
+            <form #registerForm="ngForm" (ngSubmit)="register()" class="auth-form" novalidate>
                 <div *ngIf="error" class="alert-error">
                     <span class="material-icons">error</span>
                     <p>{{ error }}</p>
                 </div>
+                <div *ngIf="successMessage" class="alert-success">
+                    <span class="material-icons">check_circle</span>
+                    <p>{{ successMessage }}</p>
+                </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Nombres</label>
-                        <input type="text" [(ngModel)]="nombres" name="nombres" class="form-control" placeholder="Tus nombres" required>
+                        <label for="username" class="form-label">Nombre de usuario</label>
+                        <input id="username" #usernameCtrl="ngModel" type="text" [(ngModel)]="username" name="username" class="form-control" placeholder="usuario_123" required minlength="4" maxlength="20">
+                        <small class="field-error" *ngIf="(usernameCtrl.touched || submitted) && usernameError">{{ usernameError }}</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombres" class="form-label">Nombres</label>
+                        <input id="nombres" #nombresCtrl="ngModel" type="text" [(ngModel)]="nombres" name="nombres" class="form-control" placeholder="Tus nombres" required minlength="2">
+                        <small class="field-error" *ngIf="(nombresCtrl.touched || submitted) && nombresError">{{ nombresError }}</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Apellidos</label>
-                        <input type="text" [(ngModel)]="apellidos" name="apellidos" class="form-control" placeholder="Tus apellidos" required>
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                        <input id="apellidos" #apellidosCtrl="ngModel" type="text" [(ngModel)]="apellidos" name="apellidos" class="form-control" placeholder="Tus apellidos" required minlength="2">
+                        <small class="field-error" *ngIf="(apellidosCtrl.touched || submitted) && apellidosError">{{ apellidosError }}</small>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" [(ngModel)]="email" name="email" class="form-control" placeholder="tu@email.com" required>
+                    <label for="email" class="form-label">Email</label>
+                    <input id="email" #emailCtrl="ngModel" type="email" [(ngModel)]="email" name="email" class="form-control" placeholder="tu@email.com" required>
+                    <small class="field-error" *ngIf="(emailCtrl.touched || submitted) && emailError">{{ emailError }}</small>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">DNI (opcional)</label>
-                        <input type="text" [(ngModel)]="dni" name="dni" class="form-control" placeholder="12345678" maxlength="8" pattern="\d{8}" inputmode="numeric">
+                        <label for="dni" class="form-label">DNI (opcional)</label>
+                        <input id="dni" #dniCtrl="ngModel" type="text" [(ngModel)]="dni" name="dni" class="form-control" placeholder="12345678" maxlength="8" pattern="\d{8}" inputmode="numeric" (input)="onNumericInput('dni', $event)">
                         <small class="form-hint">8 digitos</small>
+                        <small class="field-error" *ngIf="(dniCtrl.touched || submitted) && dniError">{{ dniError }}</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Telefono (opcional)</label>
-                        <input type="text" [(ngModel)]="telefono" name="telefono" class="form-control" placeholder="999888777" maxlength="9" pattern="\d{9}" inputmode="numeric">
+                        <label for="telefono" class="form-label">Telefono (opcional)</label>
+                        <input id="telefono" #telefonoCtrl="ngModel" type="text" [(ngModel)]="telefono" name="telefono" class="form-control" placeholder="999888777" maxlength="9" pattern="\d{9}" inputmode="numeric" (input)="onNumericInput('telefono', $event)">
                         <small class="form-hint">9 digitos</small>
+                        <small class="field-error" *ngIf="(telefonoCtrl.touched || submitted) && telefonoError">{{ telefonoError }}</small>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" [(ngModel)]="password" name="password" class="form-control" placeholder="Minimo 6 caracteres" required>
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input id="password" #passwordCtrl="ngModel" type="password" [(ngModel)]="password" name="password" class="form-control" placeholder="Minimo 8 caracteres" required minlength="8">
+                    <small class="field-error" *ngIf="(passwordCtrl.touched || submitted) && passwordError">{{ passwordError }}</small>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Confirmar Contraseña</label>
-                    <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" class="form-control" placeholder="Repite tu contraseña" required>
+                    <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                    <input id="confirmPassword" #confirmPasswordCtrl="ngModel" type="password" [(ngModel)]="confirmPassword" name="confirmPassword" class="form-control" placeholder="Repite tu contraseña" required>
+                    <small class="field-error" *ngIf="(confirmPasswordCtrl.touched || submitted) && confirmPasswordError">{{ confirmPasswordError }}</small>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="loading">
+                <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="loading || !isFormValid">
                     <span *ngIf="loading" class="spinner-small"></span>
-                    {{ loading ? 'Registrando...' : 'Crear Cuenta' }}
+                    {{ loading ? 'Creando cuenta...' : 'Crear Cuenta' }}
                 </button>
             </form>
 

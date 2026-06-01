@@ -5,10 +5,15 @@
         <span class="material-icons">shopping_cart</span>
         <h2>Tu carrito esta vacio</h2>
         <p>Agrega productos para empezar a comprar</p>
-        <a routerLink="/catalogo" class="btn btn-primary">Ver catálogo</a>
+        <a routerLink="/catalogo" class="btn btn-primary">Seguir comprando</a>
     </div>
 
-    <div class="cart-layout" *ngIf="items.length > 0">
+    <div *ngIf="loading" class="cart-loading">
+        <span class="spinner"></span>
+        <p>Cargando carrito...</p>
+    </div>
+
+    <div class="cart-layout" *ngIf="items.length > 0 && !loading">
         <div class="cart-items">
             <div *ngFor="let item of items" class="cart-item">
                 <img [src]="item | productImage" [alt]="item.nombre" loading="lazy">
@@ -19,12 +24,13 @@
                 </div>
                 <div class="cart-item-actions">
                     <div class="quantity-selector">
-                        <button (click)="updateQuantity(item.id, item.cantidad - 1)" class="qty-btn">-</button>
+                        <button (click)="updateQuantity(item.id, item.cantidad - 1)" class="qty-btn" [disabled]="processingItemId === item.id || item.cantidad <= 1">-</button>
                         <input type="number" [value]="item.cantidad" class="qty-input" readonly>
-                        <button (click)="updateQuantity(item.id, item.cantidad + 1)" class="qty-btn">+</button>
+                        <button (click)="updateQuantity(item.id, item.cantidad + 1)" class="qty-btn" [disabled]="processingItemId === item.id || !canIncrease(item)">+</button>
                     </div>
+                    <p class="stock-info">Stock: {{ item.stock_disponible || 0 }}</p>
                     <p class="cart-item-total">S/ {{ getItemTotal(item) | number:'1.2-2' }}</p>
-                    <button (click)="removeItem(item.id)" class="btn-remove">
+                    <button (click)="removeItem(item.id)" class="btn-remove" [disabled]="processingItemId === item.id">
                         <span class="material-icons">delete</span>
                     </button>
                 </div>

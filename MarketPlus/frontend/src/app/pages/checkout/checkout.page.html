@@ -3,262 +3,323 @@
 
     <div class="checkout-layout">
         <div class="checkout-form">
-            <!-- ADDRESS SECTION -->
+            <!-- ENTREGA -->
             <div class="checkout-section">
-                <h2><span class="material-icons">location_on</span> Direccion de Envio</h2>
+                <h2><span class="material-icons">local_shipping</span> Entrega</h2>
 
                 <div *ngIf="addressesLoading" class="section-loading">
-                    <span class="spinner-small"></span>
-                    <span>Cargando direcciones...</span>
+                    <span class="spinner-small"></span> Cargando entregas...
                 </div>
 
                 <div *ngIf="!addressesLoading && addresses.length === 0" class="no-addresses">
-                    <p>No tienes direcciones registradas</p>
-                    <button (click)="openAddressModal()" class="btn btn-primary btn-sm">
-                        <span class="material-icons">add</span>
-                        Agregar Direccion
+                    <p>Agrega una entrega para continuar</p>
+                    <button type="button" (click)="openAddressModal()" class="btn btn-primary btn-sm">
+                        <span class="material-icons">add</span> Nueva entrega
                     </button>
                 </div>
 
-                <div class="address-options" *ngIf="!addressesLoading && addresses.length > 0">
-                    <label *ngFor="let addr of addresses"
-                           class="address-option"
-                            [class.selected]="checkoutData.direccion_id === toString(addr.id)">
-                        <input type="radio" name="address" [value]="addr.id" [(ngModel)]="checkoutData.direccion_id">
-                        <div class="address-option-content">
-                            <div class="address-option-header">
+                <div class="address-list" *ngIf="!addressesLoading && addresses.length > 0">
+                    <div *ngFor="let addr of addresses"
+                         class="address-card-item"
+                         [class.selected]="isAddressSelected(addr.id)">
+                        <div class="address-card-main" (click)="selectAddress(addr.id!)">
+                            <div class="address-card-header">
                                 <strong>{{ addr.destinatario }}</strong>
-                                <span *ngIf="addr.es_principal" class="badge badge-primary">Principal</span>
+                                <span class="badge badge-primary">{{ getTipoEntregaLabel(addr.tipo) }}</span>
                             </div>
-                            <p>{{ getFullAddress(addr) }}</p>
-                            <p *ngIf="addr.telefono">{{ addr.telefono }}</p>
+                            <p class="address-text">{{ getFullAddress(addr) }}</p>
+                            <p *ngIf="addr.telefono" class="address-phone"><span class="material-icons">phone</span> {{ addr.telefono }}</p>
                         </div>
-                    </label>
+                        <div class="address-card-actions">
+                            <button type="button" class="btn btn-sm btn-outline" (click)="selectAddress(addr.id!)" title="Seleccionar">
+                                <span class="material-icons">check_circle</span> Seleccionar
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline" (click)="openAddressModal(addr); $event.stopPropagation()" title="Editar">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline btn-danger-outline" (click)="deleteAddress(addr, $event)" title="Eliminar">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <button *ngIf="!addressesLoading && addresses.length > 0"
-                        (click)="openAddressModal()"
-                        class="btn btn-outline btn-sm add-address-btn">
-                    <span class="material-icons">add</span>
-                    Agregar nueva direccion
+                <button type="button" (click)="openAddressModal()" class="btn btn-outline btn-sm add-address-btn">
+                    <span class="material-icons">add</span> Agregar nueva entrega
                 </button>
+                <small class="field-error" *ngIf="submitted && !checkoutData.direccion_id">Selecciona una entrega</small>
             </div>
 
-            <!-- PAYMENT SECTION -->
+            <!-- COMPROBANTE -->
             <div class="checkout-section">
-                <h2><span class="material-icons">payment</span> Metodo de Pago</h2>
-                <div class="payment-options">
-                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'tarjeta_credito'">
-                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="tarjeta_credito">
-                        <span class="material-icons">credit_card</span>
-                        <span>Tarjeta de Credito</span>
+                <h2><span class="material-icons">receipt_long</span> Comprobante de pago</h2>
+                <p class="section-hint">Documento fiscal de tu compra (no es la direccion de entrega).</p>
+
+                <div class="option-cards">
+                    <label class="option-card" [class.selected]="tipoComprobante === 'boleta'">
+                        <input type="radio" name="comprobante" value="boleta" [(ngModel)]="tipoComprobante">
+                        <span class="material-icons">description</span><span>Boleta</span>
                     </label>
-                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'tarjeta_debito'">
-                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="tarjeta_debito">
-                        <span class="material-icons">account_balance</span>
-                        <span>Tarjeta de Debito</span>
+                    <label class="option-card" [class.selected]="tipoComprobante === 'factura'">
+                        <input type="radio" name="comprobante" value="factura" [(ngModel)]="tipoComprobante">
+                        <span class="material-icons">business</span><span>Factura</span>
                     </label>
-                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'yape'">
-                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="yape">
-                        <span class="material-icons">phone_android</span>
-                        <span>Yape</span>
-                    </label>
-                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'transferencia'">
-                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="transferencia">
-                        <span class="material-icons">account_balance_wallet</span>
-                        <span>Transferencia</span>
-                    </label>
-                    <label class="payment-option" [class.selected]="checkoutData.metodo_pago === 'contra_entrega'">
-                        <input type="radio" name="payment" [(ngModel)]="checkoutData.metodo_pago" value="contra_entrega">
-                        <span class="material-icons">local_shipping</span>
-                        <span>Contra Entrega</span>
-                    </label>
+                </div>
+
+                <div *ngIf="tipoComprobante === 'boleta'" class="payment-fields">
+                    <div class="form-group">
+                        <label for="compNombre" class="form-label">Nombre completo *</label>
+                        <input id="compNombre" type="text" [(ngModel)]="comprobanteNombre" class="form-control" placeholder="Nombre y apellidos">
+                        <small class="field-error" *ngIf="showFieldError(true, comprobanteNombreError)">{{ comprobanteNombreError }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="compDni" class="form-label">DNI *</label>
+                        <input id="compDni" type="text" [(ngModel)]="comprobanteDni" class="form-control" maxlength="8" inputmode="numeric" placeholder="12345678" (input)="onNumericField('comprobanteDni', $event, 8)">
+                        <small class="field-error" *ngIf="showFieldError(true, comprobanteDniError)">{{ comprobanteDniError }}</small>
+                    </div>
+                </div>
+
+                <div *ngIf="tipoComprobante === 'factura'" class="payment-fields">
+                    <div class="form-group">
+                        <label for="compRuc" class="form-label">RUC *</label>
+                        <input id="compRuc" type="text" [(ngModel)]="comprobanteRuc" class="form-control" maxlength="11" inputmode="numeric" placeholder="20123456789" (input)="onNumericField('comprobanteRuc', $event, 11)">
+                        <small class="field-error" *ngIf="showFieldError(true, comprobanteRucError)">{{ comprobanteRucError }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="compRazon" class="form-label">Razon social *</label>
+                        <input id="compRazon" type="text" [(ngModel)]="comprobanteRazonSocial" class="form-control">
+                        <small class="field-error" *ngIf="showFieldError(true, razonSocialError)">{{ razonSocialError }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="compFiscal" class="form-label">Direccion fiscal *</label>
+                        <input id="compFiscal" type="text" [(ngModel)]="comprobanteDireccionFiscal" class="form-control" placeholder="Av. Junin 123, Huancayo">
+                        <small class="field-error" *ngIf="showFieldError(true, direccionFiscalError)">{{ direccionFiscalError }}</small>
+                    </div>
                 </div>
             </div>
 
-            <!-- COUPON SECTION -->
+            <!-- METODO DE PAGO -->
             <div class="checkout-section">
-                <h2><span class="material-icons">confirmation_number</span> Cupon de Descuento</h2>
+                <h2><span class="material-icons">payment</span> Metodo de pago</h2>
+
+                <div class="option-cards option-cards-3">
+                    <label class="option-card" [class.selected]="isYape">
+                        <input type="radio" name="pago" value="yape" [(ngModel)]="checkoutData.metodo_pago">
+                        <span class="material-icons">phone_android</span><span>Yape</span>
+                    </label>
+                    <label class="option-card" [class.selected]="isVisa">
+                        <input type="radio" name="pago" value="tarjeta_visa" [(ngModel)]="checkoutData.metodo_pago">
+                        <span class="material-icons">credit_card</span><span>Visa</span>
+                    </label>
+                    <label class="option-card" [class.selected]="isContraEntrega" [class.disabled]="!canUseContraEntrega">
+                        <input type="radio" name="pago" value="contra_entrega" [(ngModel)]="checkoutData.metodo_pago" [disabled]="!canUseContraEntrega" (ngModelChange)="onPaymentMethodChange()">
+                        <span class="material-icons">local_shipping</span><span>Contra entrega</span>
+                    </label>
+                </div>
+
+                <div *ngIf="isYape" class="payment-fields payment-sim-box">
+                    <p class="sim-notice"><span class="material-icons">info</span> {{ pagoFormHint }}</p>
+                    <div class="form-group">
+                        <label for="yapeTel" class="form-label">Numero Yape *</label>
+                        <input id="yapeTel" type="text" [(ngModel)]="paymentData.telefono_yape" class="form-control" maxlength="9" inputmode="numeric" placeholder="999888777" (input)="onNumericField('telefono_yape', $event, 9)">
+                        <small class="field-error" *ngIf="showFieldError(submitted, yapePhoneError)">{{ yapePhoneError }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="yapeCod" class="form-label">Codigo de operacion *</label>
+                        <input id="yapeCod" type="text" [(ngModel)]="paymentData.codigo_operacion" class="form-control" placeholder="Minimo 6 caracteres" minlength="6">
+                        <small class="field-error" *ngIf="showFieldError(submitted, operationCodeError)">{{ operationCodeError }}</small>
+                    </div>
+                </div>
+
+                <div *ngIf="isVisa" class="payment-fields payment-sim-box visa-box">
+                    <p class="sim-notice"><span class="material-icons">info</span> {{ pagoFormHint }}</p>
+                    <div class="visa-card-preview">
+                        <span class="visa-chip"></span>
+                        <p class="visa-number">{{ cardNumberDisplay || '0000 0000 0000 0000' }}</p>
+                        <p class="visa-holder">{{ paymentData.titular || 'NOMBRE DEL TITULAR' }}</p>
+                        <p class="visa-expiry">{{ paymentData.fecha_vencimiento || 'MM/AA' }}</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="visaNum" class="form-label">Numero de tarjeta *</label>
+                        <input id="visaNum" type="text" class="form-control" [value]="cardNumberDisplay" maxlength="19" inputmode="numeric" placeholder="0000 0000 0000 0000" (input)="onCardNumberInput($event)">
+                        <small class="field-error" *ngIf="showFieldError(submitted, cardNumberError)">{{ cardNumberError }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="visaTit" class="form-label">Nombre del titular *</label>
+                        <input id="visaTit" type="text" [(ngModel)]="paymentData.titular" class="form-control" placeholder="Como en la tarjeta">
+                        <small class="field-error" *ngIf="showFieldError(submitted, titularError)">{{ titularError }}</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="visaExp" class="form-label">Vencimiento *</label>
+                            <input id="visaExp" type="text" [(ngModel)]="paymentData.fecha_vencimiento" class="form-control" placeholder="MM/AA" maxlength="5" (input)="onExpiryInput($event)">
+                            <small class="field-error" *ngIf="showFieldError(submitted, expiryError)">{{ expiryError }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="visaCvv" class="form-label">CVV *</label>
+                            <input id="visaCvv" type="text" [(ngModel)]="paymentData.cvv" class="form-control" maxlength="3" inputmode="numeric" placeholder="123" (input)="onNumericField('cvv', $event, 3)">
+                            <small class="field-error" *ngIf="showFieldError(submitted, cvvError)">{{ cvvError }}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="isContraEntrega && canUseContraEntrega" class="payment-fields payment-sim-box">
+                    <p class="sim-notice success-hint">
+                        <span class="material-icons">info</span>
+                        Pagaras al recibir tu pedido. Esta operacion es una simulacion.
+                    </p>
+                </div>
+                <p *ngIf="!canUseContraEntrega" class="info-hint">Contra entrega solo para envio a domicilio.</p>
+            </div>
+
+            <!-- CUPON -->
+            <div class="checkout-section">
+                <h2><span class="material-icons">confirmation_number</span> Cupon (opcional)</h2>
                 <div *ngIf="!cuponAplicado" class="coupon-input">
-                    <input type="text" [(ngModel)]="cuponCodigo" class="form-control" placeholder="Ingresa tu cupon" (keyup.enter)="validateCoupon()">
-                    <button (click)="validateCoupon()" class="btn btn-secondary" [disabled]="cuponValidando">
-                        <span *ngIf="cuponValidando" class="spinner-small"></span>
-                        {{ cuponValidando ? 'Validando...' : 'Aplicar' }}
-                    </button>
+                    <input type="text" [(ngModel)]="cuponCodigo" class="form-control" placeholder="Codigo de cupon" (keyup.enter)="validateCoupon()">
+                    <button type="button" (click)="validateCoupon()" class="btn btn-secondary" [disabled]="cuponValidando">Aplicar</button>
                 </div>
                 <div *ngIf="cuponAplicado" class="coupon-applied">
                     <span class="material-icons">check_circle</span>
-                    <div>
-                        <strong>Cupon aplicado: {{ cuponCodigo }}</strong>
-                        <p>Descuento: -S/ {{ cuponDescuento | number:'1.2-2' }}</p>
-                    </div>
-                    <button (click)="removeCoupon()" class="btn-icon" title="Remover cupon">
-                        <span class="material-icons">close</span>
-                    </button>
+                    <span>Cupon {{ cuponCodigo }}: -S/ {{ cuponDescuento | number:'1.2-2' }}</span>
+                    <button type="button" (click)="removeCoupon()" class="btn-icon"><span class="material-icons">close</span></button>
                 </div>
-            </div>
-
-            <!-- NOTES SECTION -->
-            <div class="checkout-section">
-                <h2><span class="material-icons">note</span> Notas (opcional)</h2>
-                <textarea [(ngModel)]="checkoutData.notas" class="form-control" rows="3" placeholder="Instrucciones especiales para la entrega..."></textarea>
             </div>
         </div>
 
-        <!-- ORDER SUMMARY -->
+        <!-- RESUMEN -->
         <div class="checkout-summary">
-            <h2>Tu Pedido</h2>
+            <h2>Resumen</h2>
             <div class="order-items">
                 <div *ngFor="let item of cartItems" class="order-item">
                     <img [src]="item | productImage" [alt]="item.nombre" loading="lazy">
                     <div class="order-item-info">
                         <p class="order-item-name">{{ item.nombre }}</p>
-                        <p class="order-item-qty">Cantidad: {{ item.cantidad }}</p>
+                        <p class="order-item-qty">x{{ item.cantidad }}</p>
                     </div>
                     <span class="order-item-price">S/ {{ (item.precio_unitario * item.cantidad) | number:'1.2-2' }}</span>
                 </div>
             </div>
-
             <div class="summary-details">
                 <div class="summary-row"><span>Subtotal</span><span>S/ {{ subtotal | number:'1.2-2' }}</span></div>
                 <div class="summary-row"><span>IGV (18%)</span><span>S/ {{ getIgv() | number:'1.2-2' }}</span></div>
-                <div class="summary-row"><span>Envio</span><span>{{ getShipping() === 0 ? 'GRATIS' : 'S/ ' + getShipping() }}</span></div>
-                <div *ngIf="cuponAplicado" class="summary-row discount">
-                    <span>Descuento</span><span>-S/ {{ getDiscount() | number:'1.2-2' }}</span>
-                </div>
+                <div class="summary-row"><span>Envio</span><span>{{ getShipping() === 0 ? 'GRATIS' : ('S/ ' + getShipping()) }}</span></div>
+                <div *ngIf="cuponAplicado" class="summary-row discount"><span>Descuento</span><span>-S/ {{ getDiscount() | number:'1.2-2' }}</span></div>
                 <div class="summary-total"><span>Total</span><span>S/ {{ getTotal() | number:'1.2-2' }}</span></div>
             </div>
-
-            <button (click)="placeOrder()" class="btn btn-primary btn-block btn-lg" [disabled]="loading || !checkoutData.direccion_id">
+            <button type="button" (click)="placeOrder()" class="btn btn-primary btn-block btn-lg" [disabled]="loading || !isCheckoutValid">
                 <span *ngIf="loading" class="spinner-small"></span>
-                {{ loading ? 'Procesando...' : 'Confirmar Pedido' }}
+                {{ loading ? 'Procesando compra...' : 'Confirmar compra' }}
             </button>
-
-            <div class="secure-badge">
-                <span class="material-icons">lock</span>
-                <span>Compra segura y protegida</span>
-            </div>
+            <div class="secure-badge"><span class="material-icons">lock</span> Compra segura con MarketPlus</div>
         </div>
     </div>
 
-    <!-- ADDRESS MODAL -->
-    <div class="modal-overlay" *ngIf="showAddressModal" (click)="closeAddressModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- MODAL ENTREGA -->
+    <div class="modal-overlay checkout-modal-overlay" *ngIf="showAddressModal" (click)="closeAddressModal()">
+        <div class="modal-content checkout-modal" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h2>Nueva Direccion</h2>
-                <button (click)="closeAddressModal()" class="btn-close"><span class="material-icons">close</span></button>
+                <h2>{{ editingAddressId ? 'Editar entrega' : 'Nueva entrega' }}</h2>
+                <button type="button" (click)="closeAddressModal()" class="btn-close"><span class="material-icons">close</span></button>
             </div>
-            <div class="modal-body">
-                <div *ngIf="addressErrors.length > 0" class="alert-error modal-alert">
-                    <span class="material-icons">error</span>
-                    <ul>
-                        <li *ngFor="let err of addressErrors">{{ err }}</li>
-                    </ul>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Tipo</label>
-                        <select [(ngModel)]="newAddress.tipo" class="form-control">
-                            <option value="envio">Envio</option>
-                            <option value="facturacion">Facturacion</option>
-                            <option value="ambas">Ambas</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Destinatario *</label>
-                        <input type="text" [(ngModel)]="newAddress.destinatario" class="form-control" placeholder="Nombre completo" minlength="3" required>
-                        <small class="form-hint">Minimo 3 caracteres</small>
-                    </div>
-                </div>
+            <div class="modal-body checkout-modal-body">
                 <div class="form-group">
-                    <label class="form-label">Direccion *</label>
-                    <input type="text" [(ngModel)]="newAddress.direccion_linea1" class="form-control" placeholder="Av. / Jr. / Calle" minlength="5" required>
-                    <small class="form-hint">Minimo 5 caracteres</small>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Departamento *</label>
-                        <input type="text" [(ngModel)]="newAddress.departamento" class="form-control" placeholder="Lima">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Provincia *</label>
-                        <input type="text" [(ngModel)]="newAddress.provincia" class="form-control" placeholder="Lima">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Distrito *</label>
-                        <input type="text" [(ngModel)]="newAddress.distrito" class="form-control" placeholder="Miraflores">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Telefono</label>
-                        <input type="tel" [(ngModel)]="newAddress.telefono" class="form-control" placeholder="999999999" maxlength="9" pattern="\d{9}" inputmode="numeric">
-                        <small class="form-hint">9 digitos</small>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button (click)="closeAddressModal()" class="btn btn-secondary">Cancelar</button>
-                <button (click)="saveNewAddress()" class="btn btn-primary">Guardar Direccion</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ORDER SUCCESS MODAL -->
-    <div class="modal-overlay" *ngIf="showOrderSuccess" (click)="closeOrderSuccess()">
-        <div class="modal-content order-success-modal" (click)="$event.stopPropagation()">
-            <div class="modal-header success-header">
-                <div class="success-icon">
-                    <span class="material-icons">check_circle</span>
-                </div>
-                <h2>¡Pedido Confirmado!</h2>
-                <button (click)="closeOrderSuccess()" class="btn-close"><span class="material-icons">close</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="order-number">
-                    <span class="label">Numero de Pedido:</span>
-                    <span class="value">{{ lastOrder?.numero }}</span>
+                    <label for="tipoEntrega" class="form-label">Tipo de entrega *</label>
+                    <select id="tipoEntrega" [(ngModel)]="newAddress.tipo" class="form-control form-select" (ngModelChange)="onTipoEntregaChange($event)">
+                        <option value="domicilio">Domicilio</option>
+                        <option value="recojo_tienda">Recojo en tienda</option>
+                    </select>
                 </div>
 
-                <div class="order-details-grid">
-                    <div class="detail-section">
-                        <h3><span class="material-icons">shopping_bag</span> Productos Pedidos</h3>
-                        <div class="order-items-list">
-                            <div class="order-item-row" *ngFor="let item of lastOrder?.items">
-                                <div class="item-info">
-                                    <span class="item-name">{{ item.nombre }}</span>
-                                    <span class="item-qty">x{{ item.cantidad }}</span>
-                                </div>
-                                <span class="item-price">S/ {{ (item.precio_unitario * item.cantidad) | number:'1.2-2' }}</span>
-                            </div>
+                <div *ngIf="isDomicilioForm">
+                    <div class="form-group">
+                        <label for="dest" class="form-label">Destinatario *</label>
+                        <input id="dest" type="text" [(ngModel)]="newAddress.destinatario" class="form-control">
+                        <small class="field-error" *ngIf="showFieldError(addressSubmitted, destinatarioError)">{{ destinatarioError }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="dir" class="form-label">Direccion *</label>
+                        <input id="dir" type="text" [(ngModel)]="newAddress.direccion_linea1" class="form-control">
+                        <small class="field-error" *ngIf="showFieldError(addressSubmitted, direccionError)">{{ direccionError }}</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dep" class="form-label">Departamento *</label>
+                            <input id="dep" type="text" [(ngModel)]="newAddress.departamento" class="form-control" placeholder="Ej. Junin">
+                            <small class="field-error" *ngIf="showFieldError(addressSubmitted, departamentoError)">{{ departamentoError }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="prov" class="form-label">Provincia *</label>
+                            <input id="prov" type="text" [(ngModel)]="newAddress.provincia" class="form-control">
+                            <small class="field-error" *ngIf="showFieldError(addressSubmitted, provinciaError)">{{ provinciaError }}</small>
                         </div>
                     </div>
-
-                    <div class="detail-section">
-                        <h3><span class="material-icons">payment</span> Metodo de Pago</h3>
-                        <p class="detail-value">{{ lastOrder?.metodoPago }}</p>
-                    </div>
-
-                    <div class="detail-section">
-                        <h3><span class="material-icons">location_on</span> Direccion de Envio</h3>
-                        <p class="detail-value"><strong>{{ lastOrder?.destinatario }}</strong></p>
-                        <p class="detail-value">{{ lastOrder?.direccion }}</p>
-                    </div>
-
-                    <div class="detail-section" *ngIf="lastOrder?.notas">
-                        <h3><span class="material-icons">note</span> Notas</h3>
-                        <p class="detail-value">{{ lastOrder?.notas }}</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dist" class="form-label">Distrito *</label>
+                            <input id="dist" type="text" [(ngModel)]="newAddress.distrito" class="form-control">
+                            <small class="field-error" *ngIf="showFieldError(addressSubmitted, distritoError)">{{ distritoError }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="telDom" class="form-label">Telefono *</label>
+                            <input id="telDom" type="text" [(ngModel)]="newAddress.telefono" class="form-control" maxlength="9" inputmode="numeric" (input)="onNumericField('telefono', $event, 9)">
+                            <small class="field-error" *ngIf="showFieldError(addressSubmitted, telefonoAddressError)">{{ telefonoAddressError }}</small>
+                        </div>
                     </div>
                 </div>
 
-                <div class="order-total-section">
-                    <div class="total-row"><span>Fecha del Pedido</span><span>{{ lastOrder?.fecha }}</span></div>
-                    <div class="total-row grand-total"><span>TOTAL PAGADO</span><span>S/ {{ lastOrder?.total | number:'1.2-2' }}</span></div>
+                <div *ngIf="!isDomicilioForm">
+                    <div class="store-pickup-info">
+                        <span class="material-icons">store</span>
+                        <p>{{ tiendaInfo }}</p>
+                        <p class="store-address">Av. Junin 1234, Huancayo</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="recNom" class="form-label">Nombre de quien recoge *</label>
+                        <input id="recNom" type="text" [(ngModel)]="newAddress.destinatario" class="form-control">
+                        <small class="field-error" *ngIf="showFieldError(addressSubmitted, destinatarioError)">{{ destinatarioError }}</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="recDni" class="form-label">DNI *</label>
+                            <input id="recDni" type="text" [(ngModel)]="newAddress.dni_contacto" class="form-control" maxlength="8" inputmode="numeric" (input)="onNumericField('dni_contacto', $event, 8)">
+                            <small class="field-error" *ngIf="showFieldError(addressSubmitted, dniRecojoError)">{{ dniRecojoError }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="recTel" class="form-label">Telefono *</label>
+                            <input id="recTel" type="text" [(ngModel)]="newAddress.telefono" class="form-control" maxlength="9" inputmode="numeric" (input)="onNumericField('telefono', $event, 9)">
+                            <small class="field-error" *ngIf="showFieldError(addressSubmitted, telefonoAddressError)">{{ telefonoAddressError }}</small>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button (click)="continueShopping()" class="btn btn-outline">Seguir Comprando</button>
-                <button (click)="closeOrderSuccess()" class="btn btn-primary">Ver Mis Pedidos</button>
+            <div class="modal-footer checkout-modal-footer">
+                <button type="button" (click)="closeAddressModal()" class="btn btn-secondary">Cancelar</button>
+                <button type="button" (click)="saveAddress()" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXITO -->
+    <div class="modal-overlay checkout-modal-overlay" *ngIf="showOrderSuccess">
+        <div class="modal-content order-success-modal checkout-modal">
+            <div class="modal-header success-header">
+                <div class="success-icon"><span class="material-icons">check_circle</span></div>
+                <h2>Compra realizada correctamente</h2>
+            </div>
+            <div class="modal-body checkout-modal-body">
+                <div class="order-number">
+                    <span class="label">Numero de pedido</span>
+                    <span class="value">{{ lastOrder?.numero }}</span>
+                </div>
+                <p class="sim-badge-order success-pago-badge"><span class="material-icons">verified</span> {{ compraExitoPago }}</p>
+                <p class="detail-value compra-exito-detalle">{{ compraExitoDetalle }}</p>
+                <p class="detail-value">Total: <strong>S/ {{ lastOrder?.total | number:'1.2-2' }}</strong></p>
+                <p class="detail-value">{{ lastOrder?.metodoPago }} · {{ lastOrder?.comprobante }}</p>
+            </div>
+            <div class="modal-footer checkout-modal-footer">
+                <button type="button" (click)="continueShopping()" class="btn btn-outline">Volver al catalogo</button>
+                <button type="button" (click)="closeOrderSuccess()" class="btn btn-primary">Ver mis pedidos</button>
             </div>
         </div>
     </div>

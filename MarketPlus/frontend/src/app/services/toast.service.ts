@@ -13,10 +13,10 @@ export class ToastService {
     private toastSubject = new Subject<ToastMessage & { action: 'show' | 'hide' }>();
     toasts$ = this.toastSubject.asObservable();
 
-    show(message: string, type: ToastMessage['type'] = 'info'): void {
+    show(message: string, type: ToastMessage['type'] = 'info', durationMs = 2500): void {
         const id = ++this.idCounter;
         this.toastSubject.next({ id, type, message, action: 'show' });
-        setTimeout(() => this.hide(id), 4000);
+        setTimeout(() => this.hide(id), durationMs);
     }
 
     hide(id: number): void {

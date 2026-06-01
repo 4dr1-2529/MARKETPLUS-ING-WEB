@@ -14,12 +14,12 @@ INSERT INTO roles (nombre, descripcion) VALUES
 -- =============================================
 -- USUARIOS (password: 12345678 hash bcrypt)
 -- =============================================
-INSERT INTO usuarios (role_id, nombres, apellidos, email, password, telefono, dni, estado) VALUES
-(1, 'Admin', 'MarketPlus', 'admin@marketplus.pe', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '999888777', '12345678', 'activo'),
-(2, 'Carlos', 'Rodriguez Perez', 'carlos.rodriguez@gmail.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '987654321', '87654321', 'activo'),
-(2, 'Maria', 'Lopez Garcia', 'maria.lopez@hotmail.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '912345678', '76543210', 'activo'),
-(2, 'Jose', 'Martinez Torres', 'jose.martinez@yahoo.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '945678123', '65432109', 'activo'),
-(2, 'Ana', 'Sanchez Ruiz', 'ana.sanchez@gmail.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '956781234', '54321098', 'activo');
+INSERT INTO usuarios (role_id, username, nombres, apellidos, email, password, telefono, dni, estado) VALUES
+(1, 'admin.market', 'Admin', 'MarketPlus', 'admin@marketplus.pe', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '999888777', '12345678', 'activo'),
+(2, 'carlos.rp', 'Carlos', 'Rodriguez Perez', 'carlos.rodriguez@gmail.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '987654321', '87654321', 'activo'),
+(2, 'maria.lopez', 'Maria', 'Lopez Garcia', 'maria.lopez@hotmail.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '912345678', '76543210', 'activo'),
+(2, 'jose.mt', 'Jose', 'Martinez Torres', 'jose.martinez@yahoo.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '945678123', '65432109', 'activo'),
+(2, 'ana.sr', 'Ana', 'Sanchez Ruiz', 'ana.sanchez@gmail.com', '$2b$10$X7KJlH5qF3vN2mP8rT6wYuE9sL1cD4bA6fG8hJ0kM2nO5pQ7rS9tU', '956781234', '54321098', 'activo');
 
 -- =============================================
 -- CATEGORIAS
@@ -55,9 +55,9 @@ INSERT INTO marcas (nombre, slug, pais_origen, estado) VALUES
 -- PROVEEDORES
 -- =============================================
 INSERT INTO proveedores (nombre_empresa, ruc, contacto_nombre, contacto_email, contacto_telefono, direccion, estado) VALUES
-('Tech Distribuciones SAC', '20601234567', 'Roberto Diaz', 'roberto@techdist.pe', '999111222', 'Av. Arenales 1234, Lima', 'activo'),
-('Importaciones Global EIRL', '20609876543', 'Patricia Flores', 'patricia@importglobal.pe', '999333444', 'Jr. Lampa 567, Lima', 'activo'),
-('Digital Store Peru SAC', '20605556667', 'Miguel Vargas', 'miguel@digitalstore.pe', '999555666', 'Av. Javier Prado 890, Lima', 'activo');
+('Tech Distribuciones SAC', '20601234567', 'Roberto Diaz', 'roberto@techdist.pe', '999111222', 'Av. Giraldez 1234, Huancayo', 'activo'),
+('Importaciones Global EIRL', '20609876543', 'Patricia Flores', 'patricia@importglobal.pe', '999333444', 'Jr. Real 567, Huancayo', 'activo'),
+('Digital Store Peru SAC', '20605556667', 'Miguel Vargas', 'miguel@digitalstore.pe', '999555666', 'Av. Ferrocarril 890, Huancayo', 'activo');
 
 -- =============================================
 -- PRODUCTOS (Precios en Soles Peruanos S/)
@@ -103,7 +103,12 @@ INSERT INTO productos (categoria_id, marca_id, proveedor_id, nombre, slug, descr
 
 -- TELEVISORES
 (8, 1, 1, 'Samsung Smart TV 55" 4K Crystal UHD', 'samsung-smart-tv-55-4k-crystal', 'Smart TV de 55 pulgadas con resolución 4K UHD, procesador Crystal 4K, HDR, Tizen OS, diseño AirSlim.', 2499.00, 2199.00, 12, 'SAM-TV55-4K', 24, 'activo', TRUE, TRUE, 'samsung-tv-55.jpg', 670, 56),
-(8, 9, 2, 'Sony Bravia 50" 4K Google TV', 'sony-bravia-50-4k-google-tv', 'Smart TV de 50 pulgadas con procesador X1, 4K HDR, Google TV, Dolby Vision y Atmos, panel Triluminos Pro.', 2899.00, 2599.00, 10, 'SON-BR50-4K', 24, 'activo', TRUE, TRUE, 'sony-bravia-50.jpg', 430, 34);
+(8, 9, 2, 'Sony Bravia 50" 4K Google TV', 'sony-bravia-50-4k-google-tv', 'Smart TV de 50 pulgadas con procesador X1, 4K HDR, Google TV, Dolby Vision y Atmos, panel Triluminos Pro.', 2899.00, 2599.00, 10, 'SON-BR50-4K', 24, 'activo', TRUE, TRUE, 'sony-bravia-50.jpg', 430, 34),
+(1, 1, 1, 'Samsung Galaxy Z Flip5 256GB', 'samsung-galaxy-z-flip5-256gb', 'Smartphone plegable compacto con pantalla AMOLED y gran rendimiento.', 4199.00, 3799.00, 10, 'SAM-ZFLIP5-256', 12, 'activo', TRUE, TRUE, 'samsung-zflip5.jpg', 480, 42),
+(2, 8, 1, 'Dell XPS 13 Plus OLED', 'dell-xps-13-plus-oled', 'Laptop ultraligera premium con pantalla OLED y procesador Intel Core i7.', 5699.00, 5299.00, 7, 'DEL-XPS13P-OLED', 24, 'activo', TRUE, TRUE, 'dell-xps13-plus.jpg', 310, 27),
+(3, 3, 2, 'Xiaomi Pad 6 256GB', 'xiaomi-pad-6-256gb', 'Tablet de alto rendimiento con pantalla 144Hz y gran batería.', 1799.00, 1599.00, 11, 'XIA-PAD6-256', 12, 'activo', TRUE, TRUE, 'xiaomi-pad6.jpg', 390, 34),
+(7, 11, 3, 'Logitech G Pro X Superlight 2', 'logitech-g-pro-x-superlight-2', 'Mouse gaming ultraligero para eSports, sensor Hero 2.', 649.00, 579.00, 11, 'LOG-GPXSL2', 12, 'activo', TRUE, TRUE, 'logitech-gpro-superlight2.jpg', 260, 51),
+(8, 1, 1, 'Samsung Smart TV 65" QLED 4K', 'samsung-smart-tv-65-qled-4k', 'QLED 4K de 65 pulgadas con HDR10+ y gran brillo.', 3799.00, 3399.00, 11, 'SAM-TV65-QLED4K', 24, 'activo', TRUE, TRUE, 'samsung-tv-65-qled.jpg', 220, 18);
 
 -- =============================================
 -- INVENTARIO
@@ -133,17 +138,22 @@ INSERT INTO inventario (producto_id, stock, stock_minimo, stock_maximo, ubicacio
 (22, 55, 5, 120, 'Almacén F2-Estante 1'),
 (23, 30, 5, 80, 'Almacén F2-Estante 2'),
 (24, 18, 3, 50, 'Almacén G1-Estante 1'),
-(25, 25, 5, 60, 'Almacén G1-Estante 2');
+(25, 25, 5, 60, 'Almacén G1-Estante 2'),
+(26, 20, 4, 60, 'Almacén G2-Estante 1'),
+(27, 12, 3, 40, 'Almacén G2-Estante 2'),
+(28, 28, 5, 80, 'Almacén H1-Estante 1'),
+(29, 35, 8, 120, 'Almacén H1-Estante 2'),
+(30, 14, 4, 50, 'Almacén H2-Estante 1');
 
 -- =============================================
 -- DIRECCIONES
 -- =============================================
-INSERT INTO direcciones (usuario_id, tipo, destinatario, direccion_linea1, departamento, provincia, distrito, codigo_postal, telefono, es_principal) VALUES
-(2, 'envio', 'Carlos Rodriguez', 'Av. Arequipa 1234, Depto 501', 'Lima', 'Lima', 'Miraflores', '15074', '987654321', TRUE),
-(2, 'facturacion', 'Carlos Rodriguez', 'Jr. de la Unión 567', 'Lima', 'Lima', 'Lima Centro', '15001', '987654321', FALSE),
-(3, 'envio', 'Maria Lopez', 'Calle Los Olivos 890', 'Lima', 'Lima', 'San Borja', '15036', '912345678', TRUE),
-(4, 'envio', 'Jose Martinez', 'Av. Javier Prado Este 2345', 'Lima', 'Lima', 'San Isidro', '15046', '945678123', TRUE),
-(5, 'envio', 'Ana Sanchez', 'Av. Brasil 1567, Urb. Santa Beatriz', 'Lima', 'Lima', 'Jesus Maria', '15072', '956781234', TRUE);
+INSERT INTO direcciones (usuario_id, tipo, destinatario, direccion_linea1, departamento, provincia, distrito, codigo_postal, telefono, dni_contacto, es_principal) VALUES
+(2, 'domicilio', 'Carlos Rodriguez', 'Av. Giraldez 1234, Depto 501', 'Junin', 'Huancayo', 'El Tambo', '12006', '987654321', NULL, TRUE),
+(2, 'recojo_tienda', 'Carlos Rodriguez', 'Recojo en tienda MarketPlus - Av. Junin 1234, Huancayo', 'Junin', 'Huancayo', 'Huancayo', '12001', '987654321', '87654321', FALSE),
+(3, 'domicilio', 'Maria Lopez', 'Calle Los Olivos 890', 'Junin', 'Huancayo', 'Chilca', '12004', '912345678', NULL, TRUE),
+(4, 'domicilio', 'Jose Martinez', 'Av. Ferrocarril Este 2345', 'Junin', 'Huancayo', 'Pilcomayo', '12007', '945678123', NULL, TRUE),
+(5, 'domicilio', 'Ana Sanchez', 'Av. Huancavelica 1567, Urb. Santa Beatriz', 'Junin', 'Huancayo', 'Sapallanga', '12009', '956781234', NULL, TRUE);
 
 -- =============================================
 -- CUPONES
@@ -176,12 +186,12 @@ INSERT INTO detalle_carrito (carrito_id, producto_id, cantidad, precio_unitario)
 -- =============================================
 -- PEDIDOS
 -- =============================================
-INSERT INTO pedidos (usuario_id, numero_pedido, direccion_envio_id, subtotal, descuento, igv, costo_envio, total, estado, metodo_pago, tracking_numero) VALUES
-(2, 'MP-2026-0001', 1, 5898.00, 589.80, 954.48, 15.00, 6277.68, 'entregado', 'tarjeta_credito', 'TRK-20260101-001'),
-(2, 'MP-2026-0002', 1, 1199.00, 0, 215.82, 10.00, 1424.82, 'enviado', 'yape', 'TRK-20260215-002'),
-(3, 'MP-2026-0003', 3, 4799.00, 719.85, 734.23, 15.00, 4828.38, 'procesando', 'tarjeta_debito', 'TRK-20260301-003'),
-(4, 'MP-2026-0004', 4, 2199.00, 219.90, 356.24, 10.00, 2345.34, 'confirmado', 'transferencia', NULL),
-(5, 'MP-2026-0005', 5, 999.00, 0, 179.82, 10.00, 1188.82, 'pendiente', 'contra_entrega', NULL);
+INSERT INTO pedidos (usuario_id, numero_pedido, direccion_envio_id, subtotal, descuento, igv, costo_envio, total, estado, metodo_pago, tipo_comprobante, comprobante_dni, comprobante_nombre, estado_pago, es_pago_simulado, tracking_numero) VALUES
+(2, 'PED-000001', 1, 5898.00, 589.80, 954.48, 15.00, 6277.68, 'entregado', 'tarjeta_credito', 'boleta', '45678901', 'Carlos Rodriguez', 'simulado_completado', TRUE, 'TRK-20260101-001'),
+(2, 'PED-000002', 1, 1199.00, 0, 215.82, 10.00, 1424.82, 'enviado', 'yape', 'boleta', '45678901', 'Carlos Rodriguez', 'simulado_completado', TRUE, 'TRK-20260215-002'),
+(3, 'PED-000003', 3, 4799.00, 719.85, 734.23, 15.00, 4828.38, 'procesando', 'tarjeta_credito', 'factura', NULL, NULL, 'simulado_completado', TRUE, 'TRK-20260301-003'),
+(4, 'PED-000004', 4, 2199.00, 219.90, 356.24, 10.00, 2345.34, 'confirmado', 'yape', 'boleta', '11223344', 'Maria Lopez', 'simulado_completado', TRUE, NULL),
+(5, 'PED-000005', 5, 999.00, 0, 179.82, 10.00, 1188.82, 'pendiente', 'contra_entrega', 'boleta', '55667788', 'Pedro Gomez', 'pendiente', TRUE, NULL);
 
 -- =============================================
 -- DETALLE_PEDIDO
@@ -200,8 +210,8 @@ INSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, precio_unitario, s
 INSERT INTO pagos (pedido_id, usuario_id, monto, metodo, estado, referencia_pago, numero_tarjeta_ultimos4, fecha_pago) VALUES
 (1, 2, 6277.68, 'tarjeta_credito', 'completado', 'PAY-20260101-001', '4532', '2026-01-01 10:30:00'),
 (2, 2, 1424.82, 'yape', 'completado', 'PAY-20260215-002', NULL, '2026-02-15 14:20:00'),
-(3, 3, 4828.38, 'tarjeta_debito', 'completado', 'PAY-20260301-003', '8765', '2026-03-01 09:15:00'),
-(4, 4, 2345.34, 'transferencia', 'pendiente', 'PAY-20260315-004', NULL, NULL),
+(3, 3, 4828.38, 'tarjeta_credito', 'completado', 'PAY-20260301-003', '8765', '2026-03-01 09:15:00'),
+(4, 4, 2345.34, 'yape', 'completado', 'PAY-20260315-004', NULL, '2026-03-15 11:00:00'),
 (5, 5, 1188.82, 'contra_entrega', 'pendiente', NULL, NULL, NULL);
 
 -- =============================================
@@ -262,3 +272,22 @@ INSERT INTO notificaciones (usuario_id, titulo, mensaje, tipo, leido, enlace) VA
 (5, 'Pedido pendiente', 'Tu pedido MP-2026-0005 está pendiente de pago. Completa tu compra.', 'pago', FALSE, '/checkout'),
 (2, '¡Bienvenido a MarketPlus!', 'Gracias por registrarte. Usa el cupón TECH2026 para 10% de descuento.', 'promocion', TRUE, '/catalogo'),
 (3, 'Producto disponible', 'El producto que tenías en favoritos está de vuelta en stock.', 'sistema', FALSE, '/producto/xiaomi-redmi-note-13-pro-256gb');
+
+-- =============================================
+-- NORMALIZACION DE IMAGENES (URLs ESTABLES)
+-- =============================================
+UPDATE productos p
+JOIN categorias c ON c.id = p.categoria_id
+SET p.imagen_principal = CASE c.slug
+    WHEN 'celulares-smartphones' THEN 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=600&fit=crop&q=85&auto=format'
+    WHEN 'laptops-computadoras' THEN 'https://images.unsplash.com/photo-1496181133206-80ce9d88ed3f?w=800&h=600&fit=crop&q=85&auto=format'
+    WHEN 'tablets' THEN 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&h=600&fit=crop&q=85&auto=format'
+    WHEN 'audifonos-audio' THEN 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=600&fit=crop&q=85&auto=format'
+    WHEN 'smartwatch-wearables' THEN 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=600&fit=crop&q=85&auto=format'
+    WHEN 'accesorios' THEN 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&h=600&fit=crop&q=85&auto=format'
+    WHEN 'gaming' THEN 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&h=600&fit=crop&q=85&auto=format'
+    WHEN 'televisores' THEN 'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=800&h=600&fit=crop&q=85&auto=format'
+    ELSE 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=600&fit=crop&q=85&auto=format'
+END
+WHERE p.imagen_principal IS NULL
+   OR p.imagen_principal NOT REGEXP '^https?://';

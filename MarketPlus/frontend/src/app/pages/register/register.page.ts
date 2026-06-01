@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
     styleUrls: ['./register.page.css']
 })
 export class RegisterPage {
+    username = '';
     nombres = '';
     apellidos = '';
     email = '';
@@ -16,56 +17,118 @@ export class RegisterPage {
     telefono = '';
     dni = '';
     error = '';
+    successMessage = '';
+    submitted = false;
     loading = false;
 
-    constructor(private auth: AuthService, private router: Router) {}
+    constructor(private readonly auth: AuthService, private readonly router: Router) {}
+
+    private readonly nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    private readonly usernameRegex = /^[a-zA-Z0-9._-]{4,20}$/;
+    private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    get usernameError(): string {
+        const value = this.username.trim();
+        if (!value) return 'El nombre de usuario es obligatorio';
+        if (!this.usernameRegex.test(value)) return 'Debe tener 4-20 caracteres y usar letras, numeros, punto, guion o guion bajo';
+        if (/^\d{8,15}$/.test(value)) return 'No uses DNI o telefono como nombre de usuario';
+        return '';
+    }
+
+    get nombresError(): string {
+        const value = this.nombres.trim();
+        if (!value) return 'Los nombres son obligatorios';
+        if (value.length < 2) return 'Los nombres deben tener al menos 2 caracteres';
+        if (!this.nameRegex.test(value)) return 'Los nombres solo pueden contener letras y espacios';
+        return '';
+    }
+
+    get apellidosError(): string {
+        const value = this.apellidos.trim();
+        if (!value) return 'Los apellidos son obligatorios';
+        if (value.length < 2) return 'Los apellidos deben tener al menos 2 caracteres';
+        if (!this.nameRegex.test(value)) return 'Los apellidos solo pueden contener letras y espacios';
+        return '';
+    }
+
+    get emailError(): string {
+        const value = this.email.trim();
+        if (!value) return 'El email es obligatorio';
+        if (!this.emailRegex.test(value)) return 'Ingresa un email valido';
+        return '';
+    }
+
+    get dniError(): string {
+        const value = this.dni.trim();
+        if (!value) return '';
+        if (!/^\d{8}$/.test(value)) return 'El DNI debe tener exactamente 8 digitos';
+        return '';
+    }
+
+    get telefonoError(): string {
+        const value = this.telefono.trim();
+        if (!value) return '';
+        if (!/^\d{9}$/.test(value)) return 'El telefono debe tener exactamente 9 digitos';
+        return '';
+    }
+
+    get passwordError(): string {
+        if (!this.password) return 'La contraseña es obligatoria';
+        if (this.password.length < 8) return 'La contraseña debe tener al menos 8 caracteres';
+        return '';
+    }
+
+    get confirmPasswordError(): string {
+        if (!this.confirmPassword) return 'Confirmar contraseña es obligatorio';
+        if (this.password !== this.confirmPassword) return 'Las contraseñas no coinciden';
+        return '';
+    }
+
+    get isFormValid(): boolean {
+        return !this.usernameError &&
+            !this.nombresError &&
+            !this.apellidosError &&
+            !this.emailError &&
+            !this.dniError &&
+            !this.telefonoError &&
+            !this.passwordError &&
+            !this.confirmPasswordError;
+    }
 
     register(): void {
-        if (!this.nombres || !this.apellidos || !this.email || !this.password) {
-            this.error = 'Completa todos los campos obligatorios';
-            return;
-        }
-        if (this.nombres.trim().length < 2) {
-            this.error = 'Los nombres deben tener al menos 2 caracteres';
-            return;
-        }
-        if (this.apellidos.trim().length < 2) {
-            this.error = 'Los apellidos deben tener al menos 2 caracteres';
-            return;
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(this.email)) {
-            this.error = 'Ingresa un email valido';
-            return;
-        }
-        if (this.password !== this.confirmPassword) {
-            this.error = 'Las contraseñas no coinciden';
-            return;
-        }
-        if (this.password.length < 8) {
-            this.error = 'La contraseña debe tener al menos 8 caracteres';
-            return;
-        }
-        if (this.dni && (this.dni.length !== 8 || !/^\d+$/.test(this.dni))) {
-            this.error = 'El DNI debe tener exactamente 8 digitos';
-            return;
-        }
-        if (this.telefono && (this.telefono.length !== 9 || !/^\d+$/.test(this.telefono))) {
-            this.error = 'El telefono debe tener exactamente 9 digitos';
-            return;
-        }
+        this.submitted = true;
+        if (!this.isFormValid) return;
+
         this.loading = true;
         this.error = '';
+        this.successMessage = '';
         this.auth.register({
-            nombres: this.nombres,
-            apellidos: this.apellidos,
-            email: this.email,
+            username: this.username.trim(),
+            nombres: this.nombres.trim(),
+            apellidos: this.apellidos.trim(),
+            email: this.email.trim().toLowerCase(),
             password: this.password,
-            telefono: this.telefono,
-            dni: this.dni
+            telefono: this.telefono.trim(),
+            dni: this.dni.trim()
         }).subscribe({
-            next: () => { this.loading = false; this.router.navigate(['/']); },
-            error: (err) => { this.loading = false; this.error = err.error?.message || 'Error al registrar'; }
+            next: (res) => {
+                this.loading = false;
+                this.successMessage = res.message || 'Cuenta creada correctamente';
+                this.router.navigate(['/login']);
+            },
+            error: (err) => {
+                this.loading = false;
+                this.error = err.error?.message || 'No se pudo crear la cuenta. Intenta nuevamente.';
+            }
         });
+    }
+
+    onNumericInput(field: 'dni' | 'telefono', event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const max = field === 'dni' ? 8 : 9;
+        const numeric = input.value.replace(/\D/g, '').slice(0, max);
+        if (field === 'dni') this.dni = numeric;
+        if (field === 'telefono') this.telefono = numeric;
+        input.value = numeric;
     }
 }

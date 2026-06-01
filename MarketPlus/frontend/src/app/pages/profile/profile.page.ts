@@ -59,8 +59,8 @@ export class ProfilePage implements OnInit {
             this.toast.warning('Ingresa tu password actual');
             return;
         }
-        if (!this.passwordData.nuevaPassword || this.passwordData.nuevaPassword.length < 6) {
-            this.toast.warning('La nueva password debe tener al menos 6 caracteres');
+        if (!this.passwordData.nuevaPassword || this.passwordData.nuevaPassword.length < 8) {
+            this.toast.warning('La nueva password debe tener al menos 8 caracteres');
             return;
         }
         if (this.passwordData.nuevaPassword !== this.passwordData.confirmarPassword) {
@@ -84,7 +84,7 @@ export class ProfilePage implements OnInit {
 
     getPasswordStrength(password: string): string {
         if (!password) return '';
-        if (password.length < 6) return 'weak';
+        if (password.length < 8) return 'weak';
         if (password.length < 10) return 'medium';
         return 'strong';
     }
