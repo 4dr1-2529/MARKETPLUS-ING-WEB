@@ -1,51 +1,91 @@
 import { Component, OnInit } from '@angular/core';
 import { BrandService } from '../../../services/brand.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
     selector: 'app-admin-brands',
-    template: `
-        <div class="admin-page">
-            <app-sidebar></app-sidebar>
-            <div class="admin-content">
-                <div class="admin-header">
-                    <h1>Gestion de Marcas</h1>
-                    <button class="btn btn-primary"><span class="material-icons">add</span> Nueva Marca</button>
-                </div>
-                <div class="admin-card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>ID</th><th>Nombre</th><th>Pais</th><th>Productos</th><th>Estado</th><th>Acciones</th></tr></thead>
-                            <tbody>
-                                <tr *ngFor="let b of brands">
-                                    <td>{{ b.id }}</td><td>{{ b.nombre }}</td><td>{{ b.pais_origen }}</td>
-                                    <td>{{ b.total_productos || 0 }}</td>
-                                    <td><span class="badge badge-{{ b.estado === 'activo' ? 'success' : 'danger' }}">{{ b.estado }}</span></td>
-                                    <td><button class="btn-icon"><span class="material-icons">edit</span></button><button class="btn-icon btn-icon-danger"><span class="material-icons">delete</span></button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
-    styles: [`
-        .admin-page { display: flex; min-height: 100vh; }
-        .admin-content { flex: 1; margin-left: 260px; padding: 32px; padding-top: 100px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .admin-header h1 { font-size: 28px; font-weight: 800; }
-        .admin-card { background: var(--white); border-radius: var(--radius-md); padding: 24px; box-shadow: var(--shadow-sm); }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--dark-light); border-bottom: 2px solid var(--gray-light); }
-        td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--gray-light); }
-        .btn-icon { padding: 6px; background: none; color: var(--primary); border-radius: var(--radius-sm); }
-        .btn-icon-danger { color: var(--danger); }
-        @media (max-width: 768px) { .admin-content { margin-left: 0; padding: 20px; padding-top: 90px; } }
-    `]
+    templateUrl: './brands.page.html',
+    styleUrls: ['./brands.page.css']
 })
 export class AdminBrandsPage implements OnInit {
     brands: any[] = [];
-    constructor(private brandService: BrandService) {}
-    ngOnInit(): void { this.brandService.getAllAdmin().subscribe(res => { this.brands = res.data; }); }
+    showModal = false;
+    isNew = false;
+    form: any = {};
+
+    constructor(
+        private brandService: BrandService,
+        private toast: ToastService
+    ) {}
+
+    ngOnInit(): void {
+        this.loadBrands();
+    }
+
+    loadBrands(): void {
+        this.brandService.getAllAdmin().subscribe({
+            next: (res) => { this.brands = res.data || []; },
+            error: () => this.toast.error('Error al cargar marcas')
+        });
+    }
+
+    openNew(): void {
+        this.isNew = true;
+        this.form = { nombre: '', pais_origen: '', sitio_web: '', estado: 'activo' };
+        this.showModal = true;
+    }
+
+    openEdit(brand: any): void {
+        this.isNew = false;
+        this.form = {
+            id: brand.id,
+            nombre: brand.nombre,
+            pais_origen: brand.pais_origen || '',
+            sitio_web: brand.sitio_web || '',
+            estado: brand.estado || 'activo',
+            logo: brand.logo || null
+        };
+        this.showModal = true;
+    }
+
+    closeModal(): void {
+        this.showModal = false;
+        this.form = {};
+    }
+
+    save(): void {
+        if (!this.form.nombre?.trim()) {
+            this.toast.warning('El nombre es obligatorio');
+            return;
+        }
+        const payload = {
+            nombre: this.form.nombre.trim(),
+            pais_origen: this.form.pais_origen?.trim() || null,
+            sitio_web: this.form.sitio_web?.trim() || null,
+            estado: this.form.estado,
+            logo: this.form.logo
+        };
+        const req = this.isNew
+            ? this.brandService.create(payload)
+            : this.brandService.update(this.form.id, payload);
+        req.subscribe({
+            next: () => {
+                this.toast.success(this.isNew ? 'Marca creada' : 'Marca actualizada');
+                this.closeModal();
+                this.loadBrands();
+            },
+            error: (err) => this.toast.error(err.error?.message || 'Error al guardar marca')
+        });
+    }
+
+    deleteBrand(brand: any): void {
+        if (!confirm(`¿Eliminar la marca "${brand.nombre}"?`)) return;
+        this.brandService.delete(brand.id).subscribe({
+            next: () => {
+                this.toast.success('Marca eliminada');
+                this.loadBrands();
+            },
+            error: () => this.toast.error('Error al eliminar marca')
+        });
+    }
 }

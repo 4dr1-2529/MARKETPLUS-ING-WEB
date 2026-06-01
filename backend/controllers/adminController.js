@@ -37,7 +37,9 @@ const getDashboard = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
-        const [users] = await pool.query('SELECT u.id, u.nombres, u.apellidos, u.email, u.telefono, u.estado, u.creado_en, r.nombre as role FROM usuarios u JOIN roles r ON u.role_id = r.id ORDER BY u.creado_en DESC');
+        const [users] = await pool.query(
+            'SELECT u.id, u.nombres, u.apellidos, u.email, u.telefono, u.dni, u.estado, u.role_id, u.creado_en, r.nombre AS role FROM usuarios u JOIN roles r ON u.role_id = r.id ORDER BY u.creado_en DESC'
+        );
         res.json({ success: true, data: users });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al obtener usuarios', error: error.message });
@@ -46,8 +48,40 @@ const getAllUsers = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { estado } = req.body;
-        await pool.query('UPDATE usuarios SET estado = ? WHERE id = ?', [estado, req.params.id]);
+        const { nombres, apellidos, telefono, estado, role_id } = req.body;
+        const fields = [];
+        const values = [];
+
+        if (nombres !== undefined) {
+            fields.push('nombres = ?');
+            values.push(String(nombres).trim());
+        }
+        if (apellidos !== undefined) {
+            fields.push('apellidos = ?');
+            values.push(String(apellidos).trim());
+        }
+        if (telefono !== undefined) {
+            fields.push('telefono = ?');
+            values.push(telefono ? String(telefono).trim() : null);
+        }
+        if (estado !== undefined) {
+            fields.push('estado = ?');
+            values.push(estado);
+        }
+        if (role_id !== undefined) {
+            fields.push('role_id = ?');
+            values.push(Number(role_id));
+        }
+
+        if (fields.length === 0) {
+            return res.status(400).json({ success: false, message: 'No hay datos para actualizar' });
+        }
+
+        values.push(req.params.id);
+        const [result] = await pool.query(`UPDATE usuarios SET ${fields.join(', ')} WHERE id = ?`, values);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
         res.json({ success: true, message: 'Usuario actualizado' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al actualizar usuario', error: error.message });

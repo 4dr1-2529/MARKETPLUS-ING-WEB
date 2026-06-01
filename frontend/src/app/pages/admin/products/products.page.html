@@ -67,7 +67,7 @@
                                     <button class="btn-action btn-view" (click)="viewProduct(p.slug)" title="Ver producto">
                                         <span class="material-icons">visibility</span>
                                     </button>
-                                    <button class="btn-action btn-edit" title="Editar">
+                                    <button type="button" class="btn-action btn-edit" (click)="openEdit(p)" title="Editar">
                                         <span class="material-icons">edit</span>
                                     </button>
                                     <button class="btn-action btn-delete" (click)="deleteProduct(p)" title="Eliminar">
@@ -84,6 +84,41 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+        <div class="admin-modal admin-modal-lg" (click)="$event.stopPropagation()">
+            <h2>Editar producto</h2>
+            <div class="form-group">
+                <label class="form-label">Nombre *</label>
+                <input type="text" class="form-control" [(ngModel)]="editForm.nombre">
+            </div>
+            <div class="form-row-modal">
+                <div class="form-group">
+                    <label class="form-label">Precio (S/)</label>
+                    <input type="number" class="form-control" [(ngModel)]="editForm.precio" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio oferta</label>
+                    <input type="number" class="form-control" [(ngModel)]="editForm.precio_oferta" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Estado</label>
+                <select class="form-control" [(ngModel)]="editForm.estado">
+                    <option value="activo">activo</option>
+                    <option value="inactivo">inactivo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descripcion</label>
+                <textarea class="form-control" rows="3" [(ngModel)]="editForm.descripcion"></textarea>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" (click)="saveProduct()">Guardar</button>
             </div>
         </div>
     </div>
