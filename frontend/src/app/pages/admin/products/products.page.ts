@@ -56,7 +56,6 @@ export class AdminProductsPage implements OnInit {
         this.products.forEach(p => {
             const inv = invMap.get(p.id);
             p.stock = inv ? inv.stock : 0;
-            p.stock_minimo = inv ? inv.stock_minimo : 5;
         });
     }
 
@@ -157,15 +156,11 @@ export class AdminProductsPage implements OnInit {
         });
     }
 
-    getStockBadge(stock: number, min: number): string {
-        if (stock <= 0) return 'badge-danger';
-        if (stock <= min) return 'badge-warning';
-        return 'badge-success';
+    getStockBadge(stock: number): string {
+        return stock <= 0 ? 'badge-danger' : 'badge-success';
     }
 
-    getStockLabel(stock: number, min: number): string {
-        if (stock <= 0) return 'Agotado';
-        if (stock <= min) return 'Bajo';
-        return 'OK';
+    getStockLabel(stock: number): string {
+        return stock <= 0 ? 'Agotado' : 'Disponible';
     }
 }

@@ -102,23 +102,14 @@ const getInventory = async (req, res) => {
 const updateInventory = async (req, res) => {
     try {
         const stock = Math.max(0, Number(req.body.stock));
-        const stockMinimo = Math.max(0, Number(req.body.stock_minimo));
-        let stockMaximo = req.body.stock_maximo !== undefined && req.body.stock_maximo !== null
-            ? Math.max(0, Number(req.body.stock_maximo))
-            : null;
-
-        if (stockMaximo !== null && stock > stockMaximo) {
-            stockMaximo = stock;
+        if (Number.isNaN(stock)) {
+            return res.status(400).json({ success: false, message: 'Stock invalido' });
         }
 
-        const sql = stockMaximo !== null
-            ? 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = ? WHERE producto_id = ?'
-            : 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = GREATEST(COALESCE(stock_maximo, stock), ?) WHERE producto_id = ?';
-        const params = stockMaximo !== null
-            ? [stock, stockMinimo, stockMaximo, req.params.id]
-            : [stock, stockMinimo, stock, req.params.id];
-
-        const [result] = await pool.query(sql, params);
+        const [result] = await pool.query(
+            'UPDATE inventario SET stock = ? WHERE producto_id = ?',
+            [stock, req.params.id]
+        );
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Producto no encontrado en inventario' });
         }
@@ -142,24 +133,12 @@ const updateInventoryBatch = async (req, res) => {
         for (const item of items) {
             const productoId = Number(item.producto_id);
             const stock = Math.max(0, Number(item.stock));
-            const stockMinimo = Math.max(0, Number(item.stock_minimo));
-            if (!productoId || Number.isNaN(stock) || Number.isNaN(stockMinimo)) continue;
+            if (!productoId || Number.isNaN(stock)) continue;
 
-            let stockMaximo = item.stock_maximo !== undefined && item.stock_maximo !== null
-                ? Math.max(0, Number(item.stock_maximo))
-                : null;
-            if (stockMaximo !== null && stock > stockMaximo) {
-                stockMaximo = stock;
-            }
-
-            const sql = stockMaximo !== null
-                ? 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = ? WHERE producto_id = ?'
-                : 'UPDATE inventario SET stock = ?, stock_minimo = ?, stock_maximo = GREATEST(COALESCE(stock_maximo, stock), ?) WHERE producto_id = ?';
-            const params = stockMaximo !== null
-                ? [stock, stockMinimo, stockMaximo, productoId]
-                : [stock, stockMinimo, stock, productoId];
-
-            const [result] = await connection.query(sql, params);
+            const [result] = await connection.query(
+                'UPDATE inventario SET stock = ? WHERE producto_id = ?',
+                [stock, productoId]
+            );
             updated += result.affectedRows;
         }
 
@@ -192,7 +171,7 @@ const getReports = async (req, res) => {
         );
 
         const [lowStockProducts] = await pool.query(
-            'SELECT p.nombre, p.sku, i.stock, i.stock_minimo FROM inventario i JOIN productos p ON i.producto_id = p.id WHERE i.stock <= i.stock_minimo ORDER BY i.stock ASC'
+            'SELECT p.nombre, p.sku, i.stock FROM inventario i JOIN productos p ON i.producto_id = p.id WHERE i.stock <= 0 ORDER BY p.nombre ASC'
         );
 
         const [[{ totalRevenue }]] = await pool.query(

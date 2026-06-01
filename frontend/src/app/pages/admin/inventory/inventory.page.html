@@ -9,9 +9,9 @@
                     <input type="text" [(ngModel)]="searchQuery" (input)="applyFilters()" placeholder="Buscar...">
                 </div>
                 <label class="toggle-low-stock">
-                    <input type="checkbox" [(ngModel)]="lowStockOnly" (change)="applyFilters()">
+                    <input type="checkbox" [(ngModel)]="outOfStockOnly" (change)="applyFilters()">
                     <span class="toggle-slider"></span>
-                    Solo stock bajo
+                    Solo agotados
                 </label>
                 <button type="button" class="btn btn-outline" (click)="loadData()" [disabled]="loading || saving">
                     <span class="material-icons">refresh</span>
@@ -36,16 +36,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ stockOkCount }}</h3>
-                    <p>Stock OK</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(253,126,20,0.1); color: var(--warning);">
-                    <span class="material-icons">warning</span>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ stockLowCount }}</h3>
-                    <p>Stock Bajo</p>
+                    <p>Con stock</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -68,9 +59,7 @@
                             <th>SKU</th>
                             <th>Categoria</th>
                             <th>Marca</th>
-                            <th>Stock Actual</th>
-                            <th>Stock Minimo</th>
-                            <th>Stock Maximo</th>
+                            <th>Stock actual</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
@@ -86,19 +75,13 @@
                                 <input type="number" [(ngModel)]="item.stock" class="stock-input" min="0" step="1">
                             </td>
                             <td>
-                                <input type="number" [(ngModel)]="item.stock_minimo" class="stock-input" min="0" step="1">
-                            </td>
-                            <td>
-                                <input type="number" [(ngModel)]="item.stock_maximo" class="stock-input stock-input-wide" min="0" step="1">
-                            </td>
-                            <td>
                                 <span class="badge" [class]="getStockBadgeClass(getStockStatus(item))">
                                     {{ getStockLabel(getStockStatus(item)) }}
                                 </span>
                             </td>
                         </tr>
                         <tr *ngIf="filteredInventory.length === 0">
-                            <td colspan="8" class="empty-state">
+                            <td colspan="6" class="empty-state">
                                 <span class="material-icons">inventory_2</span>
                                 <p>No hay productos que coincidan</p>
                             </td>
