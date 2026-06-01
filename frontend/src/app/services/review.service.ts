@@ -27,6 +27,6 @@ export class ReviewService {
     }
 
     getUserReview(productId: number): Observable<{ success: boolean; data: Valoracion | null }> {
-        return this.http.get<{ success: boolean; data: Valoracion | null }>(`${this.apiUrl}/reviews/user-review/${productId}`);
+        return this.http.get<{ success: boolean; data: Valoracion | null }>(`${this.apiUrl}/reviews/my-review/${productId}`);
     }
 }

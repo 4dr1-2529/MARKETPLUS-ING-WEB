@@ -17,7 +17,7 @@ export class AddressesPage implements OnInit {
     editingId: number | null = null;
 
     formData: Partial<Direccion> = {
-        tipo: 'casa',
+        tipo: 'envio',
         destinatario: '',
         direccion_linea1: '',
         direccion_linea2: '',
@@ -65,7 +65,7 @@ export class AddressesPage implements OnInit {
         } else {
             this.editingId = null;
             this.formData = {
-                tipo: 'casa',
+                tipo: 'envio',
                 destinatario: '',
                 direccion_linea1: '',
                 direccion_linea2: '',
@@ -135,7 +135,7 @@ export class AddressesPage implements OnInit {
     }
 
     getTipoIcon(tipo: string): string {
-        const icons: Record<string, string> = { casa: 'home', trabajo: 'business', otro: 'location_on' };
+        const icons: Record<string, string> = { envio: 'local_shipping', facturacion: 'receipt_long', ambas: 'home' };
         return icons[tipo] || 'location_on';
     }
 

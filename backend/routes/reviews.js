@@ -15,7 +15,7 @@ const getByProduct = async (req, res) => {
         );
         res.json({ success: true, data: reviews });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al obtener valoraciones', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al obtener valoraciones' });
     }
 };
 
@@ -38,7 +38,7 @@ const create = async (req, res) => {
 
         res.status(201).json({ success: true, message: 'Valoracion creada exitosamente', data: { id: result.insertId } });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al crear valoracion', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al crear valoracion' });
     }
 };
 
@@ -50,7 +50,7 @@ const getUserReview = async (req, res) => {
         );
         res.json({ success: true, data: reviews[0] || null });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al obtener valoracion', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al obtener valoracion' });
     }
 };
 
@@ -59,7 +59,7 @@ const deleteReview = async (req, res) => {
         await pool.query('DELETE FROM valoraciones WHERE id = ? AND usuario_id = ?', [req.params.id, req.user.id]);
         res.json({ success: true, message: 'Valoracion eliminada' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al eliminar valoracion', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al eliminar valoracion' });
     }
 };
 

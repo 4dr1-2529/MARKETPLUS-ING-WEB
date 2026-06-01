@@ -148,6 +148,9 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
     try {
         const { token, password } = req.body;
+        if (!password || password.length < 8) {
+            return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 8 caracteres' });
+        }
         const [users] = await pool.query(
             'SELECT id FROM usuarios WHERE token_recuperacion = ? AND expiracion_token > NOW()',
             [token]
@@ -176,8 +179,8 @@ const changePassword = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Contraseñas requeridas' });
         }
 
-        if (nuevaPassword.length < 6) {
-            return res.status(400).json({ success: false, message: 'La nueva contraseña debe tener al menos 6 caracteres' });
+        if (nuevaPassword.length < 8) {
+            return res.status(400).json({ success: false, message: 'La nueva contraseña debe tener al menos 8 caracteres' });
         }
 
         const [users] = await pool.query('SELECT password FROM usuarios WHERE id = ?', [req.user.id]);
