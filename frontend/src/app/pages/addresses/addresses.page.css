@@ -83,26 +83,58 @@
 
 .address-footer { padding-top: 16px; border-top: 1px solid var(--gray-light); }
 
+.field-error { display: block; font-size: 12px; color: var(--danger, #dc3545); margin-top: 4px; }
+
+.store-pickup-info {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px; background: var(--primary-light); border-radius: var(--radius-sm);
+    margin-bottom: 16px; border: 1px solid var(--primary);
+}
+.store-pickup-info .material-icons { color: var(--primary); }
+.store-pickup-info p { margin: 0; font-size: 14px; }
+
+.form-select { background-color: var(--white); color: var(--text-primary); }
+
 /* MODAL */
-.modal-overlay {
+.address-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    padding: 20px;
+    z-index: 1100;
+    padding: 16px;
+    overflow-y: auto;
 }
 
-.modal-content {
+.address-modal {
+    display: flex;
+    flex-direction: column;
     background: var(--white);
     border-radius: var(--radius-lg);
     width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-width: 560px;
+    max-height: min(90vh, 720px);
     box-shadow: var(--shadow-lg);
+    margin: auto;
+}
+
+.address-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    overscroll-behavior: contain;
+}
+
+.address-modal-footer {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--gray-light);
+    background: var(--white);
 }
 
 .modal-header {

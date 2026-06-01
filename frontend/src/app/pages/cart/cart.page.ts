@@ -15,6 +15,7 @@ export class CartPage implements OnInit {
     subtotal = 0;
     totalItems = 0;
     loading = true;
+    processingItemId: number | null = null;
 
     constructor(
         private cartService: CartService,
@@ -33,6 +34,7 @@ export class CartPage implements OnInit {
     }
 
     loadCart(): void {
+        this.loading = true;
         this.cartService.getCart().subscribe({
             next: (res) => {
                 this.items = res.data.items;
@@ -46,12 +48,45 @@ export class CartPage implements OnInit {
     }
 
     updateQuantity(id: number, cantidad: number): void {
-        if (cantidad < 1) return;
-        this.cartService.updateQuantity(id, cantidad).subscribe(() => this.loadCart());
+        const item = this.items.find(i => i.id === id);
+        if (!item) return;
+        if (cantidad < 1) {
+            this.toast.warning('La cantidad minima es 1');
+            return;
+        }
+        const stock = Number(item.stock_disponible || 0);
+        if (stock > 0 && cantidad > stock) {
+            this.toast.warning(`Stock maximo disponible: ${stock}`);
+            return;
+        }
+
+        this.processingItemId = id;
+        this.cartService.updateQuantity(id, cantidad).subscribe({
+            next: () => {
+                this.processingItemId = null;
+                this.loadCart();
+            },
+            error: (err) => {
+                this.processingItemId = null;
+                this.toast.error(err.error?.message || 'No se pudo actualizar la cantidad');
+            }
+        });
     }
 
     removeItem(id: number): void {
-        this.cartService.removeFromCart(id).subscribe(() => this.loadCart());
+        if (!confirm('¿Deseas eliminar este producto del carrito?')) return;
+        this.processingItemId = id;
+        this.cartService.removeFromCart(id).subscribe({
+            next: () => {
+                this.processingItemId = null;
+                this.toast.info('Producto eliminado del carrito');
+                this.loadCart();
+            },
+            error: () => {
+                this.processingItemId = null;
+                this.toast.error('No se pudo eliminar el producto');
+            }
+        });
     }
 
     getUnitPrice(item: CarritoItem): number {
@@ -72,5 +107,11 @@ export class CartPage implements OnInit {
 
     getTotal(): number {
         return this.subtotal + this.getIgv() + this.getShipping();
+    }
+
+    canIncrease(item: CarritoItem): boolean {
+        const stock = Number(item.stock_disponible || 0);
+        if (!stock) return false;
+        return item.cantidad < stock;
     }
 }

@@ -18,9 +18,13 @@ export class AuthService {
     private loadUser(): void {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
-        if (token && user) {
-            this.currentUserSubject.next(JSON.parse(user));
-            return;
+        if (token && user && this.isTokenValid(token)) {
+            try {
+                this.currentUserSubject.next(JSON.parse(user));
+                return;
+            } catch {
+                // fall through to clear invalid persisted session state
+            }
         }
 
         // Keep auth state consistent if one of the values is missing/corrupted.
@@ -34,7 +38,13 @@ export class AuthService {
     }
 
     get isAuthenticated(): boolean {
-        return !!this.token;
+        const token = this.token;
+        if (!token) return false;
+        if (!this.isTokenValid(token)) {
+            this.logout();
+            return false;
+        }
+        return true;
     }
 
     get isAdmin(): boolean {
@@ -107,5 +117,18 @@ export class AuthService {
 
     private getHeaders(): HttpHeaders {
         return new HttpHeaders({ 'Authorization': `Bearer ${this.token}` });
+    }
+
+    private isTokenValid(token: string): boolean {
+        try {
+            const payloadBase64 = token.split('.')[1];
+            if (!payloadBase64) return false;
+            const payload = JSON.parse(atob(payloadBase64));
+            if (!payload.exp) return true;
+            const nowInSeconds = Math.floor(Date.now() / 1000);
+            return payload.exp > nowInSeconds;
+        } catch {
+            return false;
+        }
     }
 }

@@ -1,6 +1,18 @@
 .auth-container-lg { max-width: 560px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-hint { display: block; font-size: 12px; color: var(--dark-light); margin-top: 4px; }
+.field-error { display: block; font-size: 12px; color: #e74c3c; margin-top: 4px; }
+
+.alert-success {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(46, 204, 113, 0.1);
+    color: #145a32;
+    margin-bottom: 12px;
+}
 
 @media (max-width: 480px) {
     .form-row { grid-template-columns: 1fr; }

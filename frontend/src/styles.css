@@ -1,5 +1,9 @@
 /* MARKETPLUS - Design system */
 
+body.modal-open {
+    overflow: hidden;
+}
+
 :root,
 [data-theme="light"] {
     --primary: #2563eb;

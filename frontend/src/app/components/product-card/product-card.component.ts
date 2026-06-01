@@ -37,9 +37,6 @@ export class ProductCardComponent implements OnInit {
         if (this.imageFallbackStep === 0) {
             this.imageFallbackStep = 1;
             this.imageUrl = getCategoryFallbackUrl(this.product.categoria_slug);
-        } else if (this.imageFallbackStep === 1) {
-            this.imageFallbackStep = 2;
-            this.imageUrl = 'assets/images/placeholder.svg';
         }
     }
 
@@ -99,11 +96,15 @@ export class ProductCardComponent implements OnInit {
             return;
         }
         this.cartService.addToCart(this.product.id, 1).subscribe({
-            next: () => {
+            next: (res) => {
                 this.cartService.updateCount(this.cartService.getCount() + 1);
-                this.toast.success('Producto agregado al carrito');
+                if (res.message === 'Cantidad actualizada en el carrito') {
+                    this.toast.success('Cantidad actualizada en el carrito');
+                } else {
+                    this.toast.success('Producto agregado al carrito');
+                }
             },
-            error: (err) => this.toast.error(err.error?.message || 'Error al agregar')
+            error: (err) => this.toast.error(err.error?.message || 'No se pudo agregar el producto')
         });
     }
 }

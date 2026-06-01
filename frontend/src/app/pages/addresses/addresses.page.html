@@ -1,23 +1,23 @@
 <div class="addresses-page container" [@fadeIn]>
     <div class="page-header">
-        <h1><span class="material-icons">location_on</span> Mis Direcciones</h1>
-        <p>Administra tus direcciones de envio</p>
-        <button (click)="openModal()" class="btn btn-primary">
+        <h1><span class="material-icons">local_shipping</span> Mis Entregas</h1>
+        <p>Administra tus opciones de entrega: domicilio o recojo en tienda</p>
+        <button type="button" (click)="openModal()" class="btn btn-primary">
             <span class="material-icons">add</span>
-            Nueva Direccion
+            Nueva entrega
         </button>
     </div>
 
     <div *ngIf="loading" class="loading-state">
         <span class="spinner"></span>
-        <p>Cargando direcciones...</p>
+        <p>Cargando entregas...</p>
     </div>
 
     <div *ngIf="!loading && addresses.length === 0" class="empty-state">
         <span class="material-icons">map</span>
-        <h2>No tienes direcciones registradas</h2>
-        <p>Agrega una direccion para realizar tus compras</p>
-        <button (click)="openModal()" class="btn btn-primary">Agregar Direccion</button>
+        <h2>No tienes entregas registradas</h2>
+        <p>Agrega domicilio o recojo en tienda para realizar tus compras</p>
+        <button type="button" (click)="openModal()" class="btn btn-primary">Agregar entrega</button>
     </div>
 
     <div class="addresses-grid" *ngIf="!loading && addresses.length > 0">
@@ -27,14 +27,14 @@
                     <span class="material-icons">{{ getTipoIcon(addr.tipo) }}</span>
                 </div>
                 <div class="address-type">
-                    <h3>{{ addr.tipo | titlecase }}</h3>
+                    <h3>{{ getTipoLabel(addr.tipo) }}</h3>
                     <span *ngIf="addr.es_principal" class="badge badge-primary">Principal</span>
                 </div>
                 <div class="address-actions">
-                    <button (click)="openModal(addr)" class="btn-icon" title="Editar">
+                    <button type="button" (click)="openModal(addr)" class="btn-icon" title="Editar">
                         <span class="material-icons">edit</span>
                     </button>
-                    <button (click)="deleteAddress(addr.id!)" class="btn-icon btn-icon-danger" title="Eliminar">
+                    <button type="button" (click)="deleteAddress(addr.id!)" class="btn-icon btn-icon-danger" title="Eliminar">
                         <span class="material-icons">delete</span>
                     </button>
                 </div>
@@ -43,6 +43,7 @@
             <div class="address-body">
                 <p class="address-recipient"><strong>{{ addr.destinatario }}</strong></p>
                 <p class="address-full">{{ getFullAddress(addr) }}</p>
+                <p *ngIf="addr.dni_contacto" class="address-ref">DNI recoge: {{ addr.dni_contacto }}</p>
                 <p *ngIf="addr.referencia" class="address-ref">Ref: {{ addr.referencia }}</p>
                 <p *ngIf="addr.telefono" class="address-phone">
                     <span class="material-icons">phone</span> {{ addr.telefono }}
@@ -50,7 +51,7 @@
             </div>
 
             <div class="address-footer" *ngIf="!addr.es_principal">
-                <button (click)="setPrimary(addr.id!)" class="btn btn-sm btn-outline">
+                <button type="button" (click)="setPrimary(addr.id!)" class="btn btn-sm btn-outline">
                     <span class="material-icons">star</span>
                     Establecer como principal
                 </button>
@@ -58,89 +59,101 @@
         </div>
     </div>
 
-    <!-- MODAL -->
-    <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()" [@scale]>
+    <div class="modal-overlay address-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+        <div class="modal-content address-modal" (click)="$event.stopPropagation()" [@scale]>
             <div class="modal-header">
-                <h2>{{ editingId ? 'Editar Direccion' : 'Nueva Direccion' }}</h2>
-                <button (click)="closeModal()" class="btn-close">
+                <h2>{{ editingId ? 'Editar entrega' : 'Nueva entrega' }}</h2>
+                <button type="button" (click)="closeModal()" class="btn-close" aria-label="Cerrar">
                     <span class="material-icons">close</span>
                 </button>
             </div>
 
-            <div class="modal-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Tipo de direccion</label>
-                        <select [(ngModel)]="formData.tipo" class="form-control">
-                            <option value="envio">Envio</option>
-                            <option value="facturacion">Facturacion</option>
-                            <option value="ambas">Ambas</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Destinatario *</label>
-                        <input type="text" [(ngModel)]="formData.destinatario" class="form-control" placeholder="Nombre completo">
-                    </div>
-                </div>
-
+            <div class="modal-body address-modal-body">
                 <div class="form-group">
-                    <label class="form-label">Direccion (Linea 1) *</label>
-                    <input type="text" [(ngModel)]="formData.direccion_linea1" class="form-control" placeholder="Av. / Jr. / Calle">
+                    <label for="tipoEntregaAddr" class="form-label">Tipo de entrega *</label>
+                    <select id="tipoEntregaAddr" [(ngModel)]="formData.tipo" class="form-control form-select" (ngModelChange)="onTipoEntregaChange($event)">
+                        <option value="domicilio">Domicilio</option>
+                        <option value="recojo_tienda">Recojo en tienda</option>
+                    </select>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Direccion (Linea 2)</label>
-                    <input type="text" [(ngModel)]="formData.direccion_linea2" class="form-control" placeholder="Interior, piso, departamento">
+                <div *ngIf="isDomicilioForm">
+                    <div class="form-group">
+                        <label for="destinatarioAddr" class="form-label">Destinatario *</label>
+                        <input id="destinatarioAddr" type="text" [(ngModel)]="formData.destinatario" class="form-control" placeholder="Nombre completo">
+                        <small class="field-error" *ngIf="showError(destinatarioError)">{{ destinatarioError }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="direccionAddr" class="form-label">Direccion *</label>
+                        <input id="direccionAddr" type="text" [(ngModel)]="formData.direccion_linea1" class="form-control" placeholder="Av. / Jr. / Calle">
+                        <small class="field-error" *ngIf="showError(direccionError)">{{ direccionError }}</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="departamentoAddr" class="form-label">Departamento *</label>
+                            <input id="departamentoAddr" type="text" [(ngModel)]="formData.departamento" class="form-control" placeholder="Ej. Junin">
+                            <small class="field-error" *ngIf="showError(departamentoError)">{{ departamentoError }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="provinciaAddr" class="form-label">Provincia *</label>
+                            <input id="provinciaAddr" type="text" [(ngModel)]="formData.provincia" class="form-control" placeholder="Huancayo">
+                            <small class="field-error" *ngIf="showError(provinciaError)">{{ provinciaError }}</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="distritoAddr" class="form-label">Distrito *</label>
+                            <input id="distritoAddr" type="text" [(ngModel)]="formData.distrito" class="form-control" placeholder="El Tambo">
+                            <small class="field-error" *ngIf="showError(distritoError)">{{ distritoError }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefonoAddr" class="form-label">Telefono *</label>
+                            <input id="telefonoAddr" type="text" [(ngModel)]="formData.telefono" class="form-control" placeholder="999888777" maxlength="9" inputmode="numeric" (input)="onNumericField('telefono', $event)">
+                            <small class="field-error" *ngIf="showError(telefonoError)">{{ telefonoError }}</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="referenciaAddr" class="form-label">Referencia (opcional)</label>
+                        <input id="referenciaAddr" type="text" [(ngModel)]="formData.referencia" class="form-control" placeholder="Cerca de..." maxlength="120">
+                        <small class="field-error" *ngIf="showError(referenciaError)">{{ referenciaError }}</small>
+                    </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Departamento *</label>
-                        <select [(ngModel)]="formData.departamento" class="form-control">
-                            <option value="">Seleccionar</option>
-                            <option *ngFor="let dep of departamentos" [value]="dep">{{ dep }}</option>
-                        </select>
+                <div *ngIf="!isDomicilioForm">
+                    <div class="store-pickup-info">
+                        <span class="material-icons">store</span>
+                        <p>{{ tiendaInfo }}</p>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Provincia *</label>
-                        <input type="text" [(ngModel)]="formData.provincia" class="form-control" placeholder="Provincia">
+                        <label for="recogeNombreAddr" class="form-label">Nombre de quien recoge *</label>
+                        <input id="recogeNombreAddr" type="text" [(ngModel)]="formData.destinatario" class="form-control" placeholder="Nombre completo">
+                        <small class="field-error" *ngIf="showError(destinatarioError)">{{ destinatarioError }}</small>
                     </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Distrito *</label>
-                        <input type="text" [(ngModel)]="formData.distrito" class="form-control" placeholder="Distrito">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Codigo Postal</label>
-                        <input type="text" [(ngModel)]="formData.codigo_postal" class="form-control" placeholder="15001">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Telefono</label>
-                        <input type="tel" [(ngModel)]="formData.telefono" class="form-control" placeholder="999 999 999">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Referencia</label>
-                        <input type="text" [(ngModel)]="formData.referencia" class="form-control" placeholder="Cerca de...">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="recogeDniAddr" class="form-label">DNI de quien recoge *</label>
+                            <input id="recogeDniAddr" type="text" [(ngModel)]="formData.dni_contacto" class="form-control" placeholder="12345678" maxlength="8" inputmode="numeric" (input)="onNumericField('dni_contacto', $event)">
+                            <small class="field-error" *ngIf="showError(dniRecojoError)">{{ dniRecojoError }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefonoRecojoAddr" class="form-label">Telefono *</label>
+                            <input id="telefonoRecojoAddr" type="text" [(ngModel)]="formData.telefono" class="form-control" placeholder="999888777" maxlength="9" inputmode="numeric" (input)="onNumericField('telefono', $event)">
+                            <small class="field-error" *ngIf="showError(telefonoError)">{{ telefonoError }}</small>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" [(ngModel)]="formData.es_principal">
-                        <span>Establecer como direccion principal</span>
+                        <span>Establecer como entrega principal</span>
                     </label>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button (click)="closeModal()" class="btn btn-secondary">Cancelar</button>
-                <button (click)="saveAddress()" class="btn btn-primary">
+            <div class="modal-footer address-modal-footer">
+                <button type="button" (click)="closeModal()" class="btn btn-secondary">Cancelar</button>
+                <button type="button" (click)="saveAddress()" class="btn btn-primary">
                     {{ editingId ? 'Actualizar' : 'Guardar' }}
                 </button>
             </div>

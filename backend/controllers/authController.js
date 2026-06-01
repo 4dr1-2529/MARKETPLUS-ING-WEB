@@ -4,33 +4,58 @@ const { pool } = require('../config/database');
 
 const register = async (req, res) => {
     try {
-        const { nombres, apellidos, email, password, telefono, dni } = req.body;
+        const { username, nombres, apellidos, email, password, telefono, dni } = req.body;
+        const normalizedUsername = String(username || '').trim();
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+        const normalizedDni = String(dni || '').trim() || null;
+        const normalizedTelefono = String(telefono || '').trim() || null;
 
-        const [existing] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [email]);
-        if (existing.length > 0) {
+        const [existingByUsername] = await pool.query('SELECT id FROM usuarios WHERE username = ?', [normalizedUsername]);
+        if (existingByUsername.length > 0) {
+            return res.status(400).json({ success: false, message: 'El nombre de usuario ya está en uso' });
+        }
+
+        const [existingByEmail] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [normalizedEmail]);
+        if (existingByEmail.length > 0) {
             return res.status(400).json({ success: false, message: 'El email ya está registrado' });
+        }
+
+        if (normalizedDni) {
+            const [existingByDni] = await pool.query('SELECT id FROM usuarios WHERE dni = ?', [normalizedDni]);
+            if (existingByDni.length > 0) {
+                return res.status(400).json({ success: false, message: 'El DNI ya está registrado' });
+            }
+        }
+
+        if (normalizedTelefono) {
+            const [existingByTelefono] = await pool.query('SELECT id FROM usuarios WHERE telefono = ?', [normalizedTelefono]);
+            if (existingByTelefono.length > 0) {
+                return res.status(400).json({ success: false, message: 'El telefono ya está registrado' });
+            }
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await pool.query(
-            'INSERT INTO usuarios (role_id, nombres, apellidos, email, password, telefono, dni) VALUES (2, ?, ?, ?, ?, ?, ?)',
-            [nombres, apellidos, email, hashedPassword, telefono, dni]
+            'INSERT INTO usuarios (role_id, username, nombres, apellidos, email, password, telefono, dni) VALUES (2, ?, ?, ?, ?, ?, ?, ?)',
+            [normalizedUsername, nombres, apellidos, normalizedEmail, hashedPassword, normalizedTelefono, normalizedDni]
         );
 
         const token = jwt.sign(
-            { id: result.insertId, email, role: 'usuario' },
+            { id: result.insertId, email: normalizedEmail, username: normalizedUsername, role: 'usuario' },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
         res.status(201).json({
             success: true,
-            message: 'Usuario registrado exitosamente',
+            message: 'Cuenta creada correctamente',
             data: {
                 id: result.insertId,
+                username: normalizedUsername,
                 nombres,
                 apellidos,
-                email,
+                email: normalizedEmail,
+                role: 'usuario',
                 token
             }
         });
@@ -41,11 +66,20 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const identifierRaw = String(req.body.identifier || req.body.email || '').trim();
+        const emailCandidate = identifierRaw.toLowerCase();
+        if (/^\d{8,15}$/.test(identifierRaw)) {
+            return res.status(400).json({ success: false, message: 'Ingresa email o nombre de usuario, no DNI ni telefono' });
+        }
+        const { password } = req.body;
 
         const [users] = await pool.query(
-            'SELECT u.id, u.nombres, u.apellidos, u.email, u.password, u.estado, u.avatar, r.nombre as role FROM usuarios u JOIN roles r ON u.role_id = r.id WHERE u.email = ?',
-            [email]
+            `SELECT u.id, u.username, u.nombres, u.apellidos, u.email, u.password, u.estado, u.avatar, r.nombre as role
+             FROM usuarios u
+             JOIN roles r ON u.role_id = r.id
+             WHERE u.email = ? OR u.username = ?
+             LIMIT 1`,
+            [emailCandidate, identifierRaw]
         );
 
         if (users.length === 0) {
@@ -75,6 +109,7 @@ const login = async (req, res) => {
             message: 'Inicio de sesión exitoso',
             data: {
                 id: user.id,
+                username: user.username,
                 nombres: user.nombres,
                 apellidos: user.apellidos,
                 email: user.email,
@@ -91,7 +126,7 @@ const login = async (req, res) => {
 const getProfile = async (req, res) => {
     try {
         const [users] = await pool.query(
-            'SELECT u.id, u.nombres, u.apellidos, u.email, u.telefono, u.dni, u.avatar, u.estado, u.creado_en, r.nombre as role FROM usuarios u JOIN roles r ON u.role_id = r.id WHERE u.id = ?',
+            'SELECT u.id, u.username, u.nombres, u.apellidos, u.email, u.telefono, u.dni, u.avatar, u.estado, u.creado_en, r.nombre as role FROM usuarios u JOIN roles r ON u.role_id = r.id WHERE u.id = ?',
             [req.user.id]
         );
 
@@ -107,10 +142,33 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const { nombres, apellidos, telefono, dni } = req.body;
+        const { username, nombres, apellidos, telefono, dni } = req.body;
+        const normalizedUsername = username ? String(username).trim() : null;
+        const normalizedTelefono = telefono ? String(telefono).trim() : null;
+        const normalizedDni = dni ? String(dni).trim() : null;
+
+        if (normalizedUsername) {
+            const [existingUsername] = await pool.query('SELECT id FROM usuarios WHERE username = ? AND id <> ?', [normalizedUsername, req.user.id]);
+            if (existingUsername.length > 0) {
+                return res.status(400).json({ success: false, message: 'El nombre de usuario ya está en uso' });
+            }
+        }
+        if (normalizedDni) {
+            const [existingDni] = await pool.query('SELECT id FROM usuarios WHERE dni = ? AND id <> ?', [normalizedDni, req.user.id]);
+            if (existingDni.length > 0) {
+                return res.status(400).json({ success: false, message: 'El DNI ya está registrado' });
+            }
+        }
+        if (normalizedTelefono) {
+            const [existingTelefono] = await pool.query('SELECT id FROM usuarios WHERE telefono = ? AND id <> ?', [normalizedTelefono, req.user.id]);
+            if (existingTelefono.length > 0) {
+                return res.status(400).json({ success: false, message: 'El telefono ya está registrado' });
+            }
+        }
+
         await pool.query(
-            'UPDATE usuarios SET nombres = ?, apellidos = ?, telefono = ?, dni = ? WHERE id = ?',
-            [nombres, apellidos, telefono, dni, req.user.id]
+            'UPDATE usuarios SET username = COALESCE(?, username), nombres = ?, apellidos = ?, telefono = ?, dni = ? WHERE id = ?',
+            [normalizedUsername, nombres, apellidos, normalizedTelefono, normalizedDni, req.user.id]
         );
         res.json({ success: true, message: 'Perfil actualizado exitosamente' });
     } catch (error) {
@@ -126,7 +184,7 @@ const forgotPassword = async (req, res) => {
             return res.json({ success: true, message: 'Si el email existe, recibirás instrucciones de recuperación' });
         }
 
-        const crypto = require('crypto');
+        const crypto = require('node:crypto');
         const token = crypto.randomBytes(32).toString('hex');
         const expiracion = new Date(Date.now() + 3600000);
 

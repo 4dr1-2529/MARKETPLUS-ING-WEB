@@ -32,6 +32,7 @@ export interface CarritoItem {
     cantidad: number;
     categoria?: string;
     marca?: string;
+    stock_disponible?: number;
 }
 
 export interface CarritoResponse {
