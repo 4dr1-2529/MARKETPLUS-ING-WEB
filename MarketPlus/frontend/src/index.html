@@ -29,11 +29,11 @@
         (function() {
             const API = 'http://localhost:3001/api';
             const apiStatus = document.getElementById('api-status');
-            fetch(API + '/products?page=1&limit=1', { mode: 'cors' })
+            fetch(API + '/health', { mode: 'cors' })
                 .then(r => r.json())
                 .then(d => {
                     apiStatus.className = 'ok';
-                    apiStatus.textContent = '✅ API OK - ' + d.pagination.total + ' productos';
+                    apiStatus.textContent = '✅ ' + (d.message || 'API OK');
                 })
                 .catch(e => {
                     apiStatus.className = 'err';

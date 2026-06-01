@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const { toSlug } = require('../utils/slug');
 
 /** Búsqueda por palabras (todas deben coincidir) + parámetros de relevancia para ORDER BY */
 function applySearchFilters(search, params, countParams) {
@@ -176,6 +177,26 @@ const getById = async (req, res) => {
     }
 };
 
+const getAllAdmin = async (req, res) => {
+    try {
+        const limit = Math.min(parseInt(req.query.limit, 10) || 500, 1000);
+        const [products] = await pool.query(
+            `SELECT p.id, p.nombre, p.slug, p.descripcion, p.precio, p.precio_oferta, p.descuento_porcentaje,
+                    p.sku, p.estado, p.destacado, p.nuevo, p.imagen_principal, p.garantia_meses,
+                    p.categoria_id, p.marca_id, c.nombre AS categoria, m.nombre AS marca
+             FROM productos p
+             JOIN categorias c ON p.categoria_id = c.id
+             JOIN marcas m ON p.marca_id = m.id
+             ORDER BY p.id DESC
+             LIMIT ?`,
+            [limit]
+        );
+        res.json({ success: true, data: products });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener productos admin', error: error.message });
+    }
+};
+
 const getFeatured = async (req, res) => {
     try {
         const [products] = await pool.query(
@@ -193,7 +214,7 @@ const getFeatured = async (req, res) => {
 const create = async (req, res) => {
     try {
         const { nombre, categoria_id, marca_id, proveedor_id, descripcion, precio, precio_oferta, sku, garantia_meses, destacado, nuevo, imagen_principal } = req.body;
-        const slug = nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const slug = toSlug(nombre);
 
         const [result] = await pool.query(
             'INSERT INTO productos (categoria_id, marca_id, proveedor_id, nombre, slug, descripcion, precio, precio_oferta, sku, garantia_meses, destacado, nuevo, imagen_principal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -210,13 +231,34 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
     try {
-        const { nombre, categoria_id, marca_id, descripcion, precio, precio_oferta, sku, garantia_meses, destacado, estado, imagen_principal } = req.body;
-        const slug = nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const [rows] = await pool.query('SELECT * FROM productos WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+        }
 
-        await pool.query(
+        const current = rows[0];
+        const body = req.body;
+        const nombre = body.nombre !== undefined ? body.nombre : current.nombre;
+        const categoria_id = body.categoria_id !== undefined ? body.categoria_id : current.categoria_id;
+        const marca_id = body.marca_id !== undefined ? body.marca_id : current.marca_id;
+        const descripcion = body.descripcion !== undefined ? body.descripcion : current.descripcion;
+        const precio = body.precio !== undefined ? body.precio : current.precio;
+        const precio_oferta = body.precio_oferta !== undefined ? body.precio_oferta : current.precio_oferta;
+        const sku = body.sku !== undefined ? body.sku : current.sku;
+        const garantia_meses = body.garantia_meses !== undefined ? body.garantia_meses : current.garantia_meses;
+        const destacado = body.destacado !== undefined ? body.destacado : current.destacado;
+        const estado = body.estado !== undefined ? body.estado : current.estado;
+        const imagen_principal = body.imagen_principal !== undefined ? body.imagen_principal : current.imagen_principal;
+        const slug = toSlug(nombre);
+
+        const [result] = await pool.query(
             'UPDATE productos SET nombre = ?, slug = ?, categoria_id = ?, marca_id = ?, descripcion = ?, precio = ?, precio_oferta = ?, sku = ?, garantia_meses = ?, destacado = ?, estado = ?, imagen_principal = ? WHERE id = ?',
             [nombre, slug, categoria_id, marca_id, descripcion, precio, precio_oferta, sku, garantia_meses, destacado, estado, imagen_principal, req.params.id]
         );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+        }
 
         res.json({ success: true, message: 'Producto actualizado exitosamente' });
     } catch (error) {
@@ -233,4 +275,4 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-module.exports = { getAll, getById, getFeatured, create, update, deleteProduct };
+module.exports = { getAll, getAllAdmin, getById, getFeatured, create, update, deleteProduct };

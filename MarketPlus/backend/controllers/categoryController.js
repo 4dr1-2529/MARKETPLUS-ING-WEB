@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const { toSlug } = require('../utils/slug');
 
 const getAll = async (req, res) => {
     try {
@@ -34,7 +35,7 @@ const getAllAdmin = async (req, res) => {
 const create = async (req, res) => {
     try {
         const { nombre, descripcion, padre_id } = req.body;
-        const slug = nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const slug = toSlug(nombre);
         const [result] = await pool.query('INSERT INTO categorias (nombre, slug, descripcion, padre_id) VALUES (?, ?, ?, ?)', [nombre, slug, descripcion, padre_id || null]);
         res.status(201).json({ success: true, message: 'Categoria creada', data: { id: result.insertId, slug } });
     } catch (error) {
@@ -45,8 +46,17 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { nombre, descripcion, estado, padre_id } = req.body;
-        const slug = nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        await pool.query('UPDATE categorias SET nombre = ?, slug = ?, descripcion = ?, estado = ?, padre_id = ? WHERE id = ?', [nombre, slug, descripcion, estado, padre_id, req.params.id]);
+        if (!nombre || !String(nombre).trim()) {
+            return res.status(400).json({ success: false, message: 'El nombre es obligatorio' });
+        }
+        const slug = toSlug(nombre);
+        const [result] = await pool.query(
+            'UPDATE categorias SET nombre = ?, slug = ?, descripcion = ?, estado = ?, padre_id = ? WHERE id = ?',
+            [nombre.trim(), slug, descripcion, estado, padre_id ?? null, req.params.id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Categoria no encontrada' });
+        }
         res.json({ success: true, message: 'Categoria actualizada' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al actualizar categoria', error: error.message });

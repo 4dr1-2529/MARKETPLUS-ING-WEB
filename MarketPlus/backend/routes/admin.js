@@ -10,6 +10,7 @@ router.get('/dashboard', adminController.getDashboard);
 router.get('/users', adminController.getAllUsers);
 router.put('/users/:id', adminController.updateUser);
 router.get('/inventory', adminController.getInventory);
+router.put('/inventory/batch', adminController.updateInventoryBatch);
 router.put('/inventory/:id', adminController.updateInventory);
 router.get('/reports', adminController.getReports);
 

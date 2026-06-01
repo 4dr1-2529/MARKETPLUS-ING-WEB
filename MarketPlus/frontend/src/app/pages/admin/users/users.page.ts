@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../../services/admin.service';
 import { ToastService } from '../../../services/toast.service';
+import { getApiErrorMessage } from '../../../utils/api-error.util';
 
 @Component({
     selector: 'app-admin-users',
@@ -10,6 +11,7 @@ import { ToastService } from '../../../services/toast.service';
 export class AdminUsersPage implements OnInit {
     users: any[] = [];
     showModal = false;
+    saving = false;
     editForm: any = {};
 
     constructor(
@@ -50,19 +52,29 @@ export class AdminUsersPage implements OnInit {
             this.toast.warning('Nombre y apellidos son obligatorios');
             return;
         }
+        const telefono = this.editForm.telefono?.trim();
+        if (telefono && !/^\d{9}$/.test(telefono)) {
+            this.toast.warning('El telefono debe tener 9 digitos');
+            return;
+        }
+        this.saving = true;
         this.adminService.updateUser(this.editForm.id, {
             nombres: this.editForm.nombres.trim(),
             apellidos: this.editForm.apellidos.trim(),
-            telefono: this.editForm.telefono?.trim() || null,
+            telefono: telefono || null,
             estado: this.editForm.estado,
             role_id: Number(this.editForm.role_id)
         }).subscribe({
             next: () => {
+                this.saving = false;
                 this.toast.success('Usuario actualizado');
                 this.closeModal();
                 this.loadUsers();
             },
-            error: (err) => this.toast.error(err.error?.message || 'Error al actualizar usuario')
+            error: (err) => {
+                this.saving = false;
+                this.toast.error(getApiErrorMessage(err, 'Error al actualizar usuario'));
+            }
         });
     }
 
