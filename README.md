@@ -12,7 +12,7 @@ Plataforma e-commerce de productos tecnológicos (Angular + Node.js/Express + My
 
 ## Stack tecnológico
 
-- **Frontend:** Angular 21, TypeScript, RxJS
+- **Frontend:** Angular 17, TypeScript, RxJS
 - **Backend:** Node.js, Express, JWT, bcrypt
 - **Base de datos:** MySQL 8.0
 
