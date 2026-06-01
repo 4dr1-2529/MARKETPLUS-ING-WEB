@@ -16,6 +16,7 @@ export class AdminInventoryPage implements OnInit {
     stockOkCount = 0;
     stockLowCount = 0;
     stockOutCount = 0;
+    saving = false;
 
     constructor(private adminService: AdminService, private toast: ToastService) {}
 
@@ -60,11 +61,58 @@ export class AdminInventoryPage implements OnInit {
     }
 
     updateStock(id: number, stock: number, min: number): void {
-        if (stock < 0) stock = 0;
-        this.adminService.updateInventory(id, { stock, stock_minimo: min }).subscribe({
-            next: () => this.toast.success('Inventario actualizado'),
-            error: () => this.toast.error('Error al actualizar')
+        const stockNum = Math.max(0, Number(stock));
+        const minNum = Math.max(0, Number(min));
+        this.adminService.updateInventory(id, { stock: stockNum, stock_minimo: minNum }).subscribe({
+            next: () => {
+                const item = this.inventory.find(i => i.producto_id === id);
+                if (item) {
+                    item.stock = stockNum;
+                    item.stock_minimo = minNum;
+                }
+                this.updateCounts();
+                this.applyFilters();
+            },
+            error: (err) => this.toast.error(err.error?.message || 'Error al actualizar fila')
         });
+    }
+
+    saveAllInventory(): void {
+        if (!this.filteredInventory.length) {
+            this.toast.warning('No hay productos para guardar');
+            return;
+        }
+        this.saving = true;
+        let completed = 0;
+        let errors = 0;
+        const total = this.filteredInventory.length;
+
+        this.filteredInventory.forEach((item) => {
+            const stockNum = Math.max(0, Number(item.stock));
+            const minNum = Math.max(0, Number(item.stock_minimo));
+            this.adminService.updateInventory(item.producto_id, { stock: stockNum, stock_minimo: minNum }).subscribe({
+                next: () => {
+                    item.stock = stockNum;
+                    item.stock_minimo = minNum;
+                    completed++;
+                    if (completed + errors === total) this.finishSave(errors);
+                },
+                error: () => {
+                    errors++;
+                    if (completed + errors === total) this.finishSave(errors);
+                }
+            });
+        });
+    }
+
+    private finishSave(errors: number): void {
+        this.saving = false;
+        this.updateCounts();
+        if (errors > 0) {
+            this.toast.warning(`Guardado con ${errors} error(es)`);
+        } else {
+            this.toast.success('Inventario guardado correctamente');
+        }
     }
 
     getStockStatus(item: any): string {

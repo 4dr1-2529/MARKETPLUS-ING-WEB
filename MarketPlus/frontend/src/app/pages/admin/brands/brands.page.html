@@ -6,7 +6,7 @@
                 <h1>Gestion de Marcas</h1>
                 <p>Administra las marcas de productos</p>
             </div>
-            <button class="btn btn-primary">
+            <button type="button" class="btn btn-primary" (click)="openNew()">
                 <span class="material-icons">add</span>
                 Nueva Marca
             </button>
@@ -40,12 +40,45 @@
                                 <span class="badge badge-{{ b.estado === 'activo' ? 'success' : 'danger' }}">{{ b.estado }}</span>
                             </td>
                             <td class="actions-cell">
-                                <button class="btn-icon btn-icon-edit"><span class="material-icons">edit</span></button>
-                                <button class="btn-icon btn-icon-delete"><span class="material-icons">delete</span></button>
+                                <button type="button" class="btn-icon btn-icon-edit" (click)="openEdit(b)" title="Editar">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button type="button" class="btn-icon btn-icon-delete" (click)="deleteBrand(b)" title="Eliminar">
+                                    <span class="material-icons">delete</span>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+        <div class="admin-modal" (click)="$event.stopPropagation()">
+            <h2>{{ isNew ? 'Nueva marca' : 'Editar marca' }}</h2>
+            <div class="form-group">
+                <label class="form-label">Nombre *</label>
+                <input type="text" class="form-control" [(ngModel)]="form.nombre">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pais de origen</label>
+                <input type="text" class="form-control" [(ngModel)]="form.pais_origen">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Sitio web</label>
+                <input type="text" class="form-control" [(ngModel)]="form.sitio_web">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Estado</label>
+                <select class="form-control" [(ngModel)]="form.estado">
+                    <option value="activo">activo</option>
+                    <option value="inactivo">inactivo</option>
+                </select>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" (click)="save()">Guardar</button>
             </div>
         </div>
     </div>

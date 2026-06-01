@@ -13,9 +13,13 @@
                     <span class="toggle-slider"></span>
                     Solo stock bajo
                 </label>
-                <button class="btn btn-primary" (click)="loadData()">
+                <button type="button" class="btn btn-outline" (click)="loadData()" [disabled]="loading || saving">
                     <span class="material-icons">refresh</span>
-                    Actualizar
+                    Recargar
+                </button>
+                <button type="button" class="btn btn-primary" (click)="saveAllInventory()" [disabled]="loading || saving">
+                    <span class="material-icons">save</span>
+                    {{ saving ? 'Guardando...' : 'Guardar cambios' }}
                 </button>
             </div>
         </div>
@@ -78,10 +82,10 @@
                             <td><span class="category-tag">{{ item.categoria }}</span></td>
                             <td>{{ item.marca }}</td>
                             <td>
-                                <input type="number" [(ngModel)]="item.stock" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input" min="0">
+                                <input type="number" [(ngModel)]="item.stock" class="stock-input" min="0">
                             </td>
                             <td>
-                                <input type="number" [(ngModel)]="item.stock_minimo" (change)="updateStock(item.producto_id, item.stock, item.stock_minimo)" class="stock-input" min="0">
+                                <input type="number" [(ngModel)]="item.stock_minimo" class="stock-input" min="0">
                             </td>
                             <td>
                                 <span class="badge" [class]="getStockBadgeClass(getStockStatus(item))">

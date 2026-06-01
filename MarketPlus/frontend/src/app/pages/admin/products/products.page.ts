@@ -16,6 +16,8 @@ export class AdminProductsPage implements OnInit {
     loading = true;
     searchQuery = '';
     filteredProducts: any[] = [];
+    showModal = false;
+    editForm: any = {};
 
     constructor(
         private productService: ProductService,
@@ -73,6 +75,57 @@ export class AdminProductsPage implements OnInit {
 
     viewProduct(slug: string): void {
         window.open(`/producto/${slug}`, '_blank');
+    }
+
+    openEdit(product: any): void {
+        this.editForm = {
+            id: product.id,
+            nombre: product.nombre,
+            precio: product.precio,
+            precio_oferta: product.precio_oferta || null,
+            estado: product.estado,
+            descripcion: product.descripcion || '',
+            categoria_id: product.categoria_id,
+            marca_id: product.marca_id,
+            sku: product.sku,
+            garantia_meses: product.garantia_meses || 12,
+            destacado: product.destacado || false,
+            imagen_principal: product.imagen_principal
+        };
+        this.showModal = true;
+    }
+
+    closeModal(): void {
+        this.showModal = false;
+        this.editForm = {};
+    }
+
+    saveProduct(): void {
+        if (!this.editForm.nombre?.trim()) {
+            this.toast.warning('El nombre es obligatorio');
+            return;
+        }
+        const payload = {
+            nombre: this.editForm.nombre.trim(),
+            precio: Number(this.editForm.precio),
+            precio_oferta: this.editForm.precio_oferta ? Number(this.editForm.precio_oferta) : undefined,
+            estado: this.editForm.estado,
+            descripcion: this.editForm.descripcion,
+            categoria_id: this.editForm.categoria_id,
+            marca_id: this.editForm.marca_id,
+            sku: this.editForm.sku,
+            garantia_meses: Number(this.editForm.garantia_meses) || 12,
+            destacado: !!this.editForm.destacado,
+            imagen_principal: this.editForm.imagen_principal
+        };
+        this.productService.update(this.editForm.id, payload).subscribe({
+            next: () => {
+                this.toast.success('Producto actualizado');
+                this.closeModal();
+                this.loadData();
+            },
+            error: (err) => this.toast.error(err.error?.message || 'Error al actualizar producto')
+        });
     }
 
     toggleStatus(product: any): void {

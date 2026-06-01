@@ -3,6 +3,7 @@
 .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
 .admin-header h1 { font-size: 28px; font-weight: 800; }
 .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
 
 .search-box { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--white); border: 2px solid var(--gray-light); border-radius: var(--radius-sm); }
 .search-box input { border: none; outline: none; font-size: 14px; width: 180px; background: transparent; }

@@ -187,24 +187,6 @@ erDiagram
 
 ---
 
-## Cambios recientes (columnas, no tablas)
-
-### `direcciones`
-- `tipo`: `ENUM('domicilio', 'recojo_tienda')` — reemplaza valores antiguos `envio`, `facturacion`, `ambas`.
-- `dni_contacto`: obligatorio lógico para recojo en tienda.
-
-### `pedidos` (checkout / pago simulado)
-- `numero_pedido`: formato `PED-000001`.
-- `tipo_comprobante`, `comprobante_dni`, `comprobante_nombre`, `comprobante_ruc`, `comprobante_razon_social`, `comprobante_direccion_fiscal`.
-- `datos_pago` (JSON): Yape, Visa simulada, etc.
-- `estado_pago`, `es_pago_simulado`.
-- `metodo_pago`: `yape`, `tarjeta_credito`, `contra_entrega`.
-
-### `usuarios`
-- `username` VARCHAR(20) NOT NULL UNIQUE (login por email o username).
-
----
-
 ## Normalización
 
 | FN | Cumplimiento |

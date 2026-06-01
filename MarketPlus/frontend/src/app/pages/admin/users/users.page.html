@@ -46,12 +46,53 @@
                                 <span class="badge badge-{{ u.estado === 'activo' ? 'success' : 'danger' }}">{{ u.estado }}</span>
                             </td>
                             <td class="actions-cell">
-                                <button class="btn-icon btn-icon-edit"><span class="material-icons">edit</span></button>
-                                <button class="btn-icon btn-icon-delete"><span class="material-icons">block</span></button>
+                                <button type="button" class="btn-icon btn-icon-edit" (click)="openEdit(u)" title="Editar">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button type="button" class="btn-icon btn-icon-delete" (click)="toggleEstado(u)" title="Cambiar estado">
+                                    <span class="material-icons">block</span>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+        <div class="admin-modal" (click)="$event.stopPropagation()">
+            <h2>Editar usuario</h2>
+            <div class="form-group">
+                <label class="form-label">Nombres</label>
+                <input type="text" class="form-control" [(ngModel)]="editForm.nombres">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Apellidos</label>
+                <input type="text" class="form-control" [(ngModel)]="editForm.apellidos">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Telefono</label>
+                <input type="text" class="form-control" [(ngModel)]="editForm.telefono" maxlength="9">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Rol</label>
+                <select class="form-control" [(ngModel)]="editForm.role_id">
+                    <option [ngValue]="2">usuario</option>
+                    <option [ngValue]="1">admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Estado</label>
+                <select class="form-control" [(ngModel)]="editForm.estado">
+                    <option value="activo">activo</option>
+                    <option value="inactivo">inactivo</option>
+                    <option value="suspendido">suspendido</option>
+                </select>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" (click)="saveUser()">Guardar</button>
             </div>
         </div>
     </div>
