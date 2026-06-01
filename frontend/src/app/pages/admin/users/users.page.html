@@ -1,4 +1,4 @@
-<div class="admin-page">
+﻿<div class="admin-page">
     <app-sidebar></app-sidebar>
     <div class="admin-content">
         <div class="admin-header">
@@ -65,15 +65,21 @@
             <h2>Editar usuario</h2>
             <div class="form-group">
                 <label class="form-label">Nombres</label>
-                <input type="text" class="form-control" [(ngModel)]="editForm.nombres">
+                <input type="text" class="form-control" [(ngModel)]="editForm.nombres" maxlength="80"
+                       (input)="onLettersField('nombres', $event)">
+                <small class="field-error" *ngIf="showFieldError(nombresError)">{{ nombresError }}</small>
             </div>
             <div class="form-group">
                 <label class="form-label">Apellidos</label>
-                <input type="text" class="form-control" [(ngModel)]="editForm.apellidos">
+                <input type="text" class="form-control" [(ngModel)]="editForm.apellidos" maxlength="80"
+                       (input)="onLettersField('apellidos', $event)">
+                <small class="field-error" *ngIf="showFieldError(apellidosError)">{{ apellidosError }}</small>
             </div>
             <div class="form-group">
                 <label class="form-label">Telefono</label>
-                <input type="text" class="form-control" [(ngModel)]="editForm.telefono" maxlength="9">
+                <input type="text" class="form-control" [(ngModel)]="editForm.telefono" maxlength="9"
+                       inputmode="numeric" placeholder="999888777" (input)="onTelefonoInput($event)">
+                <small class="field-error" *ngIf="showFieldError(telefonoError)">{{ telefonoError }}</small>
             </div>
             <div class="form-group">
                 <label class="form-label">Rol</label>

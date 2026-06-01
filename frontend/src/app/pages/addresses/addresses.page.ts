@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { AddressService } from '../../services/address.service';
 import { ToastService } from '../../services/toast.service';
 import { Direccion } from '../../models/address.model';
@@ -9,6 +9,7 @@ import {
     TipoEntrega,
     isDni,
     isPhone,
+    onLettersInput,
     onNumericInput
 } from '../../utils/form-validation.util';
 
@@ -78,7 +79,7 @@ export class AddressesPage implements OnInit {
         if (!this.isDomicilioForm) return '';
         const v = (this.formData.departamento || '').trim();
         if (!v) return 'Departamento obligatorio';
-        if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(v)) return 'Solo letras y espacios';
+        if (!/^[A-Za-z├ü├ë├ì├ô├Ü├í├®├¡├│├║├æ├▒\s]+$/.test(v)) return 'Solo letras y espacios';
         return '';
     }
 
@@ -178,6 +179,14 @@ export class AddressesPage implements OnInit {
         if (field === 'dni_contacto') this.formData.dni_contacto = value;
     }
 
+    onLettersField(
+        field: 'destinatario' | 'departamento' | 'provincia' | 'distrito',
+        event: Event
+    ): void {
+        const value = onLettersInput(event, 80);
+        this.formData[field] = value;
+    }
+
     saveAddress(): void {
         this.submitted = true;
         const validationMsg = this.getFormValidationMessage();
@@ -201,7 +210,7 @@ export class AddressesPage implements OnInit {
     }
 
     deleteAddress(id: number): void {
-        if (!confirm('¿Deseas eliminar esta direccion de entrega?')) return;
+        if (!confirm('┬┐Deseas eliminar esta direccion de entrega?')) return;
         this.addressService.delete(id).subscribe({
             next: () => {
                 this.toast.success('Entrega eliminada');
@@ -231,7 +240,7 @@ export class AddressesPage implements OnInit {
 
     getFullAddress(addr: Direccion): string {
         if (addr.tipo === 'recojo_tienda') {
-            return `${this.tiendaInfo} — Recoge: ${addr.destinatario}`;
+            return `${this.tiendaInfo} ÔÇö Recoge: ${addr.destinatario}`;
         }
         const parts = [addr.direccion_linea1];
         if (addr.direccion_linea2) parts.push(addr.direccion_linea2);

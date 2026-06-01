@@ -1,4 +1,4 @@
-<div class="auth-page">
+﻿<div class="auth-page">
     <div class="auth-container auth-container-lg">
         <div class="auth-card animate-scale">
             <div class="auth-header">
@@ -23,7 +23,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="username" class="form-label">Nombre de usuario</label>
-                        <input id="username" #usernameCtrl="ngModel" type="text" [(ngModel)]="username" name="username" class="form-control" placeholder="usuario_123" required minlength="4" maxlength="20">
+                        <input id="username" #usernameCtrl="ngModel" type="text" [(ngModel)]="username" name="username" class="form-control" placeholder="usuario_123" required minlength="4" maxlength="20" (input)="onUsernameField($event)">
                         <small class="field-error" *ngIf="(usernameCtrl.touched || submitted) && usernameError">{{ usernameError }}</small>
                     </div>
                 </div>
@@ -31,12 +31,12 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nombres" class="form-label">Nombres</label>
-                        <input id="nombres" #nombresCtrl="ngModel" type="text" [(ngModel)]="nombres" name="nombres" class="form-control" placeholder="Tus nombres" required minlength="2">
+                        <input id="nombres" #nombresCtrl="ngModel" type="text" [(ngModel)]="nombres" name="nombres" class="form-control" placeholder="Tus nombres" required minlength="2" maxlength="80" (input)="onLettersInput('nombres', $event)">
                         <small class="field-error" *ngIf="(nombresCtrl.touched || submitted) && nombresError">{{ nombresError }}</small>
                     </div>
                     <div class="form-group">
                         <label for="apellidos" class="form-label">Apellidos</label>
-                        <input id="apellidos" #apellidosCtrl="ngModel" type="text" [(ngModel)]="apellidos" name="apellidos" class="form-control" placeholder="Tus apellidos" required minlength="2">
+                        <input id="apellidos" #apellidosCtrl="ngModel" type="text" [(ngModel)]="apellidos" name="apellidos" class="form-control" placeholder="Tus apellidos" required minlength="2" maxlength="80" (input)="onLettersInput('apellidos', $event)">
                         <small class="field-error" *ngIf="(apellidosCtrl.touched || submitted) && apellidosError">{{ apellidosError }}</small>
                     </div>
                 </div>
@@ -63,14 +63,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="password" class="form-label">Contraseña</label>
+                    <label for="password" class="form-label">Contrase├▒a</label>
                     <input id="password" #passwordCtrl="ngModel" type="password" [(ngModel)]="password" name="password" class="form-control" placeholder="Minimo 8 caracteres" required minlength="8">
                     <small class="field-error" *ngIf="(passwordCtrl.touched || submitted) && passwordError">{{ passwordError }}</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
-                    <input id="confirmPassword" #confirmPasswordCtrl="ngModel" type="password" [(ngModel)]="confirmPassword" name="confirmPassword" class="form-control" placeholder="Repite tu contraseña" required>
+                    <label for="confirmPassword" class="form-label">Confirmar Contrase├▒a</label>
+                    <input id="confirmPassword" #confirmPasswordCtrl="ngModel" type="password" [(ngModel)]="confirmPassword" name="confirmPassword" class="form-control" placeholder="Repite tu contrase├▒a" required>
                     <small class="field-error" *ngIf="(confirmPasswordCtrl.touched || submitted) && confirmPasswordError">{{ confirmPasswordError }}</small>
                 </div>
 
@@ -81,7 +81,7 @@
             </form>
 
             <div class="auth-footer">
-                <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia sesion</a></p>
+                <p>┬┐Ya tienes cuenta? <a routerLink="/login">Inicia sesion</a></p>
             </div>
         </div>
     </div>

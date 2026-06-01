@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+﻿const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require('../config/database');
 
@@ -12,25 +12,25 @@ const register = async (req, res) => {
 
         const [existingByUsername] = await pool.query('SELECT id FROM usuarios WHERE username = ?', [normalizedUsername]);
         if (existingByUsername.length > 0) {
-            return res.status(400).json({ success: false, message: 'El nombre de usuario ya está en uso' });
+            return res.status(400).json({ success: false, message: 'El nombre de usuario ya est├í en uso' });
         }
 
         const [existingByEmail] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [normalizedEmail]);
         if (existingByEmail.length > 0) {
-            return res.status(400).json({ success: false, message: 'El email ya está registrado' });
+            return res.status(400).json({ success: false, message: 'El email ya est├í registrado' });
         }
 
         if (normalizedDni) {
             const [existingByDni] = await pool.query('SELECT id FROM usuarios WHERE dni = ?', [normalizedDni]);
             if (existingByDni.length > 0) {
-                return res.status(400).json({ success: false, message: 'El DNI ya está registrado' });
+                return res.status(400).json({ success: false, message: 'El DNI ya est├í registrado' });
             }
         }
 
         if (normalizedTelefono) {
             const [existingByTelefono] = await pool.query('SELECT id FROM usuarios WHERE telefono = ?', [normalizedTelefono]);
             if (existingByTelefono.length > 0) {
-                return res.status(400).json({ success: false, message: 'El telefono ya está registrado' });
+                return res.status(400).json({ success: false, message: 'El telefono ya est├í registrado' });
             }
         }
 
@@ -106,7 +106,7 @@ const login = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Inicio de sesión exitoso',
+            message: 'Inicio de sesi├│n exitoso',
             data: {
                 id: user.id,
                 username: user.username,
@@ -119,7 +119,7 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al iniciar sesión', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al iniciar sesi├│n', error: error.message });
     }
 };
 
@@ -143,6 +143,11 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const { username, nombres, apellidos, telefono, dni } = req.body;
+
+        if (!nombres?.trim() || !apellidos?.trim()) {
+            return res.status(400).json({ success: false, message: 'Nombres y apellidos son obligatorios' });
+        }
+
         const normalizedUsername = username ? String(username).trim() : null;
         const normalizedTelefono = telefono ? String(telefono).trim() : null;
         const normalizedDni = dni ? String(dni).trim() : null;
@@ -150,19 +155,19 @@ const updateProfile = async (req, res) => {
         if (normalizedUsername) {
             const [existingUsername] = await pool.query('SELECT id FROM usuarios WHERE username = ? AND id <> ?', [normalizedUsername, req.user.id]);
             if (existingUsername.length > 0) {
-                return res.status(400).json({ success: false, message: 'El nombre de usuario ya está en uso' });
+                return res.status(400).json({ success: false, message: 'El nombre de usuario ya est├í en uso' });
             }
         }
         if (normalizedDni) {
             const [existingDni] = await pool.query('SELECT id FROM usuarios WHERE dni = ? AND id <> ?', [normalizedDni, req.user.id]);
             if (existingDni.length > 0) {
-                return res.status(400).json({ success: false, message: 'El DNI ya está registrado' });
+                return res.status(400).json({ success: false, message: 'El DNI ya est├í registrado' });
             }
         }
         if (normalizedTelefono) {
             const [existingTelefono] = await pool.query('SELECT id FROM usuarios WHERE telefono = ? AND id <> ?', [normalizedTelefono, req.user.id]);
             if (existingTelefono.length > 0) {
-                return res.status(400).json({ success: false, message: 'El telefono ya está registrado' });
+                return res.status(400).json({ success: false, message: 'El telefono ya est├í registrado' });
             }
         }
 
@@ -181,7 +186,7 @@ const forgotPassword = async (req, res) => {
         const { email } = req.body;
         const [users] = await pool.query('SELECT id, nombres, email FROM usuarios WHERE email = ?', [email]);
         if (users.length === 0) {
-            return res.json({ success: true, message: 'Si el email existe, recibirás instrucciones de recuperación' });
+            return res.json({ success: true, message: 'Si el email existe, recibir├ís instrucciones de recuperaci├│n' });
         }
 
         const crypto = require('node:crypto');
@@ -195,7 +200,7 @@ const forgotPassword = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Si el email existe, recibirás instrucciones de recuperación',
+            message: 'Si el email existe, recibir├ís instrucciones de recuperaci├│n',
             data: process.env.NODE_ENV === 'development' ? { resetToken: token } : undefined
         });
     } catch (error) {
@@ -207,14 +212,14 @@ const resetPassword = async (req, res) => {
     try {
         const { token, password } = req.body;
         if (!password || password.length < 8) {
-            return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 8 caracteres' });
+            return res.status(400).json({ success: false, message: 'La contrase├▒a debe tener al menos 8 caracteres' });
         }
         const [users] = await pool.query(
             'SELECT id FROM usuarios WHERE token_recuperacion = ? AND expiracion_token > NOW()',
             [token]
         );
         if (users.length === 0) {
-            return res.status(400).json({ success: false, message: 'Token inválido o expirado' });
+            return res.status(400).json({ success: false, message: 'Token inv├ílido o expirado' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -223,9 +228,9 @@ const resetPassword = async (req, res) => {
             [hashedPassword, users[0].id]
         );
 
-        res.json({ success: true, message: 'Contraseña actualizada exitosamente' });
+        res.json({ success: true, message: 'Contrase├▒a actualizada exitosamente' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al restablecer contraseña', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al restablecer contrase├▒a', error: error.message });
     }
 };
 
@@ -234,11 +239,11 @@ const changePassword = async (req, res) => {
         const { passwordActual, nuevaPassword } = req.body;
 
         if (!passwordActual || !nuevaPassword) {
-            return res.status(400).json({ success: false, message: 'Contraseñas requeridas' });
+            return res.status(400).json({ success: false, message: 'Contrase├▒as requeridas' });
         }
 
         if (nuevaPassword.length < 8) {
-            return res.status(400).json({ success: false, message: 'La nueva contraseña debe tener al menos 8 caracteres' });
+            return res.status(400).json({ success: false, message: 'La nueva contrase├▒a debe tener al menos 8 caracteres' });
         }
 
         const [users] = await pool.query('SELECT password FROM usuarios WHERE id = ?', [req.user.id]);
@@ -248,15 +253,15 @@ const changePassword = async (req, res) => {
 
         const validPassword = await bcrypt.compare(passwordActual, users[0].password);
         if (!validPassword) {
-            return res.status(401).json({ success: false, message: 'La contraseña actual es incorrecta' });
+            return res.status(401).json({ success: false, message: 'La contrase├▒a actual es incorrecta' });
         }
 
         const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
         await pool.query('UPDATE usuarios SET password = ? WHERE id = ?', [hashedPassword, req.user.id]);
 
-        res.json({ success: true, message: 'Contraseña cambiada exitosamente' });
+        res.json({ success: true, message: 'Contrase├▒a cambiada exitosamente' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al cambiar contraseña', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al cambiar contrase├▒a', error: error.message });
     }
 };
 

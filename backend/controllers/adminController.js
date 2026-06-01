@@ -1,4 +1,4 @@
-const { pool } = require('../config/database');
+﻿const { pool } = require('../config/database');
 
 const getDashboard = async (req, res) => {
     try {
@@ -46,6 +46,8 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+const NAME_REGEX = /^[A-Za-z├ü├ë├ì├ô├Ü├í├®├¡├│├║├æ├▒\s]+$/;
+
 const updateUser = async (req, res) => {
     try {
         const { nombres, apellidos, telefono, estado, role_id } = req.body;
@@ -53,16 +55,28 @@ const updateUser = async (req, res) => {
         const values = [];
 
         if (nombres !== undefined) {
+            const v = String(nombres).trim();
+            if (v.length < 2 || !NAME_REGEX.test(v)) {
+                return res.status(400).json({ success: false, message: 'Nombres invalidos (solo letras)' });
+            }
             fields.push('nombres = ?');
-            values.push(String(nombres).trim());
+            values.push(v);
         }
         if (apellidos !== undefined) {
+            const v = String(apellidos).trim();
+            if (v.length < 2 || !NAME_REGEX.test(v)) {
+                return res.status(400).json({ success: false, message: 'Apellidos invalidos (solo letras)' });
+            }
             fields.push('apellidos = ?');
-            values.push(String(apellidos).trim());
+            values.push(v);
         }
         if (telefono !== undefined) {
+            const v = telefono ? String(telefono).trim() : null;
+            if (v && !/^\d{9}$/.test(v)) {
+                return res.status(400).json({ success: false, message: 'El telefono debe tener exactamente 9 digitos' });
+            }
             fields.push('telefono = ?');
-            values.push(telefono ? String(telefono).trim() : null);
+            values.push(v);
         }
         if (estado !== undefined) {
             fields.push('estado = ?');

@@ -1,4 +1,4 @@
-export const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+﻿export const NAME_REGEX = /^[A-Za-z├ü├ë├ì├ô├Ü├í├®├¡├│├║├æ├▒\s]+$/;
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const USERNAME_REGEX = /^[a-zA-Z0-9._-]{4,20}$/;
 
@@ -18,11 +18,42 @@ export function digitsOnly(value: string, maxLength?: number): string {
     return maxLength ? digits.slice(0, maxLength) : digits;
 }
 
+export function lettersOnly(value: string, maxLength?: number): string {
+    const letters = String(value || '').replace(/[^A-Za-z├ü├ë├ì├ô├Ü├í├®├¡├│├║├æ├▒\s]/g, '');
+    return maxLength ? letters.slice(0, maxLength) : letters;
+}
+
+export function usernameOnly(value: string, maxLength = 20): string {
+    return String(value || '').replace(/[^a-zA-Z0-9._-]/g, '').slice(0, maxLength);
+}
+
 export function onNumericInput(event: Event, maxLength: number): string {
     const input = event.target as HTMLInputElement;
     const numeric = digitsOnly(input.value, maxLength);
     input.value = numeric;
     return numeric;
+}
+
+export function onLettersInput(event: Event, maxLength?: number): string {
+    const input = event.target as HTMLInputElement;
+    const cleaned = lettersOnly(input.value, maxLength);
+    input.value = cleaned;
+    return cleaned;
+}
+
+export function onUsernameInput(event: Event, maxLength = 20): string {
+    const input = event.target as HTMLInputElement;
+    const cleaned = usernameOnly(input.value, maxLength);
+    input.value = cleaned;
+    return cleaned;
+}
+
+export function lettersOnlyError(value: string, label: string, min = 2): string {
+    const v = String(value || '').trim();
+    if (!v) return `${label} es obligatorio`;
+    if (v.length < min) return `Minimo ${min} caracteres`;
+    if (!NAME_REGEX.test(v)) return 'Solo letras y espacios';
+    return '';
 }
 
 export function isDni(value: string): boolean {

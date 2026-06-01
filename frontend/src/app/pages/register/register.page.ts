@@ -1,6 +1,14 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import {
+    EMAIL_REGEX,
+    NAME_REGEX,
+    USERNAME_REGEX,
+    onLettersInput,
+    onNumericInput,
+    onUsernameInput
+} from '../../utils/form-validation.util';
 
 @Component({
     selector: 'app-register',
@@ -23,14 +31,10 @@ export class RegisterPage {
 
     constructor(private readonly auth: AuthService, private readonly router: Router) {}
 
-    private readonly nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-    private readonly usernameRegex = /^[a-zA-Z0-9._-]{4,20}$/;
-    private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     get usernameError(): string {
         const value = this.username.trim();
         if (!value) return 'El nombre de usuario es obligatorio';
-        if (!this.usernameRegex.test(value)) return 'Debe tener 4-20 caracteres y usar letras, numeros, punto, guion o guion bajo';
+        if (!USERNAME_REGEX.test(value)) return 'Debe tener 4-20 caracteres y usar letras, numeros, punto, guion o guion bajo';
         if (/^\d{8,15}$/.test(value)) return 'No uses DNI o telefono como nombre de usuario';
         return '';
     }
@@ -39,7 +43,7 @@ export class RegisterPage {
         const value = this.nombres.trim();
         if (!value) return 'Los nombres son obligatorios';
         if (value.length < 2) return 'Los nombres deben tener al menos 2 caracteres';
-        if (!this.nameRegex.test(value)) return 'Los nombres solo pueden contener letras y espacios';
+        if (!NAME_REGEX.test(value)) return 'Los nombres solo pueden contener letras y espacios';
         return '';
     }
 
@@ -47,14 +51,14 @@ export class RegisterPage {
         const value = this.apellidos.trim();
         if (!value) return 'Los apellidos son obligatorios';
         if (value.length < 2) return 'Los apellidos deben tener al menos 2 caracteres';
-        if (!this.nameRegex.test(value)) return 'Los apellidos solo pueden contener letras y espacios';
+        if (!NAME_REGEX.test(value)) return 'Los apellidos solo pueden contener letras y espacios';
         return '';
     }
 
     get emailError(): string {
         const value = this.email.trim();
         if (!value) return 'El email es obligatorio';
-        if (!this.emailRegex.test(value)) return 'Ingresa un email valido';
+        if (!EMAIL_REGEX.test(value)) return 'Ingresa un email valido';
         return '';
     }
 
@@ -73,14 +77,14 @@ export class RegisterPage {
     }
 
     get passwordError(): string {
-        if (!this.password) return 'La contraseña es obligatoria';
-        if (this.password.length < 8) return 'La contraseña debe tener al menos 8 caracteres';
+        if (!this.password) return 'La contrase├▒a es obligatoria';
+        if (this.password.length < 8) return 'La contrase├▒a debe tener al menos 8 caracteres';
         return '';
     }
 
     get confirmPasswordError(): string {
-        if (!this.confirmPassword) return 'Confirmar contraseña es obligatorio';
-        if (this.password !== this.confirmPassword) return 'Las contraseñas no coinciden';
+        if (!this.confirmPassword) return 'Confirmar contrase├▒a es obligatorio';
+        if (this.password !== this.confirmPassword) return 'Las contrase├▒as no coinciden';
         return '';
     }
 
@@ -124,11 +128,19 @@ export class RegisterPage {
     }
 
     onNumericInput(field: 'dni' | 'telefono', event: Event): void {
-        const input = event.target as HTMLInputElement;
         const max = field === 'dni' ? 8 : 9;
-        const numeric = input.value.replace(/\D/g, '').slice(0, max);
+        const numeric = onNumericInput(event, max);
         if (field === 'dni') this.dni = numeric;
         if (field === 'telefono') this.telefono = numeric;
-        input.value = numeric;
+    }
+
+    onLettersInput(field: 'nombres' | 'apellidos', event: Event): void {
+        const value = onLettersInput(event, 80);
+        if (field === 'nombres') this.nombres = value;
+        if (field === 'apellidos') this.apellidos = value;
+    }
+
+    onUsernameField(event: Event): void {
+        this.username = onUsernameInput(event, 20);
     }
 }

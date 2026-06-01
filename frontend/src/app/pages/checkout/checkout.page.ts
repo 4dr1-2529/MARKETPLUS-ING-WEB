@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
@@ -25,6 +25,8 @@ import {
     isPhone,
     isRuc,
     normalizeTipoEntrega,
+    lettersOnlyError,
+    onLettersInput,
     onNumericInput
 } from '../../utils/form-validation.util';
 
@@ -185,16 +187,8 @@ export class CheckoutPage implements OnInit {
         return normalizeTipoEntrega(this.newAddress.tipo) === 'domicilio';
     }
 
-    private lettersOnlyError(value: string, label: string, min = 2): string {
-        const v = value.trim();
-        if (!v) return `${label} es obligatorio`;
-        if (v.length < min) return `Minimo ${min} caracteres`;
-        if (!NAME_REGEX.test(v)) return 'Solo letras y espacios';
-        return '';
-    }
-
     get destinatarioError(): string {
-        return this.lettersOnlyError(this.newAddress.destinatario || '', 'El nombre', 3);
+        return lettersOnlyError(this.newAddress.destinatario || '', 'El nombre', 3);
     }
 
     get direccionError(): string {
@@ -207,17 +201,17 @@ export class CheckoutPage implements OnInit {
 
     get departamentoError(): string {
         if (!this.isDomicilioForm) return '';
-        return this.lettersOnlyError(this.newAddress.departamento || '', 'Departamento');
+        return lettersOnlyError(this.newAddress.departamento || '', 'Departamento');
     }
 
     get provinciaError(): string {
         if (!this.isDomicilioForm) return '';
-        return this.lettersOnlyError(this.newAddress.provincia || '', 'Provincia');
+        return lettersOnlyError(this.newAddress.provincia || '', 'Provincia');
     }
 
     get distritoError(): string {
         if (!this.isDomicilioForm) return '';
-        return this.lettersOnlyError(this.newAddress.distrito || '', 'Distrito');
+        return lettersOnlyError(this.newAddress.distrito || '', 'Distrito');
     }
 
     get telefonoAddressError(): string {
@@ -250,7 +244,7 @@ export class CheckoutPage implements OnInit {
 
     get comprobanteNombreError(): string {
         if (this.tipoComprobante !== 'boleta') return '';
-        return this.lettersOnlyError(this.comprobanteNombre, 'El nombre completo', 3);
+        return lettersOnlyError(this.comprobanteNombre, 'El nombre completo', 3);
     }
 
     get comprobanteDniError(): string {
@@ -313,7 +307,7 @@ export class CheckoutPage implements OnInit {
 
     get titularError(): string {
         if (!this.isVisa) return '';
-        return this.lettersOnlyError(this.paymentData.titular, 'Nombre del titular', 3);
+        return lettersOnlyError(this.paymentData.titular, 'Nombre del titular', 3);
     }
 
     get yapePhoneError(): string {
@@ -379,6 +373,19 @@ export class CheckoutPage implements OnInit {
         if (field === 'comprobanteRuc') this.comprobanteRuc = value;
         if (field === 'cvv') this.paymentData.cvv = value;
         if (field === 'telefono_yape') this.paymentData.telefono_yape = value;
+    }
+
+    onLettersField(
+        field: 'destinatario' | 'departamento' | 'provincia' | 'distrito' | 'comprobanteNombre' | 'titular',
+        event: Event
+    ): void {
+        const value = onLettersInput(event, 80);
+        if (field === 'destinatario') this.newAddress.destinatario = value;
+        if (field === 'departamento') this.newAddress.departamento = value;
+        if (field === 'provincia') this.newAddress.provincia = value;
+        if (field === 'distrito') this.newAddress.distrito = value;
+        if (field === 'comprobanteNombre') this.comprobanteNombre = value;
+        if (field === 'titular') this.paymentData.titular = value;
     }
 
     onExpiryInput(event: Event): void {
@@ -455,7 +462,7 @@ export class CheckoutPage implements OnInit {
         event.preventDefault();
         event.stopPropagation();
         if (!addr.id) return;
-        if (!confirm('¿Deseas eliminar esta dirección?')) return;
+        if (!confirm('┬┐Deseas eliminar esta direcci├│n?')) return;
 
         this.addressService.delete(addr.id).subscribe({
             next: () => {
@@ -472,7 +479,7 @@ export class CheckoutPage implements OnInit {
     getFullAddress(addr: Direccion): string {
         const tipo = normalizeTipoEntrega(addr.tipo);
         if (tipo === 'recojo_tienda') {
-            return `${this.tiendaInfo} Av. Junin 1234, Huancayo — Recoge: ${addr.destinatario}`;
+            return `${this.tiendaInfo} Av. Junin 1234, Huancayo ÔÇö Recoge: ${addr.destinatario}`;
         }
         return [addr.direccion_linea1, addr.distrito, addr.provincia, addr.departamento].filter(Boolean).join(', ');
     }
