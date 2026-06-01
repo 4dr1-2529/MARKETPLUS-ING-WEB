@@ -12,7 +12,7 @@ Plataforma e-commerce de productos tecnológicos (Angular + Node.js/Express + My
 
 ## Stack tecnológico
 
-- **Frontend:** Angular 21, TypeScript 5.9, RxJS
+- **Frontend:** Angular 17, TypeScript, RxJS
 - **Backend:** Node.js, Express, JWT, bcrypt
 - **Base de datos:** MySQL 8.0
 
@@ -27,7 +27,7 @@ MarketPlus/
 
 ## Requisitos previos
 
-- Node.js 24+ (requerido por el frontend; ver `frontend/package.json`)
+- Node.js 18+
 - npm 9+
 - MySQL 8.0+
 
