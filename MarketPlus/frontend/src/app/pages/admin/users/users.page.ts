@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../../services/admin.service';
 import { ToastService } from '../../../services/toast.service';
 import { getApiErrorMessage } from '../../../utils/api-error.util';
+import {
+    lettersOnlyError,
+    onLettersInput,
+    onNumericInput
+} from '../../../utils/form-validation.util';
 
 @Component({
     selector: 'app-admin-users',
@@ -12,6 +17,7 @@ export class AdminUsersPage implements OnInit {
     users: any[] = [];
     showModal = false;
     saving = false;
+    submitted = false;
     editForm: any = {};
 
     constructor(
@@ -31,6 +37,7 @@ export class AdminUsersPage implements OnInit {
     }
 
     openEdit(user: any): void {
+        this.submitted = false;
         this.editForm = {
             id: user.id,
             nombres: user.nombres,
@@ -44,23 +51,49 @@ export class AdminUsersPage implements OnInit {
 
     closeModal(): void {
         this.showModal = false;
+        this.submitted = false;
         this.editForm = {};
     }
 
+    get nombresError(): string {
+        return lettersOnlyError(this.editForm.nombres, 'Los nombres');
+    }
+
+    get apellidosError(): string {
+        return lettersOnlyError(this.editForm.apellidos, 'Los apellidos');
+    }
+
+    get telefonoError(): string {
+        const v = String(this.editForm.telefono || '').trim();
+        if (!v) return '';
+        if (!/^\d{9}$/.test(v)) return 'El telefono debe tener exactamente 9 digitos';
+        return '';
+    }
+
+    onLettersField(field: 'nombres' | 'apellidos', event: Event): void {
+        this.editForm[field] = onLettersInput(event, 80);
+    }
+
+    onTelefonoInput(event: Event): void {
+        this.editForm.telefono = onNumericInput(event, 9);
+    }
+
+    showFieldError(error: string): boolean {
+        return this.submitted && !!error;
+    }
+
     saveUser(): void {
-        if (!this.editForm.nombres?.trim() || !this.editForm.apellidos?.trim()) {
-            this.toast.warning('Nombre y apellidos son obligatorios');
+        this.submitted = true;
+        if (this.nombresError || this.apellidosError || this.telefonoError) {
+            this.toast.warning(this.nombresError || this.apellidosError || this.telefonoError);
             return;
         }
-        const telefono = this.editForm.telefono?.trim();
-        if (telefono && !/^\d{9}$/.test(telefono)) {
-            this.toast.warning('El telefono debe tener 9 digitos');
-            return;
-        }
+
+        const telefono = String(this.editForm.telefono || '').trim();
         this.saving = true;
         this.adminService.updateUser(this.editForm.id, {
-            nombres: this.editForm.nombres.trim(),
-            apellidos: this.editForm.apellidos.trim(),
+            nombres: String(this.editForm.nombres).trim(),
+            apellidos: String(this.editForm.apellidos).trim(),
             telefono: telefono || null,
             estado: this.editForm.estado,
             role_id: Number(this.editForm.role_id)

@@ -80,7 +80,7 @@
                 <div *ngIf="isDomicilioForm">
                     <div class="form-group">
                         <label for="destinatarioAddr" class="form-label">Destinatario *</label>
-                        <input id="destinatarioAddr" type="text" [(ngModel)]="formData.destinatario" class="form-control" placeholder="Nombre completo">
+                        <input id="destinatarioAddr" type="text" [(ngModel)]="formData.destinatario" class="form-control" placeholder="Nombre completo" maxlength="80" (input)="onLettersField('destinatario', $event)">
                         <small class="field-error" *ngIf="showError(destinatarioError)">{{ destinatarioError }}</small>
                     </div>
                     <div class="form-group">
@@ -91,19 +91,19 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="departamentoAddr" class="form-label">Departamento *</label>
-                            <input id="departamentoAddr" type="text" [(ngModel)]="formData.departamento" class="form-control" placeholder="Ej. Junin">
+                            <input id="departamentoAddr" type="text" [(ngModel)]="formData.departamento" class="form-control" placeholder="Ej. Junin" maxlength="60" (input)="onLettersField('departamento', $event)">
                             <small class="field-error" *ngIf="showError(departamentoError)">{{ departamentoError }}</small>
                         </div>
                         <div class="form-group">
                             <label for="provinciaAddr" class="form-label">Provincia *</label>
-                            <input id="provinciaAddr" type="text" [(ngModel)]="formData.provincia" class="form-control" placeholder="Huancayo">
+                            <input id="provinciaAddr" type="text" [(ngModel)]="formData.provincia" class="form-control" placeholder="Huancayo" maxlength="60" (input)="onLettersField('provincia', $event)">
                             <small class="field-error" *ngIf="showError(provinciaError)">{{ provinciaError }}</small>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="distritoAddr" class="form-label">Distrito *</label>
-                            <input id="distritoAddr" type="text" [(ngModel)]="formData.distrito" class="form-control" placeholder="El Tambo">
+                            <input id="distritoAddr" type="text" [(ngModel)]="formData.distrito" class="form-control" placeholder="El Tambo" maxlength="60" (input)="onLettersField('distrito', $event)">
                             <small class="field-error" *ngIf="showError(distritoError)">{{ distritoError }}</small>
                         </div>
                         <div class="form-group">
@@ -126,7 +126,7 @@
                     </div>
                     <div class="form-group">
                         <label for="recogeNombreAddr" class="form-label">Nombre de quien recoge *</label>
-                        <input id="recogeNombreAddr" type="text" [(ngModel)]="formData.destinatario" class="form-control" placeholder="Nombre completo">
+                        <input id="recogeNombreAddr" type="text" [(ngModel)]="formData.destinatario" class="form-control" placeholder="Nombre completo" maxlength="80" (input)="onLettersField('destinatario', $event)">
                         <small class="field-error" *ngIf="showError(destinatarioError)">{{ destinatarioError }}</small>
                     </div>
                     <div class="form-row">

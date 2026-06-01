@@ -102,15 +102,20 @@ const validateResetPassword = (req, res, next) => {
 };
 
 const validateProfileUpdate = (req, res, next) => {
-    const { username, nombres, apellidos, dni, telefono } = req.body;
-    if (username && !USERNAME_REGEX.test(String(username).trim())) {
+    const { username, nombres, apellidos } = req.body;
+    const dni = req.body.dni != null && req.body.dni !== '' ? String(req.body.dni).trim() : null;
+    const telefono = req.body.telefono != null && req.body.telefono !== '' ? String(req.body.telefono).trim() : null;
+    req.body.dni = dni;
+    req.body.telefono = telefono;
+
+    if (username != null && String(username).trim() !== '' && !USERNAME_REGEX.test(String(username).trim())) {
         return res.status(400).json({ success: false, message: 'Nombre de usuario invalido' });
     }
-    if (nombres && (nombres.trim().length < 2 || !NAME_REGEX.test(nombres.trim()))) {
-        return res.status(400).json({ success: false, message: 'Nombres invalidos' });
+    if (nombres !== undefined && (!String(nombres).trim() || String(nombres).trim().length < 2 || !NAME_REGEX.test(String(nombres).trim()))) {
+        return res.status(400).json({ success: false, message: 'Nombres invalidos (solo letras, minimo 2 caracteres)' });
     }
-    if (apellidos && (apellidos.trim().length < 2 || !NAME_REGEX.test(apellidos.trim()))) {
-        return res.status(400).json({ success: false, message: 'Apellidos invalidos' });
+    if (apellidos !== undefined && (!String(apellidos).trim() || String(apellidos).trim().length < 2 || !NAME_REGEX.test(String(apellidos).trim()))) {
+        return res.status(400).json({ success: false, message: 'Apellidos invalidos (solo letras, minimo 2 caracteres)' });
     }
     if (dni && !/^\d{8}$/.test(dni)) {
         return res.status(400).json({ success: false, message: 'El DNI debe tener exactamente 8 digitos' });

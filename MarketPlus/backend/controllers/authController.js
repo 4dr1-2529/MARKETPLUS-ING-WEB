@@ -143,6 +143,11 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const { username, nombres, apellidos, telefono, dni } = req.body;
+
+        if (!nombres?.trim() || !apellidos?.trim()) {
+            return res.status(400).json({ success: false, message: 'Nombres y apellidos son obligatorios' });
+        }
+
         const normalizedUsername = username ? String(username).trim() : null;
         const normalizedTelefono = telefono ? String(telefono).trim() : null;
         const normalizedDni = dni ? String(dni).trim() : null;

@@ -9,6 +9,7 @@ import {
     TipoEntrega,
     isDni,
     isPhone,
+    onLettersInput,
     onNumericInput
 } from '../../utils/form-validation.util';
 
@@ -176,6 +177,14 @@ export class AddressesPage implements OnInit {
         const value = onNumericInput(event, field === 'dni_contacto' ? 8 : 9);
         if (field === 'telefono') this.formData.telefono = value;
         if (field === 'dni_contacto') this.formData.dni_contacto = value;
+    }
+
+    onLettersField(
+        field: 'destinatario' | 'departamento' | 'provincia' | 'distrito',
+        event: Event
+    ): void {
+        const value = onLettersInput(event, 80);
+        this.formData[field] = value;
     }
 
     saveAddress(): void {

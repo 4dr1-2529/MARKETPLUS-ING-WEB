@@ -23,7 +23,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="username" class="form-label">Nombre de usuario</label>
-                        <input id="username" #usernameCtrl="ngModel" type="text" [(ngModel)]="username" name="username" class="form-control" placeholder="usuario_123" required minlength="4" maxlength="20">
+                        <input id="username" #usernameCtrl="ngModel" type="text" [(ngModel)]="username" name="username" class="form-control" placeholder="usuario_123" required minlength="4" maxlength="20" (input)="onUsernameField($event)">
                         <small class="field-error" *ngIf="(usernameCtrl.touched || submitted) && usernameError">{{ usernameError }}</small>
                     </div>
                 </div>
@@ -31,12 +31,12 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nombres" class="form-label">Nombres</label>
-                        <input id="nombres" #nombresCtrl="ngModel" type="text" [(ngModel)]="nombres" name="nombres" class="form-control" placeholder="Tus nombres" required minlength="2">
+                        <input id="nombres" #nombresCtrl="ngModel" type="text" [(ngModel)]="nombres" name="nombres" class="form-control" placeholder="Tus nombres" required minlength="2" maxlength="80" (input)="onLettersInput('nombres', $event)">
                         <small class="field-error" *ngIf="(nombresCtrl.touched || submitted) && nombresError">{{ nombresError }}</small>
                     </div>
                     <div class="form-group">
                         <label for="apellidos" class="form-label">Apellidos</label>
-                        <input id="apellidos" #apellidosCtrl="ngModel" type="text" [(ngModel)]="apellidos" name="apellidos" class="form-control" placeholder="Tus apellidos" required minlength="2">
+                        <input id="apellidos" #apellidosCtrl="ngModel" type="text" [(ngModel)]="apellidos" name="apellidos" class="form-control" placeholder="Tus apellidos" required minlength="2" maxlength="80" (input)="onLettersInput('apellidos', $event)">
                         <small class="field-error" *ngIf="(apellidosCtrl.touched || submitted) && apellidosError">{{ apellidosError }}</small>
                     </div>
                 </div>

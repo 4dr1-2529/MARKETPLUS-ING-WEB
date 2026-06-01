@@ -31,24 +31,34 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Nombres</label>
-                    <input type="text" [(ngModel)]="formData.nombres" class="form-control">
+                    <input type="text" [(ngModel)]="formData.nombres" class="form-control" maxlength="80"
+                           placeholder="Solo letras" (input)="onLettersField('nombres', $event)">
+                    <small class="field-error" *ngIf="showFieldError(nombresError)">{{ nombresError }}</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Apellidos</label>
-                    <input type="text" [(ngModel)]="formData.apellidos" class="form-control">
+                    <input type="text" [(ngModel)]="formData.apellidos" class="form-control" maxlength="80"
+                           placeholder="Solo letras" (input)="onLettersField('apellidos', $event)">
+                    <small class="field-error" *ngIf="showFieldError(apellidosError)">{{ apellidosError }}</small>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Telefono</label>
-                    <input type="text" [(ngModel)]="formData.telefono" class="form-control">
+                    <input type="text" [(ngModel)]="formData.telefono" class="form-control" maxlength="9"
+                           inputmode="numeric" placeholder="999888777" (input)="onNumericField('telefono', $event)">
+                    <small class="field-error" *ngIf="showFieldError(telefonoError)">{{ telefonoError }}</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">DNI</label>
-                    <input type="text" [(ngModel)]="formData.dni" class="form-control">
+                    <input type="text" [(ngModel)]="formData.dni" class="form-control" maxlength="8"
+                           inputmode="numeric" placeholder="12345678" (input)="onNumericField('dni', $event)">
+                    <small class="field-error" *ngIf="showFieldError(dniError)">{{ dniError }}</small>
                 </div>
             </div>
-            <button (click)="saveProfile()" class="btn btn-primary">Guardar Cambios</button>
+            <button (click)="saveProfile()" class="btn btn-primary" [disabled]="profileSaving">
+                {{ profileSaving ? 'Guardando...' : 'Guardar Cambios' }}
+            </button>
         </div>
 
         <div class="profile-info" *ngIf="!editing">
@@ -105,7 +115,7 @@
                 <input type="password"
                        [(ngModel)]="passwordData.nuevaPassword"
                        class="form-control"
-                       placeholder="Minimo 6 caracteres">
+                       placeholder="Minimo 8 caracteres">
                 <div *ngIf="passwordData.nuevaPassword" class="password-strength">
                     <div class="strength-bar" [class]="getPasswordStrength(passwordData.nuevaPassword)">
                         <div class="strength-fill"></div>
