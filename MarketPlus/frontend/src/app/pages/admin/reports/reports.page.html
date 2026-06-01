@@ -115,7 +115,7 @@
                 </div>
 
                 <div class="admin-card">
-                    <h2>Productos con Stock Bajo</h2>
+                    <h2>Productos agotados</h2>
                     <div class="report-list">
                         <div class="report-item warning" *ngFor="let product of reports.lowStockProducts">
                             <div class="report-info">
@@ -124,7 +124,7 @@
                             </div>
                             <div class="stock-badge" [class.critical]="product.stock <= 0">
                                 <span class="material-icons">{{ product.stock <= 0 ? 'error' : 'warning' }}</span>
-                                <span>{{ product.stock }} / {{ product.stock_minimo }}</span>
+                                <span>{{ product.stock }} uds.</span>
                             </div>
                         </div>
                         <div class="empty-state" *ngIf="!reports.lowStockProducts?.length">

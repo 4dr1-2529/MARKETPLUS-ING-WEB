@@ -52,8 +52,8 @@
                             <td>{{ p.marca }}</td>
                             <td class="price-cell">S/ {{ (p.precio_oferta || p.precio) | number:'1.2-2' }}</td>
                             <td>
-                                <span class="stock-badge" [class]="getStockBadge(p.stock, p.stock_minimo)">
-                                    {{ p.stock }} - {{ getStockLabel(p.stock, p.stock_minimo) }}
+                                <span class="stock-badge" [class]="getStockBadge(p.stock)">
+                                    {{ p.stock }} — {{ getStockLabel(p.stock) }}
                                 </span>
                             </td>
                             <td>

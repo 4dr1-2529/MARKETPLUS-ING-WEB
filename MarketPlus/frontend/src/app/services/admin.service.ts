@@ -29,7 +29,7 @@ export class AdminService {
         return this.http.put<{ success: boolean; message: string }>(`${this.apiUrl}/admin/inventory/${id}`, data);
     }
 
-    updateInventoryBatch(items: { producto_id: number; stock: number; stock_minimo: number; stock_maximo?: number }[]): Observable<{ success: boolean; message: string; data?: { updated: number } }> {
+    updateInventoryBatch(items: { producto_id: number; stock: number }[]): Observable<{ success: boolean; message: string; data?: { updated: number } }> {
         return this.http.put<{ success: boolean; message: string; data?: { updated: number } }>(
             `${this.apiUrl}/admin/inventory/batch`,
             { items }

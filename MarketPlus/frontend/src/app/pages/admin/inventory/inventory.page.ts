@@ -13,9 +13,8 @@ export class AdminInventoryPage implements OnInit {
     loading = true;
     searchQuery = '';
     filteredInventory: any[] = [];
-    lowStockOnly = false;
+    outOfStockOnly = false;
     stockOkCount = 0;
-    stockLowCount = 0;
     stockOutCount = 0;
     saving = false;
 
@@ -29,15 +28,10 @@ export class AdminInventoryPage implements OnInit {
         this.loading = true;
         this.adminService.getInventory().subscribe({
             next: (res) => {
-                this.inventory = (res.data || []).map((item: any) => {
-                    const row = { ...item };
-                    const stock = Number(row.stock) || 0;
-                    const max = Number(row.stock_maximo) || 0;
-                    if (max < stock) {
-                        row.stock_maximo = stock;
-                    }
-                    return row;
-                });
+                this.inventory = (res.data || []).map((item: any) => ({
+                    ...item,
+                    stock: Math.max(0, Number(item.stock) || 0)
+                }));
                 this.updateCounts();
                 this.applyFilters();
                 this.loading = false;
@@ -47,15 +41,14 @@ export class AdminInventoryPage implements OnInit {
     }
 
     updateCounts(): void {
-        this.stockOkCount = this.inventory.filter(i => i.stock > i.stock_minimo).length;
-        this.stockLowCount = this.inventory.filter(i => i.stock > 0 && i.stock <= i.stock_minimo).length;
+        this.stockOkCount = this.inventory.filter(i => i.stock > 0).length;
         this.stockOutCount = this.inventory.filter(i => i.stock <= 0).length;
     }
 
     applyFilters(): void {
         let items = [...this.inventory];
-        if (this.lowStockOnly) {
-            items = items.filter(i => i.stock <= i.stock_minimo);
+        if (this.outOfStockOnly) {
+            items = items.filter(i => i.stock <= 0);
         }
         if (this.searchQuery.trim()) {
             const q = this.searchQuery.toLowerCase();
@@ -69,43 +62,11 @@ export class AdminInventoryPage implements OnInit {
         this.filteredInventory = items;
     }
 
-    private normalizeItemStock(item: any): void {
-        item.stock = Math.max(0, Number(item.stock) || 0);
-        item.stock_minimo = Math.max(0, Number(item.stock_minimo) || 0);
-        item.stock_maximo = Math.max(0, Number(item.stock_maximo) || 0);
-        if (item.stock_maximo > 0 && item.stock > item.stock_maximo) {
-            item.stock_maximo = item.stock;
-        }
-    }
-
-    private toPayload(item: any): { producto_id: number; stock: number; stock_minimo: number; stock_maximo: number } {
-        this.normalizeItemStock(item);
+    private toPayload(item: any): { producto_id: number; stock: number } {
         return {
             producto_id: item.producto_id,
-            stock: item.stock,
-            stock_minimo: item.stock_minimo,
-            stock_maximo: item.stock_maximo
+            stock: Math.max(0, Number(item.stock) || 0)
         };
-    }
-
-    updateStock(id: number, stock: number, min: number): void {
-        const item = this.inventory.find(i => i.producto_id === id);
-        if (!item) return;
-        item.stock = stock;
-        item.stock_minimo = min;
-        const payload = this.toPayload(item);
-        this.adminService.updateInventory(id, payload).subscribe({
-            next: () => {
-                if (item) {
-                    item.stock = payload.stock;
-                    item.stock_minimo = payload.stock_minimo;
-                    item.stock_maximo = payload.stock_maximo;
-                }
-                this.updateCounts();
-                this.applyFilters();
-            },
-            error: (err) => this.toast.error(err.error?.message || 'Error al actualizar fila')
-        });
     }
 
     saveAllInventory(): void {
@@ -130,20 +91,14 @@ export class AdminInventoryPage implements OnInit {
     }
 
     getStockStatus(item: any): string {
-        if (item.stock <= 0) return 'agotado';
-        if (item.stock <= item.stock_minimo) return 'bajo';
-        return 'ok';
+        return item.stock <= 0 ? 'agotado' : 'ok';
     }
 
     getStockBadgeClass(status: string): string {
-        if (status === 'agotado') return 'badge-danger';
-        if (status === 'bajo') return 'badge-warning';
-        return 'badge-success';
+        return status === 'agotado' ? 'badge-danger' : 'badge-success';
     }
 
     getStockLabel(status: string): string {
-        if (status === 'agotado') return 'Agotado';
-        if (status === 'bajo') return 'Stock Bajo';
-        return 'Disponible';
+        return status === 'agotado' ? 'Agotado' : 'Disponible';
     }
 }
