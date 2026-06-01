@@ -10,7 +10,22 @@ const getAddresses = async (req, res) => {
         );
         res.json({ success: true, data: addresses });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al obtener direcciones', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al obtener direcciones' });
+    }
+};
+
+const getAddressById = async (req, res) => {
+    try {
+        const [addresses] = await req.app.locals.pool.query(
+            'SELECT * FROM direcciones WHERE id = ? AND usuario_id = ? LIMIT 1',
+            [req.params.id, req.user.id]
+        );
+        if (addresses.length === 0) {
+            return res.status(404).json({ success: false, message: 'Direccion no encontrada' });
+        }
+        res.json({ success: true, data: addresses[0] });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener direccion' });
     }
 };
 
@@ -25,7 +40,7 @@ const createAddress = async (req, res) => {
 
         res.status(201).json({ success: true, message: 'Direccion creada exitosamente', data: { id: result.insertId } });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al crear direccion', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al crear direccion' });
     }
 };
 
@@ -40,7 +55,7 @@ const updateAddress = async (req, res) => {
 
         res.json({ success: true, message: 'Direccion actualizada exitosamente' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al actualizar direccion', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al actualizar direccion' });
     }
 };
 
@@ -49,7 +64,7 @@ const deleteAddress = async (req, res) => {
         await req.app.locals.pool.query('DELETE FROM direcciones WHERE id = ? AND usuario_id = ?', [req.params.id, req.user.id]);
         res.json({ success: true, message: 'Direccion eliminada exitosamente' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al eliminar direccion', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al eliminar direccion' });
     }
 };
 
@@ -59,11 +74,12 @@ const setPrimary = async (req, res) => {
         await req.app.locals.pool.query('UPDATE direcciones SET es_principal = TRUE WHERE id = ? AND usuario_id = ?', [req.params.id, req.user.id]);
         res.json({ success: true, message: 'Direccion principal actualizada' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al actualizar direccion principal', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al actualizar direccion principal' });
     }
 };
 
 router.get('/', authMiddleware, getAddresses);
+router.get('/:id', authMiddleware, getAddressById);
 router.post('/', authMiddleware, createAddress);
 router.put('/:id', authMiddleware, updateAddress);
 router.delete('/:id', authMiddleware, deleteAddress);

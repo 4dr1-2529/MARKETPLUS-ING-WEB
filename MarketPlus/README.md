@@ -164,7 +164,7 @@ cp .env.example .env
 
 **Archivo .env:**
 ```env
-PORT=3000
+PORT=3001
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=tu_password
@@ -202,16 +202,16 @@ npm run dev
 
 ### Acceder a la Aplicacion
 - **Frontend:** http://localhost:2626
-- **Backend API:** http://localhost:3000/api
+- **Backend API:** http://localhost:3001/api
 
 ## Credenciales de Prueba
 
 ### Administrador
-- **Email:** admin@marketplus.com
+- **Email:** admin@marketplus.pe
 - **Contraseña:** 12345678
 
 ### Usuario
-- **Email:** usuario@marketplus.com
+- **Email:** carlos.rodriguez@gmail.com
 - **Contraseña:** 12345678
 
 ## API REST Endpoints
@@ -252,8 +252,8 @@ npm run dev
 | POST | `/api/orders` | Crear pedido | Si |
 | GET | `/api/orders/my-orders` | Mis pedidos | Si |
 | GET | `/api/orders/:numero` | Detalle de pedido | Si |
-| GET | `/api/orders` | Todos los pedidos | Admin |
-| PUT | `/api/orders/:id/status` | Actualizar estado | Admin |
+| GET | `/api/orders/admin/all` | Todos los pedidos | Admin |
+| PUT | `/api/orders/admin/:id/status` | Actualizar estado | Admin |
 
 ### Direcciones
 | Metodo | Ruta | Descripcion | Auth |

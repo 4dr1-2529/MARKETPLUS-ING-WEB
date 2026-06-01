@@ -38,7 +38,7 @@ export class CheckoutPage implements OnInit {
 
     showAddressModal = false;
     newAddress: Partial<Direccion> = {
-        tipo: 'casa',
+        tipo: 'envio',
         destinatario: '',
         direccion_linea1: '',
         direccion_linea2: '',
@@ -109,7 +109,7 @@ export class CheckoutPage implements OnInit {
                 this.cuponValidando = false;
                 if (res.success && res.data) {
                     this.cuponAplicado = true;
-                    this.cuponDescuento = res.data.descuento;
+                    this.cuponDescuento = res.data.discount ?? res.data.descuento ?? 0;
                     this.toast.success('Cupon aplicado: -S/ ' + this.cuponDescuento.toFixed(2));
                 } else {
                     this.toast.warning(res.message || 'Cupon no valido');
@@ -131,7 +131,7 @@ export class CheckoutPage implements OnInit {
 
     openAddressModal(): void {
         this.newAddress = {
-            tipo: 'casa',
+            tipo: 'envio',
             destinatario: '',
             direccion_linea1: '',
             direccion_linea2: '',

@@ -17,7 +17,11 @@ const getAll = async (req, res) => {
 
 const validate = async (req, res) => {
     try {
-        const { codigo, subtotal } = req.body;
+        const codigo = req.body.codigo || req.body.code;
+        const subtotal = Number(req.body.subtotal || 0);
+        if (!codigo) {
+            return res.status(400).json({ success: false, message: 'Codigo de cupon requerido' });
+        }
         
         const [coupons] = await pool.query(
             "SELECT * FROM cupones WHERE codigo = ? AND estado = 'activo' AND CURDATE() BETWEEN fecha_inicio AND fecha_fin",
@@ -53,15 +57,24 @@ const validate = async (req, res) => {
             success: true, 
             data: { 
                 coupon: { codigo: coupon.codigo, descripcion: coupon.descripcion, tipo: coupon.tipo, valor: coupon.valor },
-                discount: parseFloat(discount.toFixed(2))
+                discount: parseFloat(discount.toFixed(2)),
+                descuento: parseFloat(discount.toFixed(2)),
+                total: parseFloat((subtotal - discount).toFixed(2))
             } 
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al validar cupon', error: error.message });
+        res.status(500).json({ success: false, message: 'Error al validar cupon' });
     }
+};
+
+const apply = async (req, res) => {
+    // Backward-compatible alias expected by older frontend service.
+    req.body = { ...req.body, subtotal: req.body.subtotal || 0 };
+    return validate(req, res);
 };
 
 router.get('/', getAll);
 router.post('/validate', authMiddleware, validate);
+router.post('/apply', authMiddleware, apply);
 
 module.exports = router;

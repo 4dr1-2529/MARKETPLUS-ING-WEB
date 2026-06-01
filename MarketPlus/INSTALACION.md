@@ -129,8 +129,8 @@ Deberias ver:
 ========================================
   MARKETPLUS API - Backend Server
 ========================================
-  Puerto: 3000
-  URL: http://localhost:3000
+  Puerto: 3001
+  URL: http://localhost:3001
 ========================================
 ```
 
@@ -168,8 +168,8 @@ Deberias ver:
 ## URLS
 
 - Frontend: http://localhost:2626
-- Backend API: http://localhost:3000
-- API Docs: http://localhost:3000/api/products (probar en navegador)
+- Backend API: http://localhost:3001
+- API Docs: http://localhost:3001/api/products (probar en navegador)
 
 ---
 

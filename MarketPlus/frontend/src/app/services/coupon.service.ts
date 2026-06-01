@@ -14,10 +14,10 @@ export class CouponService {
         return this.http.get<{ success: boolean; data: Cupon[] }>(`${this.apiUrl}/coupons`);
     }
 
-    validate(code: string, subtotal: number): Observable<{ success: boolean; message: string; data?: { descuento: number; total: number } }> {
-        return this.http.post<{ success: boolean; message: string; data?: { descuento: number; total: number } }>(
+    validate(code: string, subtotal: number): Observable<{ success: boolean; message: string; data?: { descuento: number; discount: number; total: number } }> {
+        return this.http.post<{ success: boolean; message: string; data?: { descuento: number; discount: number; total: number } }>(
             `${this.apiUrl}/coupons/validate`,
-            { code, subtotal }
+            { codigo: code, subtotal }
         );
     }
 

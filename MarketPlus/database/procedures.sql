@@ -21,6 +21,7 @@ BEGIN
     DECLARE v_costo_envio DECIMAL(10,2);
     DECLARE v_total DECIMAL(10,2);
     DECLARE v_numero_pedido VARCHAR(50);
+    DECLARE v_pedido_id INT;
     DECLARE v_item_id INT;
     DECLARE v_producto_id INT;
     DECLARE v_cantidad INT;
@@ -65,7 +66,7 @@ BEGIN
     INSERT INTO pedidos (usuario_id, numero_pedido, direccion_envio_id, subtotal, descuento, igv, costo_envio, total, estado, metodo_pago, notas)
     VALUES (p_usuario_id, v_numero_pedido, p_direccion_id, v_subtotal, v_descuento, v_igv, v_costo_envio, v_total, 'pendiente', p_metodo_pago, p_notas);
 
-    SET v_item_id = LAST_INSERT_ID();
+    SET v_pedido_id = LAST_INSERT_ID();
 
     OPEN cur_items;
     read_loop: LOOP
@@ -75,7 +76,7 @@ BEGIN
         SET v_subtotal_item = v_cantidad * v_precio;
 
         INSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, precio_unitario, subtotal)
-        VALUES (v_item_id, v_producto_id, v_cantidad, v_precio, v_subtotal_item);
+        VALUES (v_pedido_id, v_producto_id, v_cantidad, v_precio, v_subtotal_item);
 
         UPDATE productos SET ventas = ventas + v_cantidad WHERE id = v_producto_id;
         UPDATE inventario SET stock = stock - v_cantidad WHERE producto_id = v_producto_id;
@@ -85,11 +86,11 @@ BEGIN
     DELETE FROM detalle_carrito WHERE carrito_id = v_carrito_id;
 
     INSERT INTO historial_pedidos (pedido_id, estado_nuevo, comentario, realizado_por)
-    VALUES (v_item_id, 'pendiente', 'Pedido creado', p_usuario_id);
+    VALUES (v_pedido_id, 'pendiente', 'Pedido creado', p_usuario_id);
 
     COMMIT;
 
-    SELECT v_item_id as pedido_id, v_numero_pedido as numero_pedido, v_total as total;
+    SELECT v_pedido_id as pedido_id, v_numero_pedido as numero_pedido, v_total as total;
 END //
 
 DELIMITER ;
